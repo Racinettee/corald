@@ -2,7 +2,7 @@
 	"name": "corald",
 	"description": "A minimal D application.",
 	"copyright": "Copyright © 2016, steve",
-	"authors": ["steve"],
+	"authors": ["Racinettee"],
 	"dependencies": {
 		"gtk-d": "~>3.3.1",
 		"gtk-d:sv": "~>3.3.1"
