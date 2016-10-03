@@ -7,7 +7,10 @@ import gtk.Builder;
 import gtk.MenuBar;
 import gtk.Notebook;
 import gtk.VBox;
+import gtk.ScrolledWindow;
 import gsv.SourceView;
+
+import coral.TabLabel;
 
 class AppWindow : MainWindow
 {
@@ -29,7 +32,7 @@ class AppWindow : MainWindow
 		vbox.packEnd(notebook, true, true, 0);
 		add(vbox);
 
-		notebook.
+		notebook.appendPage(new ScrolledWindow, )
 
 		showAll();
 	}

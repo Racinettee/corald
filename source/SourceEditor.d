@@ -8,6 +8,8 @@ class SourceEditor : ScrolledWindow
 	this()
 	{
 		editor = new SourceView();
+		add(editor);
+		showAll();
 	}
 	SourceView editor;
 }
