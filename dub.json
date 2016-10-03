@@ -1,0 +1,10 @@
+{
+	"name": "corald",
+	"description": "A minimal D application.",
+	"copyright": "Copyright © 2016, steve",
+	"authors": ["steve"],
+	"dependencies": {
+		"gtk-d": "~>3.3.1",
+		"gtk-d:sv": "~>3.3.1"
+	}
+}
