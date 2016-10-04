@@ -4,6 +4,8 @@ import gtk.Box;
 import gtk.Button;
 import gtk.Widget;
 import gtk.Label;
+import gtk.Image;
+import gtkc.gtktypes : StockID;
 import gtkc.gtktypes : GtkOrientation;
 import gtkc.gtktypes : GtkReliefStyle;
 
@@ -15,13 +17,15 @@ class TabLabel : Box
 	/// the full path to the file its working on
 	this(string text, Widget cref, string fullPath)
 	{
-		super(GtkOrientation.HORIZONTAL, 2);
-		closeButton = new Button();
-		closeButton.setImageFromIconName("window-close");
-		closeButton.setRelief(GtkReliefStyle.None);
+		super(GtkOrientation.HORIZONTAL, 0);
+		closeButton = new Button(StockID.CLOSE, true);
+		closeButton.setRelief(GtkReliefStyle.NONE);
 		textLabel = new Label(text);
 		childRef = cref;
 		filePath = fullPath;
+		packStart(cast(Widget)textLabel, true, false, 1);
+		packEnd(cast(Widget)closeButton, false, false, 1);
+		showAll();
 	}
 	private string filePath;
 	private Widget childRef;

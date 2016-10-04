@@ -27,12 +27,13 @@ class AppWindow : MainWindow
 
 		mainMenu = cast(MenuBar)builder.getObject("mainMenu");
 
-		auto vbox = new VBox(true, 0);
-		vbox.packStart(mainMenu, true, true, 0);
+		auto vbox = new VBox(false, 0);
+		vbox.packStart(mainMenu, false, false, 0);
 		vbox.packEnd(notebook, true, true, 0);
 		add(vbox);
 
-		notebook.appendPage(new ScrolledWindow, )
+		auto scrolledWin = new ScrolledWindow();
+		notebook.appendPage(scrolledWin, new TabLabel("dub.json", scrolledWin, "./dub.json"));
 
 		showAll();
 	}
