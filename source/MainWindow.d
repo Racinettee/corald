@@ -26,13 +26,10 @@ class AppWindow : MainWindow
 		if(!builder.addFromFile("interface/mainmenu.glade"))
 			writeln("Could not load gladefile");
 
-		mainMenu = cast(MenuBar)builder.getObject("mainMenu");
+		mainMenu = getItem!MenuBar("mainMen");
 		
-		writeln("Going to add a click handler");
-		MenuItem menuItem = cast(MenuItem)builder.getObject("menunewfile");
-		writeln("Got menu item");
+		auto menuItem = getItem!MenuItem("menunewfile");
 		menuItem.addOnActivate((m)=>writeln("New item clicked"));
-		writeln("Did add a click handler");
 
 		auto vbox = new VBox(false, 0);
 		vbox.packStart(mainMenu, false, false, 0);
@@ -47,4 +44,12 @@ class AppWindow : MainWindow
 	Builder builder;
 	MenuBar mainMenu;
 	Notebook notebook;
+
+	private T getItem(T)(string n)
+	{
+		T item = cast(T)builder.getObject(n);
+		if(item is null)
+			throw new Exception("Failed to get object: "~n~" from builder");
+		return item;
+	}
 }
