@@ -18,9 +18,9 @@ class TabLabel : Box
 	this(string text, Widget cref, string fullPath)
 	{
 		super(GtkOrientation.HORIZONTAL, 0);
+		textLabel = new Label(text);
 		closeButton = new Button(StockID.CLOSE, true);
 		closeButton.setRelief(GtkReliefStyle.NONE);
-		textLabel = new Label(text);
 		childRef = cref;
 		filePath = fullPath;
 		packStart(cast(Widget)textLabel, true, false, 1);

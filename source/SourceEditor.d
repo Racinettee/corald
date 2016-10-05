@@ -11,5 +11,6 @@ class SourceEditor : ScrolledWindow
 		add(editor);
 		showAll();
 	}
+	
 	SourceView editor;
 }
