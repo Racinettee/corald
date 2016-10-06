@@ -9,6 +9,7 @@ import gtk.MenuItem;
 import gtk.Notebook;
 import gtk.VBox;
 import gtk.ScrolledWindow;
+import gtk.FileChooserDialog;
 
 import coral.EditorUtil;
 
@@ -30,6 +31,9 @@ class AppWindow : MainWindow
 		auto menuItem = getItem!MenuItem(builder, "menunewfile");
 		menuItem.addOnActivate((m)=>addNewSourceEditor(notebook));
 
+		menuItem = getItem!MenuItem(builder, "menuopenfile");
+		menuItem.addOnActivate(&openFile);
+
 		menuItem = getItem!MenuItem(builder, "menuquit");
 		menuItem.addOnActivate((m)=>close());
 
@@ -44,6 +48,18 @@ class AppWindow : MainWindow
 		addNewSourceEditor(notebook);
 
 		showAll();
+	}
+	void openFile(MenuItem)
+	{
+		auto fc = new FileChooserDialog("Choose a file to open", this,
+			GtkFileChooserAction.OPEN, ["Open", "Cancel"],
+			[ResponseType.ACCEPT, ResponseType.CANCEL]);
+		auto response = fc.run();
+		fc.destroy();
+		if(response == ResponseType.CANCEL)
+			return;
+		
+		
 	}
 	Builder builder;
 	MenuBar mainMenu;

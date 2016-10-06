@@ -24,12 +24,11 @@
               </object>
             </child>
             <child>
-              <object class="GtkImageMenuItem" id="imagemenuitem2">
-                <property name="label">gtk-open</property>
+              <object class="GtkMenuItem" id="menuopenfile">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Open File</property>
                 <property name="use_underline">True</property>
-                <property name="use_stock">True</property>
               </object>
             </child>
             <child>
