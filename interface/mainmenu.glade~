@@ -16,6 +16,14 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
+              <object class="GtkMenuItem" id="menunewfile">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">New File</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
               <object class="GtkImageMenuItem" id="imagemenuitem2">
                 <property name="label">gtk-open</property>
                 <property name="visible">True</property>
@@ -49,19 +57,10 @@
               </object>
             </child>
             <child>
-              <object class="GtkImageMenuItem" id="imagemenuitem5">
-                <property name="label">gtk-quit</property>
+              <object class="GtkMenuItem" id="menuquit">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_underline">True</property>
-                <property name="use_stock">True</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuItem" id="menunewfile">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">New File</property>
+                <property name="label" translatable="yes">Quit</property>
                 <property name="use_underline">True</property>
               </object>
             </child>

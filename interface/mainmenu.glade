@@ -57,12 +57,20 @@
               </object>
             </child>
             <child>
-              <object class="GtkImageMenuItem" id="imagemenuitem5">
-                <property name="label">gtk-quit</property>
+              <object class="GtkMenuItem" id="menunewwindow">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">open new instane</property>
+                <property name="label" translatable="yes">New Window</property>
                 <property name="use_underline">True</property>
-                <property name="use_stock">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuquit">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Quit</property>
+                <property name="use_underline">True</property>
               </object>
             </child>
           </object>
