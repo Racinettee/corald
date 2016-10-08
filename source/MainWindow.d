@@ -11,6 +11,9 @@ import gtk.VBox;
 import gtk.ScrolledWindow;
 import gtk.FileChooserDialog;
 
+import gsv.SourceBuffer;
+import gsv.SourceFileLoader;
+
 import coral.EditorUtil;
 
 class AppWindow : MainWindow
@@ -59,7 +62,11 @@ class AppWindow : MainWindow
 		if(response == ResponseType.CANCEL)
 			return;
 		
-		
+		string filepath = fc.getFilename();
+		auto sourceFile = new SourceFile();
+		sourceFile.setLocation(filepath);
+		auto sourceBuffer = new SourceBuffer();
+		auto fileLoader = new SourceFileLoader();
 	}
 	Builder builder;
 	MenuBar mainMenu;

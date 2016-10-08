@@ -3,13 +3,15 @@ module coral.EditorUtil;
 import gtk.Notebook;
 import gtk.Builder;
 
+import gsv.SourceBuffer;
+
 import coral.TabLabel;
 import coral.SourceEditor;
 
 private const string defaultTitle = "New File";
 
 public:
-void addNewSourceEditor(Notebook nb)
+void addNewSourceEditor(Notebook nb, SourceBuffer sb = new SourceBuffer)
 {
   auto sourceEditor = new SourceEditor();
   nb.appendPage(sourceEditor, new TabLabel(defaultTitle, sourceEditor, ""));
