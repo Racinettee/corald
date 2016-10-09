@@ -1,6 +1,6 @@
 ﻿module coral.AppWindow;
 
-import std.stdio;
+import std.stdio : writeln;
 
 import gtk.MainWindow;
 import gtk.Builder;
@@ -11,8 +11,15 @@ import gtk.VBox;
 import gtk.ScrolledWindow;
 import gtk.FileChooserDialog;
 
+import gio.File;
+import gio.Cancellable;
+
+import gsv.SourceFile;
 import gsv.SourceBuffer;
 import gsv.SourceFileLoader;
+import gsv.SourceLanguageManager;
+
+import gtkc.glibtypes : GPriority;
 
 import coral.EditorUtil;
 
@@ -52,6 +59,10 @@ class AppWindow : MainWindow
 
 		showAll();
 	}
+	private alias GAsyncReadyCallback = void function
+    ( GObject* source_object, GAsyncResult* res, gpointer
+    user_data );
+	alias gpointer = void*;
 	void openFile(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
@@ -64,9 +75,15 @@ class AppWindow : MainWindow
 		
 		string filepath = fc.getFilename();
 		auto sourceFile = new SourceFile();
-		sourceFile.setLocation(filepath);
-		auto sourceBuffer = new SourceBuffer();
-		auto fileLoader = new SourceFileLoader();
+		sourceFile.setLocation(File.parseName(filepath));
+		auto sourceBuffer = new SourceBuffer(SourceLanguageManager.getDefault().guessLanguage(filepath, null));
+		auto fileLoader = new SourceFileLoader(sourceBuffer, sourceFile);
+		auto cancellation = new Cancellable();
+		fileLoader.loadAsync(GPriority.DEFAULT, cancellation,	null, null,
+			function(sourceObj, asyncRes, userDat
+			{
+
+			}), null);
 	}
 	Builder builder;
 	MenuBar mainMenu;
