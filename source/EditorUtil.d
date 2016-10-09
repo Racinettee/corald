@@ -11,10 +11,16 @@ import coral.SourceEditor;
 private const string defaultTitle = "New File";
 
 public:
-void addNewSourceEditor(Notebook nb, SourceBuffer sb = new SourceBuffer)
+void addNewSourceEditor(Notebook nb, string fullpath = "")
 {
   auto sourceEditor = new SourceEditor();
-  nb.appendPage(sourceEditor, new TabLabel(defaultTitle, sourceEditor, ""));
+  nb.appendPage(sourceEditor, new TabLabel(defaultTitle, sourceEditor, fullpath));
+}
+
+void addNewSourceEditor(Notebook nb, SourceBuffer sb, string fullpath = "")
+{
+  auto sourceEditor = new SourceEditor(sb);
+  nb.appendPage(sourceEditor, new TabLabel(defaultTitle, sourceEditor, fullpath));
 }
 
 T getItem(T)(Builder b, string n)
