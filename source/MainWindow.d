@@ -51,6 +51,9 @@ class AppWindow : MainWindow
 		menuItem = getItem!MenuItem(builder, "menunewwindow");
 		menuItem.addOnActivate((m)=>new AppWindow().show());//&newWindow);
 
+		menuItem = getItem!MenuItem(builder, "menusavefileas");
+		menuItem.addOnActivate(&saveFileAs);
+
 		auto vbox = new VBox(false, 0);
 		vbox.packStart(mainMenu, false, false, 0);
 		vbox.packEnd(notebook, true, true, 0);
@@ -115,6 +118,12 @@ class AppWindow : MainWindow
 			cast(GProgressCallback)0, cast(void*)0,
 			cast(GProgressCallbackNotify)0, finalize, cast(void*)userDat);
 	}
+
+	void saveFileAs(MenuItem)
+	{
+
+	}
+
 	Builder builder;
 	MenuBar mainMenu;
 	Notebook notebook;
