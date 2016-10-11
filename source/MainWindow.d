@@ -49,7 +49,7 @@ class AppWindow : MainWindow
 		menuItem.addOnActivate((m)=>close());
 
 		menuItem = getItem!MenuItem(builder, "menunewwindow");
-		menuItem.addOnActivate((m)=>new AppWindow().show());//&newWindow);
+		menuItem.addOnActivate((m)=>new AppWindow().show());
 
 		menuItem = getItem!MenuItem(builder, "menusavefileas");
 		menuItem.addOnActivate(&saveFileAs);
