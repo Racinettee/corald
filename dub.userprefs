@@ -1,9 +1,11 @@
 ﻿<Properties StartupItem="dub.json">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" PreferredExecutionTarget="debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="source/MainWindow.d">
+  <MonoDevelop.Ide.Workbench ActiveDocument="source/debugger/GDB.d">
     <Files>
       <File FileName="source/app.d" Line="1" Column="1" />
       <File FileName="source/MainWindow.d" Line="20" Column="20" />
+      <File FileName="source/debugger/IDebugger.d" Line="1" Column="1" />
+      <File FileName="source/debugger/GDB.d" Line="11" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
