@@ -24,6 +24,9 @@ import gtkc.glibtypes : GPriority;
 
 import coral.EditorUtil;
 
+import coral.debugger.IDebugger;
+import coral.debugger.GDB;
+
 class AppWindow : MainWindow
 {
 	this()
@@ -62,7 +65,14 @@ class AppWindow : MainWindow
 		addNewSourceEditor(notebook);
 
 		showAll();
+
+    debugInstance = new GDB("test/fox");
+		debugInstance.start();
 	}
+  ~this()
+  {
+    debugInstance.stop();
+  }
 	private alias GAsyncReadyCallback = extern (C) void function(GObject* source_object, GAsyncResult* res, gpointer user_data);
 	private alias GProgressCallback = extern (C) void function(long, long, void*);
 	private alias GProgressCallbackNotify = extern (C) void function(void*);
@@ -124,6 +134,7 @@ class AppWindow : MainWindow
 
 	}
 
+  IDebugger debugInstance;
 	Builder builder;
 	MenuBar mainMenu;
 	Notebook notebook;
