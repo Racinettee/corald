@@ -5,11 +5,12 @@ import core.stdc.stdio;
 import std.string : toStringz;
 import std.stdio : writeln;
 
-import gtkc.glibtypes : GPid, GSpawnFlags;
+import gtkc.glibtypes : GPid, GSpawnFlags, GIOCondition;
 import gtkc.glib : g_spawn_async_with_pipes;
 //import glib.Spawn;
 import glib.Source;
 import glib.IOChannel;
+
 import gio.File;
 import gio.FileIF;
 
@@ -17,6 +18,7 @@ import coral.debugger.IDebugger;
 
 class GDB : IDebugger
 {
+  // extern(C) int function(void* userData) GSourceFunc
   this(string executable)
   {
     GError error;
@@ -29,6 +31,9 @@ class GDB : IDebugger
 
     IOChannel outChannel = new IOChannel(stdOut);
     IOChannel errChannel = new IOChannel(stdErr);
+
+    outSrc = IOChannel.ioCreateWatch(outChannel, GIOCondition.IN);
+    errSrc = IOChannel.ioCreateWatch(errChannel, GIOCondition.IN);
   }
 
   final void start()
@@ -64,6 +69,7 @@ class GDB : IDebugger
   
   GPid pid;
   int stdIn, stdOut, stdErr;
+  Source ourSrc, errSrc;
 
   private bool readStdOut(string line)
   {
@@ -81,6 +87,19 @@ class GDB : IDebugger
     printf(toStringz("GDB Err: "~line));//writeln("GDB Err: " ~line);
     return true;
     }
+  }
+
+  class IOCallbackData
+  {
+    GDB gdbInstance;
+    IOChannel channel;
+    Source source;
+  }
+
+  private static extern(C) int sourceCallback(void* userData)
+  {
+    GDB* gdb = cast(GDB*)userData;
+    wr
   }
 }
 
