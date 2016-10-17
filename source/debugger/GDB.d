@@ -1,18 +1,11 @@
 ﻿module coral.debugger.GDB;
 
 import core.stdc.stdio;
+import core.thread;
 
-import std.string : toStringz;
-import std.stdio : writeln;
-
-import gtkc.glibtypes : GPid, GSpawnFlags, GIOCondition;
-import gtkc.glib : g_spawn_async_with_pipes;
-//import glib.Spawn;
-import glib.Source;
-import glib.IOChannel;
-
-import gio.File;
-import gio.FileIF;
+import std.string;
+import std.stdio;
+import std.process;
 
 import coral.debugger.IDebugger;
 
@@ -21,85 +14,116 @@ class GDB : IDebugger
   // extern(C) int function(void* userData) GSourceFunc
   this(string executable)
   {
-    GError error;
-    GError* perror;
-    auto command = [toStringz("gdb"), toStringz("--interpreter=mi"), toStringz(executable)];
-    int result = g_spawn_async_with_pipes(cast(const(char)*)toStringz("./"),
-      cast(char**)command.ptr,
-      cast(char**)0, GSpawnFlags.SEARCH_PATH, cast(GSpawnChildSetupFunc)0,
-      cast(void*)0, &pid, &stdIn, &stdOut, &stdErr, &perror);
-
-    IOChannel outChannel = new IOChannel(stdOut);
-    IOChannel errChannel = new IOChannel(stdErr);
-
-    outSrc = IOChannel.ioCreateWatch(outChannel, GIOCondition.IN);
-    errSrc = IOChannel.ioCreateWatch(errChannel, GIOCondition.IN);
+    process = pipeProcess(["gdb", "--interpreter=mi", executable]);
+    ioReadingThread = new IOReadingThread(process.stdout, process.stderr, &readStdOut, &readStdErr);
+    ioReadingThread.start();
+  }
+  ~this()
+  {
+    if(started)
+      stop();
   }
 
   final void start()
   {
-    fputs(toStringz("r\n"), process.standardInput);
+    process.stdin.writeln("r");
+    process.stdin.flush();
+    started = true;
   }
 
   final void stop()
   {
-    fputs(toStringz("q\ny\n"), process.standardInput);
+    process.stdin.writeln("q\ny");
+    process.stdin.flush();
+    ioReadingThread.stop();
+    wait(process.pid);
+    started = false;
   }
 
   final void stepInto()
   {
-    fputs(toStringz("s\n"), process.standardInput);
+    process.stdin.writeln("s");
+    process.stdin.flush();
   }
 
   final void stepOver()
   {
-    fputs(toStringz("n\n"), process.standardInput);
+    process.stdin.writeln("n");
+    process.stdin.flush();
   }
 
   final void stepOut()
   {
-    fputs(toStringz("f\n"), process.standardInput);
+    process.stdin.writeln("f");
+    process.stdin.flush();
   }
 
   final void setBreakpoint(const string filename, int linenum)
   {
-    fprintf(process.standardInput,
-      toStringz("b %s:%i"), toStringz(filename), linenum);
+    process.stdin.writefln("B %s:%i", filename, linenum);
+    process.stdin.flush();
   }
   
-  GPid pid;
-  int stdIn, stdOut, stdErr;
-  Source ourSrc, errSrc;
+  ProcessPipes process;
+  IOReadingThread ioReadingThread;
+  private bool started = false;
 
-  private bool readStdOut(string line)
+  alias OutputHandler = void delegate(string);
+
+  class IOReadingThread : Thread
   {
-    synchronized
+    this(File stdOutput, File stdError, OutputHandler stdOutHandler, OutputHandler stdErrHandler)
     {
-    printf(toStringz("GDB Out: "~line));//writeln("GDB Out: "~line);
-    return true;
+      super(&run);
+      stdOut = stdOutput;
+      stdErr = stdError;
+      stdOutCallback = stdOutHandler;
+      stdErrCallback = stdErrHandler;
+    }
+    @safe void stop()
+    {
+      running = false;
+    }
+  private:
+    void run()
+    {
+      string output = "", error = "";
+      while(running)
+      {
+        while(!stdOut.eof)
+        {
+          output = stdOut.readln();
+          stdOutCallback(output);
+        }
+        while(!stdErr.eof)
+        {
+          error = stdErr.readln();
+          stdErrCallback(error);
+        }
+        sleep(dur!("msecs")( 80 ));
+      }
+    }
+    File stdOut, stdErr;
+    bool running = true;
+    OutputHandler stdOutCallback;
+    OutputHandler stdErrCallback;
+  }
+
+
+  private void readStdOut(string line)
+  {
+    synchronized(this)
+    {
+      writeln("GDB Out: "~line);
     }
   }
 
-  private bool readStdErr(string line)
+  private void readStdErr(string line)
   {
-    synchronized
+    synchronized(this)
     {
-    printf(toStringz("GDB Err: "~line));//writeln("GDB Err: " ~line);
-    return true;
+      writeln("GDB Err: "~line);
     }
-  }
-
-  class IOCallbackData
-  {
-    GDB gdbInstance;
-    IOChannel channel;
-    Source source;
-  }
-
-  private static extern(C) int sourceCallback(void* userData)
-  {
-    GDB* gdb = cast(GDB*)userData;
-    wr
   }
 }
 

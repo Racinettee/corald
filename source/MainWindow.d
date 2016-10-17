@@ -10,6 +10,9 @@ import gtk.Notebook;
 import gtk.VBox;
 import gtk.ScrolledWindow;
 import gtk.FileChooserDialog;
+import gtk.Widget;
+
+import gdk.Event;
 
 import gio.File;
 import gio.Cancellable;
@@ -71,8 +74,15 @@ class AppWindow : MainWindow
 	}
   ~this()
   {
-    debugInstance.stop();
-  }
+		debugInstance.stop();
+		writeln("Closing the app");
+	}
+	protected override bool windowDelete (Event e, Widget w)
+	{
+		writeln("Window exited");
+		super.windowDelete(e, w);
+		return true;
+	}
 	private alias GAsyncReadyCallback = extern (C) void function(GObject* source_object, GAsyncResult* res, gpointer user_data);
 	private alias GProgressCallback = extern (C) void function(long, long, void*);
 	private alias GProgressCallbackNotify = extern (C) void function(void*);
