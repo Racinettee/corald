@@ -27,6 +27,7 @@ class TabLabel : Box
 		packEnd(cast(Widget)closeButton, false, false, 1);
 		showAll();
 	}
+	@safe @property const string fullPath () { return filePath; } 
 	private string filePath;
 	private Widget childRef;
 	private Button closeButton;

@@ -48,3 +48,14 @@ T getItem(T)(Builder b, string n)
     throw new Exception("Failed to get object: "~n~" from builder");
   return item;
 }
+
+int fileOpen(Notebook nb, const string fullpath)
+{
+  for(size_t i = 0; i < nb.getNPages(); i++)
+  {
+    const TabLabel tab = cast(TabLabel)nb.getNthPage(i);
+    if(tab.fullPath == fullpath)
+      return i;
+  }
+  return -1;
+}

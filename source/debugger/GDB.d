@@ -109,12 +109,11 @@ class GDB : IDebugger
     OutputHandler stdErrCallback;
   }
 
-
   private void readStdOut(string line)
   {
     synchronized(this)
     {
-      writeln("GDB Out: "~line);
+      write("GDB Out: "~line);
     }
   }
 
@@ -122,7 +121,7 @@ class GDB : IDebugger
   {
     synchronized(this)
     {
-      writeln("GDB Err: "~line);
+      write("GDB Err: "~line);
     }
   }
 }

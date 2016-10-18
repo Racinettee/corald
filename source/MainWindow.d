@@ -45,20 +45,7 @@ class AppWindow : MainWindow
 
 		mainMenu = getItem!MenuBar(builder, "mainMenu");
 		
-		auto menuItem = getItem!MenuItem(builder, "menunewfile");
-		menuItem.addOnActivate((m)=>addNewSourceEditor(notebook));
-
-		menuItem = getItem!MenuItem(builder, "menuopenfile");
-		menuItem.addOnActivate(&openFile);
-
-		menuItem = getItem!MenuItem(builder, "menuquit");
-		menuItem.addOnActivate((m)=>close());
-
-		menuItem = getItem!MenuItem(builder, "menunewwindow");
-		menuItem.addOnActivate((m)=>new AppWindow().show());
-
-		menuItem = getItem!MenuItem(builder, "menusavefileas");
-		menuItem.addOnActivate(&saveFileAs);
+		hookMenuItems();
 
 		auto vbox = new VBox(false, 0);
 		vbox.packStart(mainMenu, false, false, 0);
@@ -77,12 +64,7 @@ class AppWindow : MainWindow
 		debugInstance.stop();
 		writeln("Closing the app");
 	}
-	protected override bool windowDelete (Event e, Widget w)
-	{
-		writeln("Window exited");
-		super.windowDelete(e, w);
-		return true;
-	}
+	
 	private alias GAsyncReadyCallback = extern (C) void function(GObject* source_object, GAsyncResult* res, gpointer user_data);
 	private alias GProgressCallback = extern (C) void function(long, long, void*);
 	private alias GProgressCallbackNotify = extern (C) void function(void*);
@@ -97,6 +79,14 @@ class AppWindow : MainWindow
 		
 		string filepath = fc.getFilename();
 		fc.destroy();
+
+		int fileNo = fileOpen(notebook, filepath);
+		if(fileNo != -1)
+		{
+			notebook.setCurrentPage(fileNo);
+			return;
+		}
+
 		auto sourceFile = new SourceFile();
 		sourceFile.setLocation(File.parseName(filepath));
 		auto sourceBuffer = new SourceBuffer(SourceLanguageManager.getDefault().guessLanguage(filepath, null));
@@ -148,4 +138,22 @@ class AppWindow : MainWindow
 	Builder builder;
 	MenuBar mainMenu;
 	Notebook notebook;
+
+	private void hookMenuItems()
+	{
+		auto menuItem = getItem!MenuItem(builder, "menunewfile");
+		menuItem.addOnActivate((m)=>addNewSourceEditor(notebook));
+
+		menuItem = getItem!MenuItem(builder, "menuopenfile");
+		menuItem.addOnActivate(&openFile);
+
+		menuItem = getItem!MenuItem(builder, "menuquit");
+		menuItem.addOnActivate((m)=>close());
+
+		menuItem = getItem!MenuItem(builder, "menunewwindow");
+		menuItem.addOnActivate((m)=>new AppWindow().show());
+
+		menuItem = getItem!MenuItem(builder, "menusavefileas");
+		menuItem.addOnActivate(&saveFileAs);
+	}
 }
