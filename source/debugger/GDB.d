@@ -58,9 +58,15 @@ class GDB : IDebugger
     process.stdin.flush();
   }
 
+  final void cont()
+  {
+    process.stdin.writeln("c");
+    process.stdin.flush();
+  }
+
   final void setBreakpoint(const string filename, int linenum)
   {
-    process.stdin.writefln("B %s:%i", filename, linenum);
+    process.stdin.writeln("b ", filename, ':', linenum);//fln("b %s:%i", filename, linenum);
     process.stdin.flush();
   }
   

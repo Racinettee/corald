@@ -57,6 +57,7 @@ class AppWindow : MainWindow
 		showAll();
 
     debugInstance = new GDB("test/fox");
+		debugInstance.setBreakpoint("test/fox.c", 7);
 		debugInstance.start();
 	}
   ~this()
