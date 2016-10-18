@@ -6,6 +6,13 @@ import gtk.Notebook;
 import gtk.Builder;
 
 import gsv.SourceBuffer;
+import gsv.SourceFile;
+import gsv.SourceFileLoader;
+import gsv.SourceLanguageManager;
+
+import gio.File;
+import gio.Cancellable;
+import gio.SimpleAsyncResult;
 
 import coral.TabLabel;
 import coral.SourceEditor;
@@ -49,13 +56,68 @@ T getItem(T)(Builder b, string n)
   return item;
 }
 
-int fileOpen(Notebook nb, const string fullpath)
+int isFileOpen(Notebook nb, const string fullpath)
 {
-  for(size_t i = 0; i < nb.getNPages(); i++)
+  for(int i = 0; i < nb.getNPages(); i++)
   {
-    const TabLabel tab = cast(TabLabel)nb.getNthPage(i);
+    const TabLabel tab = cast(TabLabel)nb.getTabLabel(nb.getNthPage(i));
     if(tab.fullPath == fullpath)
       return i;
   }
   return -1;
+}
+
+private alias GAsyncReadyCallback = extern (C) void function(GObject* source_object, GAsyncResult* res, void* user_data);
+private alias GProgressCallback = extern (C) void function(long, long, void*);
+private alias GProgressCallbackNotify = extern (C) void function(void*);
+void openFile(Notebook notebook, const string filepath)
+{
+		int fileNo = isFileOpen(notebook, filepath);
+		if(fileNo != -1)
+		{
+			notebook.setCurrentPage(fileNo);
+			return;
+		}
+
+		auto sourceFile = new SourceFile();
+		sourceFile.setLocation(File.parseName(filepath));
+		auto sourceBuffer = new SourceBuffer(SourceLanguageManager.getDefault().guessLanguage(filepath, null));
+		auto fileLoader = new SourceFileLoader(sourceBuffer, sourceFile);
+		auto cancellation = new Cancellable();
+
+		class UserData
+		{
+			string filepath;
+			SourceFileLoader loader;
+			Notebook notebook;
+			SourceBuffer sourceBuf;
+		}
+
+		GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat)
+		{
+			import coral.MemUtil : dealloc;
+
+			auto userDat = cast(UserData)userdat;
+			if(userDat.loader.loadFinish(new SimpleAsyncResult(cast(GSimpleAsyncResult*)result)))
+      {
+        addNewSourceEditor(userDat.notebook, userDat.sourceBuf, userDat.filepath);
+
+        userDat.notebook.setCurrentPage(-1);
+      }
+      // there is need for an else case that notifies the user that their file cannot be opened
+
+			dealloc(userDat);
+		};
+
+		import coral.MemUtil : alloc;
+
+		auto userDat = alloc!UserData;
+		userDat.filepath = filepath;
+		userDat.loader = fileLoader;
+		userDat.notebook = notebook;
+		userDat.sourceBuf = sourceBuffer;
+
+		fileLoader.loadAsync(cast(int)GPriority.DEFAULT, cancellation,
+			cast(GProgressCallback)0, cast(void*)0,
+			cast(GProgressCallbackNotify)0, finalize, cast(void*)userDat);
 }

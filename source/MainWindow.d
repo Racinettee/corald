@@ -65,10 +65,6 @@ class AppWindow : MainWindow
 		writeln("Closing the app");
 	}
 	
-	private alias GAsyncReadyCallback = extern (C) void function(GObject* source_object, GAsyncResult* res, gpointer user_data);
-	private alias GProgressCallback = extern (C) void function(long, long, void*);
-	private alias GProgressCallbackNotify = extern (C) void function(void*);
-	alias gpointer = void*;
 	void openFile(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
@@ -80,53 +76,7 @@ class AppWindow : MainWindow
 		string filepath = fc.getFilename();
 		fc.destroy();
 
-		int fileNo = fileOpen(notebook, filepath);
-		if(fileNo != -1)
-		{
-			notebook.setCurrentPage(fileNo);
-			return;
-		}
-
-		auto sourceFile = new SourceFile();
-		sourceFile.setLocation(File.parseName(filepath));
-		auto sourceBuffer = new SourceBuffer(SourceLanguageManager.getDefault().guessLanguage(filepath, null));
-		auto fileLoader = new SourceFileLoader(sourceBuffer, sourceFile);
-		auto cancellation = new Cancellable();
-
-		class UserData
-		{
-			string filepath;
-			SourceFileLoader loader;
-			Notebook notebook;
-			SourceBuffer sourceBuf;
-		}
-
-		GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, gpointer userdat)
-		{
-			import coral.MemUtil : dealloc;
-
-			auto userDat = cast(UserData)userdat;
-			if(userDat.loader.loadFinish(new SimpleAsyncResult(cast(GSimpleAsyncResult*)result)))
-				writeln(userDat.filepath ~ " loaded!");
-
-			addNewSourceEditor(userDat.notebook, userDat.sourceBuf, userDat.filepath);
-
-			userDat.notebook.setCurrentPage(-1);
-
-			dealloc(userDat);
-		};
-
-		import coral.MemUtil : alloc;
-
-		auto userDat = alloc!UserData;
-		userDat.filepath = filepath;
-		userDat.loader = fileLoader;
-		userDat.notebook = notebook;
-		userDat.sourceBuf = sourceBuffer;
-
-		fileLoader.loadAsync(cast(int)GPriority.DEFAULT, cancellation,
-			cast(GProgressCallback)0, cast(void*)0,
-			cast(GProgressCallbackNotify)0, finalize, cast(void*)userDat);
+		coral.EditorUtil.openFile(notebook, filepath);
 	}
 
 	void saveFileAs(MenuItem)
