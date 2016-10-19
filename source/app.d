@@ -13,8 +13,6 @@ void main()
 		Main.init(args);
 		auto appWin = new AppWindow();
 		Main.run();
-		// Manually invoke destructor... as it doesn't seem to happen with derived MainWindow
-		(cast(Object)appWin).destroy();
 	}
 	catch(Exception e)
 	{

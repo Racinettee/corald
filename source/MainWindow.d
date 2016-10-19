@@ -66,6 +66,12 @@ class AppWindow : MainWindow
 		writeln("Closing the app");
 	}
 	
+	protected override bool windowDelete(Event e, Widget w)
+	{
+		debugInstance.stop();
+		return super.windowDelete(e, w);
+	}
+
 	void gdbOutputHandler(string line)
 	{
 

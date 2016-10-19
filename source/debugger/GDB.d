@@ -26,18 +26,27 @@ class GDB : IDebugger
 
   final void start()
   {
-    process.stdin.writeln("r");
-    process.stdin.flush();
-    started = true;
+    if(!started)
+    {
+      process.stdin.writeln("r");
+      process.stdin.flush();
+      started = true;
+    }
   }
 
+  // There's a nuance where destructures will not be called
+  // when gtk_main() is finished running.. so i've implemented
+  // a guard where stop will not do its tasks again when already called'
   final void stop()
   {
-    process.stdin.writeln("q\ny");
-    process.stdin.flush();
-    ioReadingThread.stop();
-    wait(process.pid);
-    started = false;
+    if(started)
+    {
+      process.stdin.writeln("q\ny");
+      process.stdin.flush();
+      ioReadingThread.stop();
+      wait(process.pid);
+      started = false;
+    }
   }
 
   final void stepInto()
@@ -86,16 +95,13 @@ private:
     }
     @safe void stop()
     {
-      synchronized(this)
-      {
-        running = false;
-      }
+      synchronized(this) running = false;
     }
   private:
     void run()
     {
       string output = "", error = "";
-      for(;;)//while(running)
+      for(;;)
       {
         bool keepRunning;
         synchronized(this) keepRunning = running;
