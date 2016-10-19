@@ -56,7 +56,7 @@ class AppWindow : MainWindow
 
 		showAll();
 
-    debugInstance = new GDB("test/fox");
+    debugInstance = new GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
 		debugInstance.setBreakpoint("test/fox.c", 7);
 		debugInstance.start();
 	}
@@ -66,6 +66,11 @@ class AppWindow : MainWindow
 		writeln("Closing the app");
 	}
 	
+	void gdbOutputHandler(string line)
+	{
+
+	}
+
 	void openFile(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,

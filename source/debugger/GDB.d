@@ -11,11 +11,11 @@ import coral.debugger.IDebugger;
 
 class GDB : IDebugger
 {
-  // extern(C) int function(void* userData) GSourceFunc
-  this(string executable)
+  alias OutputHandler = void delegate(string);
+  this(string executable, OutputHandler outHandler, OutputHandler errHandler)
   {
     process = pipeProcess(["gdb", "--interpreter=mi", executable]);
-    ioReadingThread = new IOReadingThread(process.stdout, process.stderr, &readStdOut, &readStdErr);
+    ioReadingThread = new IOReadingThread(process.stdout, process.stderr, outHandler, errHandler);
     ioReadingThread.start();
   }
   ~this()
@@ -66,15 +66,13 @@ class GDB : IDebugger
 
   final void setBreakpoint(const string filename, int linenum)
   {
-    process.stdin.writeln("b ", filename, ':', linenum);//fln("b %s:%i", filename, linenum);
+    process.stdin.writeln("b ", filename, ':', linenum);
     process.stdin.flush();
   }
-  
+private:
   ProcessPipes process;
   IOReadingThread ioReadingThread;
-  private bool started = false;
-
-  alias OutputHandler = void delegate(string);
+  bool started = false;
 
   class IOReadingThread : Thread
   {
@@ -88,14 +86,23 @@ class GDB : IDebugger
     }
     @safe void stop()
     {
-      running = false;
+      synchronized(this)
+      {
+        running = false;
+      }
     }
   private:
     void run()
     {
       string output = "", error = "";
-      while(running)
+      for(;;)//while(running)
       {
+        bool keepRunning;
+        synchronized(this) keepRunning = running;
+
+        if(!keepRunning)
+          break;
+
         while(!stdOut.eof)
         {
           output = stdOut.readln();
@@ -108,27 +115,12 @@ class GDB : IDebugger
         }
         sleep(dur!("msecs")( 80 ));
       }
+      writeln("Exiting thread");
     }
     File stdOut, stdErr;
     bool running = true;
     OutputHandler stdOutCallback;
     OutputHandler stdErrCallback;
-  }
-
-  private void readStdOut(string line)
-  {
-    synchronized(this)
-    {
-      write("GDB Out: "~line);
-    }
-  }
-
-  private void readStdErr(string line)
-  {
-    synchronized(this)
-    {
-      write("GDB Err: "~line);
-    }
   }
 }
 
