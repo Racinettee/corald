@@ -1,4 +1,4 @@
-﻿module coral.AppWindow;
+﻿module coral.window.AppWindow;
 
 import std.stdio : writeln;
 
@@ -25,7 +25,7 @@ import gsv.SourceLanguageManager;
 
 import gtkc.glibtypes : GPriority;
 
-import coral.EditorUtil;
+import coral.util.EditorUtil;
 
 import coral.debugger.IDebugger;
 import coral.debugger.GDB;
@@ -74,7 +74,7 @@ class AppWindow : MainWindow
 
 	void gdbOutputHandler(string line)
 	{
-
+		writeln(line);
 	}
 
 	void openFile(MenuItem)
@@ -88,7 +88,7 @@ class AppWindow : MainWindow
 		string filepath = fc.getFilename();
 		fc.destroy();
 
-		coral.EditorUtil.openFile(notebook, filepath);
+		coral.util.EditorUtil.openFile(notebook, filepath);
 	}
 
 	void saveFileAs(MenuItem)

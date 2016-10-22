@@ -1,5 +1,5 @@
 module coral.Main;
-import coral.AppWindow;
+import coral.window.AppWindow;
 
 import std.stdio : writeln;
 

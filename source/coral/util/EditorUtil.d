@@ -1,4 +1,4 @@
-module coral.EditorUtil;
+module coral.util.EditorUtil;
 
 import std.string : lastIndexOf;
 
@@ -14,8 +14,8 @@ import gio.File;
 import gio.Cancellable;
 import gio.SimpleAsyncResult;
 
-import coral.TabLabel;
-import coral.SourceEditor;
+import coral.component.TabLabel;
+import coral.component.SourceEditor;
 
 private const string defaultTitle = "New File";
 
@@ -95,7 +95,7 @@ void openFile(Notebook notebook, const string filepath)
 
 		GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat)
 		{
-			import coral.MemUtil : dealloc;
+			import coral.util.MemUtil : dealloc;
 
 			auto userDat = cast(UserData)userdat;
 			if(userDat.loader.loadFinish(new SimpleAsyncResult(cast(GSimpleAsyncResult*)result)))
@@ -109,7 +109,7 @@ void openFile(Notebook notebook, const string filepath)
 			dealloc(userDat);
 		};
 
-		import coral.MemUtil : alloc;
+		import coral.util.MemUtil : alloc;
 
 		auto userDat = alloc!UserData;
 		userDat.filepath = filepath;

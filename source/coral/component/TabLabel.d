@@ -1,4 +1,4 @@
-module coral.TabLabel;
+module coral.component.TabLabel;
 
 import gtk.Box;
 import gtk.Button;
