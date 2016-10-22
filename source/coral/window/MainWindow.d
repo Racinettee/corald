@@ -30,6 +30,8 @@ import coral.util.EditorUtil;
 import coral.debugger.IDebugger;
 import coral.debugger.GDB;
 
+import coral.lua.Lua;
+
 class AppWindow : MainWindow
 {
 	this()
