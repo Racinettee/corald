@@ -164,10 +164,10 @@ struct LuaObject
 	 * See_Also:
 	 *	 $(MREF LuaType)
 	 */
-	@property LuaType type() @trusted nothrow
+	@property Type type() @trusted nothrow
 	{
 		push();
-		auto result = cast(LuaType)lua_type(state, -1);
+		auto result = cast(Type)lua_type(state, -1);
 		lua_pop(state, 1);
 		return result;
 	}
@@ -177,6 +177,7 @@ struct LuaObject
 	 */
 	@property string typeName() @trusted /+ nothrow +/
 	{
+		import core.stdc.string : strlen;
 		push();
 		const(char)* cname = luaL_typename(state, -1); // TODO: Doesn't have to use luaL_typename, i.e. no copy
 		auto name = cname[0.. strlen(cname)].idup;
