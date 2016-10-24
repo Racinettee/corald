@@ -11,15 +11,16 @@ void main()
 {
 	try
 	{
+		initDebugManager();
 		string[] args;
 		Main.init(args);
 		auto appWin = new AppWindow();
-		InitializePlugins();
+		initPlugins();
 		Main.run();
 	}
 	catch(Exception e)
 	{
 		writeln(e.msg);
 	}
-	debugManager.stopAll();
+	deinitDebugManager();
 }

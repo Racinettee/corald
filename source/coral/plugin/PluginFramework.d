@@ -6,7 +6,7 @@ import std.json;
 import std.file;
 
 /// Call to initialize plugins
-void InitializePlugins()
+void initPlugins()
 {
 	if(!exists("coralPlugins.json"))
 		throw new Exception("File coralPlugins.json does not exist");

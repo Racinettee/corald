@@ -4,13 +4,22 @@ import coral.debugger.IDebugger;
 
 DebugManager debugManager;
 
-static this()
+void initDebugManager()
 {
   debugManager = new DebugManager();
 }
 
+void deinitDebugManager()
+{
+  debugManager.clearAll();
+}
+
 class DebugManager
 {
+  ~this()
+  {
+    stopAll();
+  }
   T newSession(T : IDebugger, Args...)(Args a)
   {
     T session = new T(a);
@@ -19,12 +28,23 @@ class DebugManager
   }
   void registerSession(IDebugger instance)
   {
-    debugInstances ~= instance;
+    synchronized(this) debugInstances ~= instance;
   }
   void stopAll()
   {
-    foreach(instance; debugInstances)
-      instance.stop();
+    synchronized(this)
+    { 
+      foreach(instance; debugInstances)
+        instance.stop();
+    }
+  }
+  void clearAll()
+  {
+    synchronized(this)
+    {
+      stopAll();
+      debugInstances = [];
+    }
   }
   private IDebugger[] debugInstances;
 }
