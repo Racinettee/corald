@@ -10,6 +10,7 @@ interface IDebugger
   void stepOut();
   // ------------
   void cont();
+  void pause();
   // ------------
   void setBreakpoint(const string filename, int line);
 }

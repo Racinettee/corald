@@ -1,5 +1,7 @@
 module coral.Main;
 import coral.window.AppWindow;
+import coral.plugin.PluginFramework;
+import coral.debugger.DebugManager;
 
 import std.stdio : writeln;
 
@@ -12,10 +14,12 @@ void main()
 		string[] args;
 		Main.init(args);
 		auto appWin = new AppWindow();
+		InitializePlugins();
 		Main.run();
 	}
 	catch(Exception e)
 	{
 		writeln(e.msg);
 	}
+	debugManager.stopAll();
 }

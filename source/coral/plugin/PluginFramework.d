@@ -8,13 +8,15 @@ import std.file;
 /// Call to initialize plugins
 void InitializePlugins()
 {
-	JSONValue pluginFramework = parseJSON(read("coralPlugins.json"), JSONOptions.none);
+	if(!exists("coralPlugins.json"))
+		throw new Exception("File coralPlugins.json does not exist");
+	JSONValue pluginFramework = parseJSON(cast(char[])read("coralPlugins.json"), JSONOptions.none);
 
 	JSONValue installedPlugins = pluginFramework["plugins"];
 	
 	foreach(entry; installedPlugins.array)
 	{
 		if(cast(bool)entry["enabled"].integer == true)
-			globalState.loadFile(entry["name"].toString());
+			globalState.loadFile(entry["name"].str);
 	}
 }

@@ -29,6 +29,7 @@ import coral.util.EditorUtil;
 
 import coral.debugger.IDebugger;
 import coral.debugger.GDB;
+import coral.debugger.DebugManager;
 
 import coral.lua.Lua;
 
@@ -58,7 +59,7 @@ class AppWindow : MainWindow
 
 		showAll();
 
-    debugInstance = new GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
+		debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
 		debugInstance.setBreakpoint("test/fox.c", 7);
 		debugInstance.start();
 	}

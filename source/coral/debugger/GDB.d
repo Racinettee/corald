@@ -73,6 +73,13 @@ class GDB : IDebugger
     process.stdin.flush();
   }
 
+  final void pause()
+  {
+    // Pass 'CTRL-3' character code
+    process.stdin.writeln([cast(char)0x3]);
+    process.stdin.flush();
+  }
+
   final void setBreakpoint(const string filename, int linenum)
   {
     process.stdin.writeln("b ", filename, ':', linenum);
