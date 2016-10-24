@@ -5,3 +5,4 @@ __dummy.html
 *.obj
 *~ # temporary files
 corald
+.vscode/
