@@ -71,7 +71,7 @@ class AppWindow : MainWindow
 	
 	protected override bool windowDelete(Event e, Widget w)
 	{
-		debugInstance.stop();
+		//debugInstance.stop();
 		return super.windowDelete(e, w);
 	}
 
@@ -99,7 +99,7 @@ class AppWindow : MainWindow
 
 	}
 
-    IDebugger debugInstance;
+  IDebugger debugInstance;
 	Builder builder;
 	MenuBar mainMenu;
 	Notebook notebook;

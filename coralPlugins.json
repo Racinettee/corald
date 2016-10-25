@@ -1,8 +1,12 @@
 {
 	"plugins": [
 		{
-			"enabled": true,
-			"name": "somext.lua"
+			"name": "somext.lua",
+			"enabled": true
+		},
+		{
+			"name": "moonhello.moon",
+			"enabled": true
 		}
 	]
 }

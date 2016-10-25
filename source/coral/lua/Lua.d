@@ -6,6 +6,7 @@ import lua.lauxlib;
 
 import std.traits;
 
+private import std.stdio : writeln;
 private import std.string : toStringz, fromStringz;
 
 /// The primary state
@@ -79,6 +80,10 @@ class State
       return;
     }
   }
+	void require(const string filename)
+	{
+		requireFile(luaState, toStringz(filename));
+	}
   /// Get the underlying C object
   pure @safe @property lua_State *state () nothrow
   {
@@ -92,6 +97,23 @@ void printError(State state)
 {
   import std.stdio : writeln;
   writeln(fromStringz(lua_tostring(state.state, -1)));
+}
+
+private int report(lua_State* L, int status)
+{
+	if (status && !lua_isnil(L, -1)) {
+    string msg = cast(string)fromStringz(lua_tostring(L, -1));
+    if (msg == null) msg = "(error object is not a string)";
+		writeln(msg);
+		lua_pop(L, 1);
+	}
+	return status;
+}
+
+int requireFile (lua_State *L, const char *name) {
+  lua_getglobal(L, "require");
+  lua_pushstring(L, name);
+  return report(L, lua_pcall(L, 1, 1, 0));
 }
 
 /**

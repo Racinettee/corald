@@ -12,10 +12,10 @@ void main()
 	try
 	{
 		initDebugManager();
+		initPlugins();		
 		string[] args;
 		Main.init(args);
 		auto appWin = new AppWindow();
-		initPlugins();
 		Main.run();
 	}
 	catch(Exception e)
