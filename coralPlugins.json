@@ -1,0 +1,8 @@
+{
+	"plugins": [
+		{
+			"enabled": true,
+			"name": "somext.lua"
+		}
+	]
+}

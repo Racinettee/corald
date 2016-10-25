@@ -59,13 +59,13 @@ class AppWindow : MainWindow
 
 		showAll();
 
-		debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
-		debugInstance.setBreakpoint("test/fox.c", 7);
-		debugInstance.start();
+		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
+		//debugInstance.setBreakpoint("test/fox.c", 7);
+		//debugInstance.start();
 	}
-  ~this()
-  {
-		debugInstance.stop();
+    ~this()
+    {
+		//debugInstance.stop();
 		writeln("Closing the app");
 	}
 	
@@ -99,7 +99,7 @@ class AppWindow : MainWindow
 
 	}
 
-  IDebugger debugInstance;
+    IDebugger debugInstance;
 	Builder builder;
 	MenuBar mainMenu;
 	Notebook notebook;
