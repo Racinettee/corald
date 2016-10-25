@@ -16,7 +16,14 @@ void InitializePlugins()
 	
 	foreach(entry; installedPlugins.array)
 	{
-		if(cast(bool)entry["enabled"].integer == true)
+		if(entry["enabled"].type == JSON_TYPE.TRUE)
+		{
+			string filename = entry["name"].str;
+
+			if(!exists(filename))
+				throw new Exception("Plugin: "~filename~" does not exist");
+				
 			globalState.loadFile(entry["name"].str);
+		}
 	}
 }
