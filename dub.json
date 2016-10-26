@@ -9,5 +9,18 @@
 		"gtk-d:sv": "~>3.3.1",
 		"nluad": "~>0.0.2"
 	},
-	"libs": ["lua5.3"]
+	"preBuildCommands": [
+		"cd dep/lua && make PLAT=linux",
+		"cd dep/lpeg-1.0.0 && make LUADIR=../lua/src",
+		"cd dep/luafilesystem && make LUA_INC=../lua/src LUA_LIBDIR=../lua/src",
+		"mkdir -p dep/bin",
+		"cd dep/bin && cp ../lpeg-1.0.0/lpeg.so ./",
+		"cd dep/bin && cp ../luafilesystem/src/lfs.so ./"
+	],
+	"lflags": [
+		"-L./dep/lua/src",
+		"-L./dep/lpeg-1.0.0",
+		"-rpath=./dep/bin"
+	],
+	"libs": ["lua"]
 }

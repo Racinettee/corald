@@ -1,3 +1,4 @@
+print "Hello this is moonscript at the very least"
 class Thing
   name: "unknown"
 

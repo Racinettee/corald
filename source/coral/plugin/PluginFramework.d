@@ -11,13 +11,19 @@ import lua.lauxlib;
 
 private import std.path : absolutePath;
 
+extern (C) int luaopen_lpeg (lua_State *L);
+
 /// Call to initialize plugins
 void initPlugins()
 {
+	//luaopen_lpeg(globalState.state);
 	luaL_dostring(globalState.state,
-		toStringz("local projRoot = '"~absolutePath("script")~"'\n"
-		"package.path = package.path .. ';' .. projRoot .. '/?.lua'"));
-	lua_pop(globalState.state, -1);
+		toStringz(
+		"local projRoot = '"~absolutePath("script")~"'\n"
+		"local binRoot = '"~absolutePath("dep/bin")~"'\n"
+		"package.path = package.path .. ';' .. projRoot .. '/?.lua'\n"
+		"package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'"));
+	//lua_pop(globalState.state, -1);
 	globalState.require("moonscript");
 	if(!exists("coralPlugins.json"))
 		throw new Exception("File coralPlugins.json does not exist");
