@@ -1,11 +1,11 @@
 {
 	"plugins": [
 		{
-			"name": "somext.lua",
+			"name": "somext",
 			"enabled": true
 		},
 		{
-			"name": "moonhello.moon",
+			"name": "moonhello",
 			"enabled": true
 		}
 	]

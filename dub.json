@@ -18,9 +18,7 @@
 		"cd dep/bin && cp ../luafilesystem/src/lfs.so ./"
 	],
 	"lflags": [
-		"-L./dep/lua/src",
-		"-L./dep/lpeg-1.0.0",
-		"-rpath=./dep/bin"
+		"-L./dep/lua/src"
 	],
 	"libs": ["lua"]
 }
