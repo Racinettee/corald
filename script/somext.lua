@@ -8,8 +8,7 @@ local Gtk = lgi.require('Gtk')
 local window = Gtk.Window {
    title = 'window',
    default_width = 400,
-   default_height = 300,
-   -- on_destroy = Gtk.main_quit
+   default_height = 300
 }
 
 if tonumber(Gtk._version) >= 3 then
