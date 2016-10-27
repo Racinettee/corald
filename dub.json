@@ -10,13 +10,7 @@
 		"nluad": "~>0.0.2"
 	},
 	"preBuildCommands": [
-		"cd dep/lua && make PLAT=linux",
-		"cd dep/lpeg-1.0.0 && make LUADIR=../lua/src",
-		"cd dep/luafilesystem && make LUA_INC=../lua/src LUA_LIBDIR=../lua/src",
-		"cd dep/lgi-0.9.1 && make CFLAGS = -Wall -Wextra -O2 -g -I../../lua/src",
-		"mkdir -p dep/bin",
-		"cd dep/bin && cp ../lpeg-1.0.0/lpeg.so ./",
-		"cd dep/bin && cp ../luafilesystem/src/lfs.so ./"
+		"./depbuild.sh"
 	],
 	"lflags": [
 		"-L./dep/lua/src"
