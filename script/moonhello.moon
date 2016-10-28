@@ -2,7 +2,7 @@ lgi = require 'lgi'
 Gtk = lgi.require('Gtk')
 
 moonWindow = with Gtk.Window!
-  .title = 'moonWindow'
+  .title = 'moon'
   .default_width = 400
   .default_height = 300
   \show_all!
