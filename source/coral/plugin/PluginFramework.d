@@ -11,10 +11,11 @@ import lua.lauxlib;
 
 private import std.path : absolutePath;
 
-extern (C) int luaopen_lpeg (lua_State *L);
+private import coral.window.AppWindow : AppWindow;
 
+import coral.lua.UserData;
 /// Call to initialize plugins
-void initPlugins()
+void initPlugins(AppWindow initialWindow)
 {
 	//luaop                                                                                                                                en_lpeg(globalState.state);
 	int result = luaL_dostring(globalState.state,
@@ -32,6 +33,9 @@ void initPlugins()
 	JSONValue pluginFramework = parseJSON(cast(char[])read("coralPlugins.json"), JSONOptions.none);
 
 	JSONValue installedPlugins = pluginFramework["plugins"];
+
+	pushClassInstance(globalState.state, initialWindow);
+	lua_setglobal(globalState.state, "mainWindow");
 	
 	foreach(entry; installedPlugins.array)
 	{

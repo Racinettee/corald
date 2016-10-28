@@ -1,3 +1,5 @@
+module coral.lua.UserData;
+
 import lua.lua;
 import lua.lualib;
 import lua.lauxlib;

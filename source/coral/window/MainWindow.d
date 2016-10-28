@@ -122,6 +122,3 @@ class AppWindow : MainWindow
 		menuItem.addOnActivate(&saveFileAs);
 	}
 }
-
-private:
-
