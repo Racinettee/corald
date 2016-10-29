@@ -1,19 +1,17 @@
 module coral.plugin.PluginFramework;
 
 import coral.lua.Lua;
+import coral.window.AppWindow;
 
 import std.json;
 import std.file;
+import std.path : absolutePath;
 
 import lua.lua;
 import lua.lualib;
 import lua.lauxlib;
 
-private import std.path : absolutePath;
-
-private import coral.window.AppWindow : AppWindow;
-
-import coral.lua.UserData;
+//import coral.lua.UserData;
 /// Call to initialize plugins
 void initPlugins(AppWindow initialWindow)
 {
@@ -28,9 +26,12 @@ void initPlugins(AppWindow initialWindow)
 	if(result != 0)
 		printError(globalState);
 	globalState.require("moonscript");
-	if(!exists("coralPlugins.json"))
+
+	immutable string pluginFile = "coralPlugins.json";
+
+	if(!exists(pluginFile))
 		throw new Exception("File coralPlugins.json does not exist");
-	JSONValue pluginFramework = parseJSON(cast(char[])read("coralPlugins.json"), JSONOptions.none);
+	JSONValue pluginFramework = parseJSON(cast(char[])read(pluginFile), JSONOptions.none);
 
 	JSONValue installedPlugins = pluginFramework["plugins"];
 
