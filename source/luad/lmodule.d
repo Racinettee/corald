@@ -4,7 +4,7 @@ import luad.state;
 import luad.stack;
 import luad.conversions.functions;
 
-import luad.c.lua : lua_State;
+import lua.lua : lua_State;
 
 import std.traits;
 

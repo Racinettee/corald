@@ -7,7 +7,10 @@ module luad.conversions.classes;
 
 import luad.conversions.functions;
 
-import luad.c.all;
+import lua.lua;
+import lua.lualib;
+import lua.lauxlib;
+
 import luad.stack;
 import luad.base;
 

@@ -5,7 +5,10 @@ import std.array, std.range;
 import std.string : toStringz;
 import std.typecons : isTuple;
 
-import luad.c.all;
+import lua.lua;
+import lua.lualib;
+import lua.lauxlib;
+
 import luad.stack;
 import luad.conversions.classes;
 

@@ -59,7 +59,9 @@ import std.range;
 import std.traits;
 import std.typecons;
 
-import luad.c.all;
+import lua.lua;
+import lua.lualib;
+import lua.lauxlib;
 
 import luad.base;
 import luad.table;

@@ -20,7 +20,9 @@ import std.string : toStringz;
 import std.traits;
 import std.typetuple;
 
-import luad.c.all;
+import lua.lua;
+import lua.lualib;
+import lua.lauxlib;
 
 import luad.stack;
 

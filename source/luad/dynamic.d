@@ -1,6 +1,8 @@
 module luad.dynamic;
 
-import luad.c.all;
+import lua.lua;
+import lua.lualib;
+import lua.lauxlib;
 
 import luad.base;
 import luad.stack;

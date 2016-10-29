@@ -6,7 +6,10 @@ For string keys and heterogeneous value types, consider using a $(D struct) (see
 */
 module luad.conversions.assocarrays;
 
-import luad.c.all;
+import lua.lua;
+import lua.lualib;
+import lua.lauxlib;
+
 import std.traits;
 import luad.stack;
 

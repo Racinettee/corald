@@ -8,7 +8,9 @@ For an example, see the "Configuration File" example on the $(LINK2 $(REFERENCET
 */
 module luad.conversions.structs;
 
-import luad.c.all;
+import lua.lua;
+import lua.lualib;
+import lua.lauxlib;
 
 import luad.stack;
 

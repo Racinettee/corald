@@ -16,11 +16,6 @@ GINAME = gobject-introspection-1.0
 PKGS = $(GINAME) gmodule-2.0 libffi
 VERSION_FILE = version.lua
 
-ifneq ($(filter cygwin% msys% mingw%, $(HOST_OS)),)
-CORE = corelgilua51.dll
-LIBFLAG = -shared
-LIBS += -llua
-else
 ifeq ($(HOST_OS),darwin)
 CORE = corelgilua51.so
 LIBFLAG = -bundle -undefined dynamic_lookup
@@ -30,7 +25,6 @@ else
 CORE = corelgilua51.so
 LIBFLAG = -shared
 CCSHARED = -fPIC
-endif
 endif
 
 OBJS = buffer.o callable.o core.o gi.o marshal.o object.o record.o
