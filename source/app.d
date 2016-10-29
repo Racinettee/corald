@@ -15,7 +15,7 @@ void main()
 		string[] args;
 		Main.init(args);
 		auto appWin = new AppWindow();
-		initPlugins();
+		initPlugins(appWin);
 		Main.run();
 	}
 	catch(Exception e)
