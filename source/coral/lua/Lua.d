@@ -23,12 +23,12 @@ class State
   this()
   {
     luaState = luaL_newstate();
-		owner = true;
+	isOwner = true;
   }
 	this(lua_State* L, bool isOwner=false)
 	{
 		luaState = L;
-		owner = isOwner;
+		this.isOwner = isOwner;
 	}
   ~this()
   {
@@ -69,7 +69,7 @@ class State
     return luaState;
   }
   private lua_State *luaState;
-	private bool owner;
+	private bool isOwner;
 }
 
 /// Call this get an error message printed

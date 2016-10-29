@@ -11,6 +11,8 @@ import lua.lua;
 import lua.lualib;
 import lua.lauxlib;
 
+import luad.stack;
+
 //import coral.lua.UserData;
 /// Call to initialize plugins
 void initPlugins(AppWindow initialWindow)
@@ -35,7 +37,7 @@ void initPlugins(AppWindow initialWindow)
 
 	JSONValue installedPlugins = pluginFramework["plugins"];
 
-	pushClassInstance(globalState.state, initialWindow);
+	pushValue(globalState.state, initialWindow);
 	lua_setglobal(globalState.state, "mainWindow");
 	
 	foreach(entry; installedPlugins.array)
