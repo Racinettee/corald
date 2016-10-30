@@ -92,7 +92,8 @@ struct LuaFunction
 	{
 		this.push();
 		env.push();
-		lua_setfenv(this.state, -2);
+		//lua_setfenv(this.state, -2);
+		lua_setupvalue(object.state, -2, 1);
 		lua_pop(this.state, 1);
 	}
 

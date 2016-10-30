@@ -19,7 +19,7 @@ import core.memory;
 import std.traits;
 import std.string : toStringz;
 
-extern(C) private int classCleaner(lua_State* L)
+extern(C) private int classCleaner(lua_State* L) nothrow
 {
 	GC.removeRoot(lua_touserdata(L, 1));
 	return 0;

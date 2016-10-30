@@ -26,7 +26,7 @@ import lua.lauxlib;
 
 import luad.stack;
 
-private void argsError(lua_State* L, int nargs, ptrdiff_t expected)
+private void argsError(lua_State* L, int nargs, ptrdiff_t expected) nothrow
 {
 	lua_Debug debugInfo;
 	lua_getstack(L, 0, &debugInfo);
@@ -143,48 +143,61 @@ extern(C) int methodWrapper(T, Class, bool virtual)(lua_State* L) nothrow
 	static assert ((variadicFunctionStyle!T != Variadic.d && variadicFunctionStyle!T != Variadic.c),
 		"Non-typesafe variadic functions are not supported.");
 
-	//Check arguments
-	int top = lua_gettop(L);
-
-	static if (variadicFunctionStyle!T == Variadic.typesafe)
-		enum requiredArgs = Args.length;
-	else
-		enum requiredArgs = Args.length + 1;
-
-	if(top < requiredArgs)
-		argsError(L, top, requiredArgs);
-
-	Class self =  *cast(Class*)luaL_checkudata(L, 1, toStringz(Class.mangleof));
-
-	static if(virtual)
+	try
 	{
-		alias ReturnType!T function(Class, Args) VirtualWrapper;
-		VirtualWrapper func = cast(VirtualWrapper)lua_touserdata(L, lua_upvalueindex(1));
-	}
-	else
-	{
-		T func;
-		func.ptr = cast(void*)self;
-		func.funcptr = cast(typeof(func.funcptr))lua_touserdata(L, lua_upvalueindex(1));
-	}
+		//Check arguments
+		int top = lua_gettop(L);
 
-	//Assemble arguments
-	static if(virtual)
-	{
-		ParameterTypeTuple!VirtualWrapper allArgs;
-		allArgs[0] = self;
-		alias allArgs[1..$] args;
-	}
-	else
-	{
-		Args allArgs;
-		alias allArgs args;
-	}
+		static if (variadicFunctionStyle!T == Variadic.typesafe)
+			enum requiredArgs = Args.length;
+		else
+			enum requiredArgs = Args.length + 1;
 
-	foreach(i, Arg; Args)
-		args[i] = getArgument!(T, i)(L, i + 2);
+		if(top < requiredArgs)
+			argsError(L, top, requiredArgs);
 
-	return callFunction!(typeof(func))(L, func, allArgs);
+		Class self =  *cast(Class*)luaL_checkudata(L, 1, toStringz(Class.mangleof));
+
+		static if(virtual)
+		{
+			alias ReturnType!T function(Class, Args) VirtualWrapper;
+			VirtualWrapper func = cast(VirtualWrapper)lua_touserdata(L, lua_upvalueindex(1));
+		}
+		else
+		{
+			T func;
+			func.ptr = cast(void*)self;
+			func.funcptr = cast(typeof(func.funcptr))lua_touserdata(L, lua_upvalueindex(1));
+		}
+
+		//Assemble arguments
+		static if(virtual)
+		{
+			ParameterTypeTuple!VirtualWrapper allArgs;
+			allArgs[0] = self;
+			alias allArgs[1..$] args;
+		}
+		else
+		{
+			Args allArgs;
+			alias allArgs args;
+		}
+		foreach(i, Arg; Args)
+			args[i] = getArgument!(T, i)(L, i + 2);
+
+		return callFunction!(typeof(func))(L, func, allArgs);
+	}
+	catch(Exception e)
+	{
+		try
+		{
+			luaL_error(L, "%s", toStringz(e.toString())); 
+		} catch
+		{
+			luaL_error(L, "Exception occured during call to D method");
+		}
+	}
+	return -1;
 }
 
 extern(C) int functionWrapper(T)(lua_State* L)
