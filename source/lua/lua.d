@@ -9,7 +9,7 @@ module lua.lua;
 import core.stdc.stdarg;
 import core.stdc.stddef;
 
-extern (C) @safe nothrow:
+extern (C) nothrow:
 
 enum LUA_VERSION_MAJOR = "5";
 enum LUA_VERSION_MINOR = "3";

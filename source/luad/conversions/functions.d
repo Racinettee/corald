@@ -136,7 +136,7 @@ int callFunction(T)(lua_State* L, T func, ParameterTypeTuple!T args)
 private:
 
 // TODO: right now, virtual functions on specialized classes can be called with base classes as 'self', not safe!
-extern(C) int methodWrapper(T, Class, bool virtual)(lua_State* L)
+extern(C) int methodWrapper(T, Class, bool virtual)(lua_State* L) nothrow
 {
 	alias ParameterTypeTuple!T Args;
 

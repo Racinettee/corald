@@ -7,7 +7,7 @@ module lua.lualib;
 
 import lua.lua;
 
-extern (C) @safe nothrow:
+extern (C) nothrow:
 
 int luaopen_base (lua_State *L);
 

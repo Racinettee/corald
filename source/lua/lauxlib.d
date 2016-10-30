@@ -9,7 +9,7 @@ import lua.lua;
 
 import core.stdc.stdio: stdout, stderr, FILE, fwrite, fflush;
 
-extern (C) @safe nothrow:
+extern (C) nothrow:
 
 /* extra error code for 'luaL_load' */
 enum LUA_ERRFILE = LUA_ERRERR+1;
