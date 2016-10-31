@@ -15,23 +15,34 @@ import coral.lua.Lua;
 
 void registerMainWindow(State luaState, AppWindow initialWindow)
 {
+	const char* metatable = "windowMetaTable";
+
 	lua_State* state = luaState.state;
 	AppWindow* window = cast(AppWindow*)lua_newuserdata(
 		state, (AppWindow*).sizeof);
 	*window = initialWindow;
 
-	luaL_newmetatable(state, "windowMetaTable");
+	if(luaL_newmetatable(state, "windowMetaTable"))
+	{
+		lua_pushvalue(state, -1);
+		lua_setfield(state, -2, "__index");
 
-	lua_pushvalue(lua, -1);
-	lua_setfield(lua, -2, "__index");
+		lua_CFunction openFile = (L) {
+			AppWindow* selfPtr = cast(AppWindow*)luaL_checkudata(
+				L, 1, "windowMetaTable");
+		
+			return 0;
+		};
 
-	lua_CFunction openFile = (L) {
+		luaL_Reg[] mainWindowFunctions = [
+			{"openFile", openFile},
+			{null, null}
+		];
 
-	};
-
-	luaL_Reg[] mainWindowFunctions = [
-
-	];
+		luaL_register(state, 0, mainWindowFunctions);
+	}
+	lua_setmetatable(state, -2);
+	lua_setglobal(state, "mainWindow");
 }
 
 /// Call to initialize plugins
@@ -57,8 +68,8 @@ void initPlugins(AppWindow initialWindow)
 
 	JSONValue installedPlugins = pluginFramework["plugins"];
 
-	pushValue(globalState.state, initialWindow);
-	lua_setglobal(globalState.state, "mainWindow");
+	//pushValue(globalState.state, initialWindow);
+	//lua_setglobal(globalState.state, "mainWindow");
 	
 	foreach(entry; installedPlugins.array)
 	{
