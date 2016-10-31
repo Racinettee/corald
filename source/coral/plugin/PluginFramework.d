@@ -11,9 +11,29 @@ import lua.lua;
 import lua.lualib;
 import lua.lauxlib;
 
-import luad.stack;
+import coral.lua.Lua;
 
-//import coral.lua.UserData;
+void registerMainWindow(State luaState, AppWindow initialWindow)
+{
+	lua_State* state = luaState.state;
+	AppWindow* window = cast(AppWindow*)lua_newuserdata(
+		state, (AppWindow*).sizeof);
+	*window = initialWindow;
+
+	luaL_newmetatable(state, "windowMetaTable");
+
+	lua_pushvalue(lua, -1);
+	lua_setfield(lua, -2, "__index");
+
+	lua_CFunction openFile = (L) {
+
+	};
+
+	luaL_Reg[] mainWindowFunctions = [
+
+	];
+}
+
 /// Call to initialize plugins
 void initPlugins(AppWindow initialWindow)
 {
