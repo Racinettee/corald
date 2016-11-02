@@ -25,7 +25,7 @@ void registerMainWindow(State luaState, AppWindow initialWindow)
 
 	if(luaL_newmetatable(state, metatableName))
 	{
-		lua_CFunction openFile = (L) nothrow @trusted {
+		lua_CFunction openFile = (L) @trusted {
 			try {
 				writeln("gracias señor esqueleto!");
 			} catch (Exception) { }
