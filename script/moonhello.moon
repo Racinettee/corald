@@ -4,7 +4,8 @@ Gtk = lgi.require('Gtk')
 print mainWindow
 print mainWindow.__index
 
-print "Dooting flute skeleton"
+print "If you see this image while scrolling you have been visited by the "
+print "Dooting peruvian flute skeleton"
 
 mainWindow\openFile!
 
@@ -23,9 +24,10 @@ class Person extends Thing
 with Person!
   .name = "MoonScript"
   \say_name!
-print "Frirnds the tv shows"
-a, b, c = 1, 2, 3
 
 say_hello = -> print "Hello there"
 
 say_hello!
+
+print "Good bones and calcium will come to you"
+print "But only if you comment 'gracias senor esqueleto'"
