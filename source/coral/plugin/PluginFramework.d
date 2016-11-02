@@ -13,36 +13,42 @@ import lua.lauxlib;
 
 import coral.lua.Lua;
 
+const char* metatableName = "AppWindowMetaTable";
+
 void registerMainWindow(State luaState, AppWindow initialWindow)
 {
-	const char* metatable = "windowMetaTable";
-
 	lua_State* state = luaState.state;
+
 	AppWindow* window = cast(AppWindow*)lua_newuserdata(
-		state, (AppWindow*).sizeof);
+		state, initialWindow.sizeof);
 	*window = initialWindow;
 
-	if(luaL_newmetatable(state, "windowMetaTable"))
+	if(luaL_newmetatable(state, metatableName))
 	{
-		lua_pushvalue(state, -1);
-		lua_setfield(state, -2, "__index");
-
-		lua_CFunction openFile = (L) {
+		lua_CFunction openFile = (L) nothrow @trusted {
+			try {
+				writeln("gracias señor esqueleto!");
+			} catch (Exception) { }
 			AppWindow* selfPtr = cast(AppWindow*)luaL_checkudata(
-				L, 1, "windowMetaTable");
-		
+				L, 1, metatableName);
+
 			return 0;
 		};
+
+		lua_pushvalue(state, -1);
+		lua_setfield(state, -2, "__index");
 
 		luaL_Reg[] mainWindowFunctions = [
 			{"openFile", openFile},
 			{null, null}
 		];
 
-		luaL_register(state, 0, mainWindowFunctions);
+		luaL_setfuncs(state, mainWindowFunctions.ptr, 0);
+
+		lua_setmetatable(state, -2);
+		lua_setglobal(state, "mainWindow");
 	}
-	lua_setmetatable(state, -2);
-	lua_setglobal(state, "mainWindow");
+	writeln("Address of app window: ", &(*window));
 }
 
 /// Call to initialize plugins
@@ -60,6 +66,8 @@ void initPlugins(AppWindow initialWindow)
 		printError(globalState);
 	globalState.require("moonscript");
 
+	registerMainWindow(globalState, initialWindow);
+	
 	immutable string pluginFile = "coralPlugins.json";
 
 	if(!exists(pluginFile))

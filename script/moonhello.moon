@@ -1,6 +1,13 @@
 lgi = require 'lgi'
 Gtk = lgi.require('Gtk')
 
+print mainWindow
+print mainWindow.__index
+
+print "Dooting flute skeleton"
+
+mainWindow\openFile!
+
 moonWindow = with Gtk.Window!
   .title = 'moon'
   .default_width = 400
