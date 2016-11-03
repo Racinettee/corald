@@ -81,7 +81,10 @@ void openFile(Notebook notebook, const string filepath)
 
 		auto sourceFile = new SourceFile();
 		sourceFile.setLocation(File.parseName(filepath));
-		auto sourceBuffer = new SourceBuffer(SourceLanguageManager.getDefault().guessLanguage(filepath, null));
+		auto sourceLanguage = SourceLanguageManager.getDefault().guessLanguage(filepath, null);
+		if(!sourceLanguage)
+			sourceLanguage = SourceLanguageManager.getDefault().guessLanguage("default.c", null);
+		auto sourceBuffer = new SourceBuffer(sourceLanguage);
 		auto fileLoader = new SourceFileLoader(sourceBuffer, sourceFile);
 		auto cancellation = new Cancellable();
 
@@ -93,19 +96,19 @@ void openFile(Notebook notebook, const string filepath)
 			SourceBuffer sourceBuf;
 		}
 
-		GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat)
+		GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat) @trusted
 		{
 			import coral.util.MemUtil : dealloc;
 
 			auto userDat = cast(UserData)userdat;
-			if(userDat.loader.loadFinish(new SimpleAsyncResult(cast(GSimpleAsyncResult*)result)))
+			GSimpleAsyncResult* simpleResult = cast(GSimpleAsyncResult*)result;
+			if(userDat.loader.loadFinish(new SimpleAsyncResult(simpleResult)))
       {
         addNewSourceEditor(userDat.notebook, userDat.sourceBuf, userDat.filepath);
 
         userDat.notebook.setCurrentPage(-1);
       }
       // there is need for an else case that notifies the user that their file cannot be opened
-
 			dealloc(userDat);
 		};
 

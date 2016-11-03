@@ -5,6 +5,7 @@ import coral.window.AppWindow;
 
 import std.json;
 import std.file;
+import std.string;
 import std.path : absolutePath;
 
 import lua.lua;
@@ -27,10 +28,10 @@ void registerMainWindow(State luaState, AppWindow initialWindow)
 	{
 		lua_CFunction openFile = (L) @trusted {
 			try {
-				writeln("gracias señor esqueleto!");
+				AppWindow* selfPtr = cast(AppWindow*)luaL_checkudata(L, 1, metatableName);
+				const string filepath = cast(string)fromStringz(lua_tostring(L, 2));
+				(*selfPtr).openFile(filepath);
 			} catch (Exception) { }
-			AppWindow* selfPtr = cast(AppWindow*)luaL_checkudata(
-				L, 1, metatableName);
 
 			return 0;
 		};

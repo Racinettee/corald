@@ -91,6 +91,11 @@ class AppWindow : MainWindow
 		string filepath = fc.getFilename();
 		fc.destroy();
 
+		openFile(filepath);
+	}
+
+	void openFile(string filepath)
+	{
 		coral.util.EditorUtil.openFile(notebook, filepath);
 	}
 

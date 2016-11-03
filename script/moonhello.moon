@@ -7,7 +7,7 @@ print mainWindow.__index
 print "If you see this image while scrolling you have been visited by the "
 print "Dooting peruvian flute skeleton"
 
-mainWindow\openFile!
+mainWindow\openFile "script/moonhello.moon"
 
 moonWindow = with Gtk.Window!
   .title = 'moon'
@@ -31,3 +31,4 @@ say_hello!
 
 print "Good bones and calcium will come to you"
 print "But only if you comment 'gracias senor esqueleto'"
+print "gracias senor esqueleto"
