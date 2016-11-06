@@ -1,34 +1,31 @@
 module coral.application.Application;
 
-import gtkc.gtk;
-import gtkc.glib;
-import gtkc.gio;
-import gtkc.gobject;
+import coral.window.AppWindow;
+import coral.plugin.PluginFramework;
 
-import gtkc.gtktypes;
-import gtkc.glibtypes;
-import gtkc.giotypes;
-import gtkc.gobjecttypes;
+import gtkc.giotypes : GApplicationFlags, GConnectFlags;
 
-Application coralApplication;
+import gio.Application : GioApp = Application;
+import gtk.Application : GtkApp = Application;
 
-class Application
+CoralApp coralApplication;
+
+class CoralApp : GtkApp
 {
   this()
   {
-    app = gtk_application_new("com.racinnettee.coral", G_APPLICATION_FLAGS_NONE);
-    g_signal_connect(app, "activate", &onActivate, null);
-  }
-
-  void run() @safe
-  {
-    g_application_run(app, 0, null);
-  }
-
-  static int onActivate(GApplication* app)
-  {
+    super("com.racinettee.coral", GApplicationFlags.HANDLES_OPEN);
     import std.stdio : writeln;
-    writeln("Activated");
+    //addOnOpen((void*, int, string, GioApp) => initPlugins(window));
+    addOnActivate((a) => onActivate(a), cast(GConnectFlags)0);
+    addOnStartup((a) => initPlugins(window), cast(GConnectFlags)0);
+    register(null);
   }
-  private GtkApplication* app;
+  void onActivate(GioApp app)
+  {
+    window = new AppWindow;
+    addWindow(window);
+   //open(null, null);
+  }
+  AppWindow window;
 }

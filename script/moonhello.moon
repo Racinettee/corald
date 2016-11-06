@@ -1,4 +1,5 @@
 lgi = require 'lgi'
+lfs = require 'lfs'
 Gtk = lgi.require('Gtk')
 
 print mainWindow
@@ -7,7 +8,7 @@ print mainWindow.__index
 print "If you see this image while scrolling you have been visited by the "
 print "Dooting peruvian flute skeleton"
 
-mainWindow\openFile "script/moonhello.moon"
+mainWindow\openFile lfs.currentdir! .. "/script/moonhello.moon"
 
 moonWindow = with Gtk.Window!
   .title = 'moon'

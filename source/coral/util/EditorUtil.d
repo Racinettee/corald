@@ -99,17 +99,25 @@ void openFile(Notebook notebook, const string filepath)
 		GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat) @trusted
 		{
 			import coral.util.MemUtil : dealloc;
-
+			import std.stdio : writeln;
+			
 			auto userDat = cast(UserData)userdat;
-			GSimpleAsyncResult* simpleResult = cast(GSimpleAsyncResult*)result;
-			if(userDat.loader.loadFinish(new SimpleAsyncResult(simpleResult)))
-      {
-        addNewSourceEditor(userDat.notebook, userDat.sourceBuf, userDat.filepath);
+			try
+			{
+				GSimpleAsyncResult* simpleResult = cast(GSimpleAsyncResult*)result;
+				if(userDat.loader.loadFinish(new SimpleAsyncResult(simpleResult)))
+				{
+					addNewSourceEditor(userDat.notebook, userDat.sourceBuf, userDat.filepath);
 
-        userDat.notebook.setCurrentPage(-1);
-      }
-      // there is need for an else case that notifies the user that their file cannot be opened
-			dealloc(userDat);
+					userDat.notebook.setCurrentPage(-1);
+				}
+			}
+			catch(Exception) { writeln("Failed to load file"); }
+			finally
+			{
+				// there is need for an else case that notifies the user that their file cannot be opened
+				dealloc(userDat);
+			}
 		};
 
 		import coral.util.MemUtil : alloc;

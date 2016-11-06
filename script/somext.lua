@@ -2,6 +2,7 @@ print("Hello world")
 
 local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
+local lfs = require 'lfs'
 
 -- Create top level window with some properties and connect its 'destroy'
 -- signal to the event loop termination.
@@ -30,6 +31,8 @@ toolbar:insert(Gtk.ToolButton {
 -- About button in toolbar and its handling.
 local about_button =  Gtk.ToolButton { stock_id = 'gtk-about' }
 function about_button:on_clicked()
+   print(lfs.currentdir())
+   mainWindow:openFile(lfs.currentdir() .. "/dub.json")
    local dlg = Gtk.AboutDialog {
       program_name = 'LGI Demo',
       title = 'About...',

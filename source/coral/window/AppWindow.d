@@ -31,6 +31,8 @@ import coral.debugger.IDebugger;
 import coral.debugger.GDB;
 import coral.debugger.DebugManager;
 
+import coral.plugin.PluginFramework;
+
 import coral.lua.Lua;
 
 class AppWindow : MainWindow
@@ -56,6 +58,8 @@ class AppWindow : MainWindow
 		add(vbox);
 
 		addNewSourceEditor(notebook);
+
+	//	addOnShow((w) => initPlugins(this));
 
 		showAll();
 
