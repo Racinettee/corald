@@ -16,36 +16,14 @@ void main()
 	try
 	{
 		initDebugManager();	
-		string[] args = ["script/moonhello.moon"];
+		string[] args = [];
 
 		Main.init(args);
 
-		Main.iteration();
-
-		//bool deligate() initPluginsDeligate;
 		auto appWin = new AppWindow;
-		auto initPluginsDeligate = () {
-			initPlugins(appWin);
-			return false;
-		};
 
-		new Timeout(1000U, () => initPluginsDeligate());
-
+		initPlugins(appWin);
 		Main.run();
-		/*auto mainContext = new MainContext;
-		mainContext.doref();
-		auto mainLoop = new MainLoop(mainContext, true);
-		mainLoop.doref();
-		initPlugins(new AppWindow());
-		mainLoop.run();
-		mainLoop.unref();
-		mainContext.unref();*/
-//		coralApplication = new CoralApp;
-//		coralApplication.run(args);
-		//Main.init(args);
-		//auto appWin = new AppWindow();
-		//initPlugins(appWin);
-		//Main.run();
 	}
 	catch(Exception e)
 	{
