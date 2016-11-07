@@ -39,7 +39,6 @@ void pushInstance(T)(lua_State* state, T instance, luaL_Reg[] methodTable)
 		lua_pushvalue(state, -1);
 		lua_setfield(state, -2, "__index");
 		luaL_setfuncs(state, methodTable.ptr, 0);
-		lua_setmetatable(state, -2);
 	}
-
+	lua_setmetatable(state, -2);
 }
