@@ -5,6 +5,7 @@ import gtk.Button;
 import gtk.Widget;
 import gtk.Label;
 import gtk.Image;
+import gtk.Notebook;
 import gtkc.gtktypes : StockID;
 import gtkc.gtktypes : GtkOrientation;
 import gtkc.gtktypes : GtkReliefStyle;
@@ -22,12 +23,19 @@ class TabLabel : Box
 		closeButton = new Button(StockID.CLOSE, true);
 		closeButton.setRelief(GtkReliefStyle.NONE);
 		childRef = cref;
+		closeButton.addOnClicked(&this.close);
 		filePath = fullPath;
 		packStart(cast(Widget)textLabel, true, false, 1);
 		packEnd(cast(Widget)closeButton, false, false, 1);
 		showAll();
 	}
-	@safe @property const string fullPath () { return filePath; } 
+	void close(Button)
+	{
+		Notebook notebook = cast(Notebook)getParent;
+		int pageNum = notebook.pageNum(childRef);
+		notebook.removePage(pageNum);
+	}
+	@safe @property const string fullPath () { return filePath; }
 	private string filePath;
 	private Widget childRef;
 	private Button closeButton;
