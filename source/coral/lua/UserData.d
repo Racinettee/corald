@@ -54,3 +54,13 @@ void pushInstance(T)(lua_State* state, T instance, const luaL_Reg[] methodTable)
   }
   lua_setmetatable(state, -2);
 }
+
+T* checkInstanceOf(T)(lua_State* state, int index)
+{
+  return cast(T*)luaL_checkudata(state, 1, metatableNamez!T);
+}
+
+T checkClassInstanceOf(T)(lua_State* state, int index)
+{
+  return *checkInstanceOf!T;
+}
