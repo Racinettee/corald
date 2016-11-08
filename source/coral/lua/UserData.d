@@ -62,5 +62,5 @@ T* checkInstanceOf(T)(lua_State* state, int index)
 
 T checkClassInstanceOf(T)(lua_State* state, int index)
 {
-  return *checkInstanceOf!T;
+  return *checkInstanceOf!T(state, index);
 }

@@ -15,17 +15,13 @@ import lua.lauxlib;
 import coral.lua.Lua;
 import coral.lua.UserData;
 
-//const char* metatableName = "AppWindowMetaTable";
-
 void registerMainWindow(State luaState, AppWindow initialWindow)
 {
 	lua_CFunction openFile = (L) @trusted {
 		try {
-			AppWindow* selfPtr =
-				cast(AppWindow*)luaL_checkudata(L, 1,
-					metatableNamez!AppWindow);
+			AppWindow self = checkClassInstanceOf!AppWindow(L, 1);
 			const string filepath = cast(string)fromStringz(lua_tostring(L, 2));
-			(*selfPtr).openFile(filepath);
+			self.openFile(filepath);
 		} catch (Exception) { }
 
 		return 0;
