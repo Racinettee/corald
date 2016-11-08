@@ -13,43 +13,31 @@ import lua.lualib;
 import lua.lauxlib;
 
 import coral.lua.Lua;
+import coral.lua.UserData;
 
-const char* metatableName = "AppWindowMetaTable";
+//const char* metatableName = "AppWindowMetaTable";
 
 void registerMainWindow(State luaState, AppWindow initialWindow)
 {
-	lua_State* state = luaState.state;
+	lua_CFunction openFile = (L) @trusted {
+		try {
+			AppWindow* selfPtr =
+				cast(AppWindow*)luaL_checkudata(L, 1,
+					metatableNamez!AppWindow);
+			const string filepath = cast(string)fromStringz(lua_tostring(L, 2));
+			(*selfPtr).openFile(filepath);
+		} catch (Exception) { }
 
-	AppWindow* window = cast(AppWindow*)lua_newuserdata(
-		state, initialWindow.sizeof);
-	*window = initialWindow;
-
-	if(luaL_newmetatable(state, metatableName))
-	{
-		lua_CFunction openFile = (L) @trusted {
-			try {
-				AppWindow* selfPtr = cast(AppWindow*)luaL_checkudata(L, 1, metatableName);
-				const string filepath = cast(string)fromStringz(lua_tostring(L, 2));
-				(*selfPtr).openFile(filepath);
-			} catch (Exception) { }
-
-			return 0;
-		};
-
-		lua_pushvalue(state, -1);
-		lua_setfield(state, -2, "__index");
-
-		luaL_Reg[] mainWindowFunctions = [
+		return 0;
+	};
+	luaL_Reg[] mainWindowFunctions = [
 			{"openFile", openFile},
 			{null, null}
 		];
+	pushInstance(luaState.state, initialWindow, mainWindowFunctions);
 
-		luaL_setfuncs(state, mainWindowFunctions.ptr, 0);
-
-		lua_setmetatable(state, -2);
-		lua_setglobal(state, "mainWindow");
-	}
-	writeln("Address of app window: ", &(*window));
+	lua_setglobal(luaState.state, "mainWindow");
+	writeln("Address of app window: ", &initialWindow);
 }
 
 /// Call to initialize plugins

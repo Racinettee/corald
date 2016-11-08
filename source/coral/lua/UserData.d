@@ -5,7 +5,7 @@ import lua.lualib;
 import lua.lauxlib;
 
 import std.traits;
-import std.string : toStringz;
+import std.string : toStringz, removechars;
 
 import coral.lua.Lua;
 
@@ -29,16 +29,28 @@ T checkType(T)(lua_State* L, int index)
   return obj;
 }
 
-void pushInstance(T)(lua_State* state, T instance, luaL_Reg[] methodTable)
+pure string metatableName(T)() @safe
 {
-	T* t = cast(AppWindow*)lua_newuserdata(state, instance.sizeof);
+  return removechars(fullyQualifiedName!T, ".");
+}
+
+pure const(char)* metatableNamez(T)() @safe 
+{
+  return toStringz(metatableName!T);
+}
+
+void pushInstance(T)(lua_State* state, T instance, const luaL_Reg[] methodTable)
+{
+	import std.traits : fullyQualifiedName;
+	
+	T* t = cast(T*)lua_newuserdata(state, instance.sizeof);
 	*t = instance;
 
-	if(luaL_newmetatable(state, metatableName))
+	if(luaL_newmetatable(state, toStringz(metatableName!T)))
 	{
 		lua_pushvalue(state, -1);
 		lua_setfield(state, -2, "__index");
 		luaL_setfuncs(state, methodTable.ptr, 0);
-	}
-	lua_setmetatable(state, -2);
+  }
+  lua_setmetatable(state, -2);
 }
