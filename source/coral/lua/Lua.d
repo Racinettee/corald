@@ -63,6 +63,19 @@ class State
 	{
 		requireFile(luaState, toStringz(filename));
 	}
+  void doString(const string filename)
+  {
+    if(luaL_dostring(luaState, toStringz(filename)) != 0)
+      printError(this);
+  }
+  void setGlobal(const string variableName)
+  {
+    lua_setglobal(luaState, toStringz(variableName));
+  }
+  string toString(int index) nothrow
+  {
+    return cast(string)fromStringz(lua_tostring(luaState, 2));
+  }
   /// Get the underlying C object
   pure @safe @property lua_State *state () nothrow
   {

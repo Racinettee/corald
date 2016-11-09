@@ -1,12 +1,9 @@
 module coral.plugin.PluginFramework;
 
-import coral.lua.Lua;
-import coral.window.AppWindow;
-
 import std.json;
 import std.file;
 import std.string;
-import std.path : absolutePath;
+import std.path;
 
 import lua.lua;
 import lua.lualib;
@@ -14,8 +11,9 @@ import lua.lauxlib;
 
 import coral.lua.Lua;
 import coral.lua.UserData;
+import coral.window.AppWindow;
 
-void registerMainWindow(State luaState, AppWindow initialWindow)
+void registerMainWindow(State state, AppWindow initialWindow)
 {
 	lua_CFunction openFile = (L) @trusted {
 		try {
@@ -27,28 +25,24 @@ void registerMainWindow(State luaState, AppWindow initialWindow)
 		return 0;
 	};
 	luaL_Reg[] mainWindowFunctions = [
-			{"openFile", openFile},
-			{null, null}
-		];
-	pushInstance(luaState.state, initialWindow, mainWindowFunctions);
+		{"openFile", openFile},
+		{null, null}
+	];
+	pushInstance(state.state, initialWindow, mainWindowFunctions);
 
-	lua_setglobal(luaState.state, "mainWindow");
-	writeln("Address of app window: ", &initialWindow);
+	state.setGlobal("mainWindow");
 }
 
 /// Call to initialize plugins
 void initPlugins(AppWindow initialWindow)
 {
-	//luaop                                                                                                                                en_lpeg(globalState.state);
-	int result = luaL_dostring(globalState.state,
-		toStringz(
+	globalState.doString(
 		"local projRoot = '"~absolutePath("script")~"'\n"
-		"local binRoot = '"~absolutePath("dep/bin")~"'\n"
+		"local binRoot = '"~absolutePath(buildPath("dep","bin"))~"'\n"
 		"package.path = package.path .. ';' .. projRoot .. '/?.lua;' .. projRoot .. '/?.moon'\n"
-		"package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'"));
-	//lua_pop(globalState.state, -1);
-	if(result != 0)
-		printError(globalState);
+		"package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'");
+	//lua_pop(globalState.state, -1); // ?
+
 	globalState.require("moonscript");
 
 	registerMainWindow(globalState, initialWindow);
@@ -60,9 +54,6 @@ void initPlugins(AppWindow initialWindow)
 	JSONValue pluginFramework = parseJSON(cast(char[])read(pluginFile), JSONOptions.none);
 
 	JSONValue installedPlugins = pluginFramework["plugins"];
-
-	//pushValue(globalState.state, initialWindow);
-	//lua_setglobal(globalState.state, "mainWindow");
 	
 	foreach(entry; installedPlugins.array)
 	{
@@ -70,8 +61,9 @@ void initPlugins(AppWindow initialWindow)
 		{
 			string filename = entry["name"].str;
 
-			//if(!exists(filename))
-			//	throw new Exception("Plugin: "~filename~" does not exist");
+			if(!exists(chainPath("script",filename~".lua")))
+				if(!exists(chainPath("script",filename~".moon")))
+					throw new Exception("Plugin: "~filename~" does not exist");
 				
 			globalState.require(entry["name"].str);
 		}
