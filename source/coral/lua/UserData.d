@@ -17,6 +17,8 @@ pure const(char)* metatableNamez(T)() @safe
   return toStringz(metatableName!T);
 }
 
+//void pushInstance(T)(lua_State)
+
 void pushInstance(T)(lua_State* state, T instance, const luaL_Reg[] methodTable)
 {	
 	T* t = cast(T*)lua_newuserdata(state, instance.sizeof);

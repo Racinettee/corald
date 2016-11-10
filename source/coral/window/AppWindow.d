@@ -58,9 +58,7 @@ class AppWindow : MainWindow
 		add(vbox);
 
 		addNewSourceEditor(notebook);
-
-	//	addOnShow((w) => initPlugins(this));
-
+		
 		showAll();
 
 		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
