@@ -1,4 +1,8 @@
-module coral.plugin.PluginFramework;
+module coral.plugin.framework;
+
+import coral.lua.state;
+import coral.lua.userdata;
+import coral.window.appwindow;
 
 import std.json;
 import std.file;
@@ -9,10 +13,8 @@ import lua.lua;
 import lua.lualib;
 import lua.lauxlib;
 
-import coral.lua.Lua;
-import coral.lua.UserData;
-import coral.window.AppWindow;
-
+/// A test function. Sets up the very first window to interface
+/// With the lua scripts that run
 void registerMainWindow(State state, AppWindow initialWindow)
 {
 	lua_CFunction openFile = (L) @trusted {
@@ -28,7 +30,10 @@ void registerMainWindow(State state, AppWindow initialWindow)
 		{"openFile", openFile},
 		{null, null}
 	];
-	pushInstance(state.state, initialWindow, mainWindowFunctions);
+	state.pushInstance(initialWindow, mainWindowFunctions);
+	lua_pushlightuserdata(state.state, initialWindow.mainMenu.getMenuBarStruct);
+	lua_setfield(state.state, -2, "menuBar");
+	lua_pop(state.state, 1);
 
 	state.setGlobal("mainWindow");
 }

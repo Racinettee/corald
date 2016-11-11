@@ -1,4 +1,9 @@
-﻿module coral.window.AppWindow;
+﻿module coral.window.appwindow;
+
+import coral.util.editor;
+import coral.debugger.idebugger;
+import coral.debugger.gdb;
+import coral.debugger.manager;
 
 import std.stdio : writeln;
 
@@ -25,18 +30,11 @@ import gsv.SourceLanguageManager;
 
 import gtkc.glibtypes : GPriority;
 
-import coral.util.EditorUtil;
-
-import coral.debugger.IDebugger;
-import coral.debugger.GDB;
-import coral.debugger.DebugManager;
-
-import coral.plugin.PluginFramework;
-
-import coral.lua.Lua;
-
+/// Primary application window class
 class AppWindow : MainWindow
 {
+	/// The default constructor.
+	/// This is the only way to set up the window
 	this()
 	{
 		super("Getting started with Gtkd");
@@ -58,17 +56,15 @@ class AppWindow : MainWindow
 		add(vbox);
 
 		addNewSourceEditor(notebook);
-
-	//	addOnShow((w) => initPlugins(this));
-
+		
 		showAll();
 
 		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
 		//debugInstance.setBreakpoint("test/fox.c", 7);
 		//debugInstance.start();
 	}
-    ~this()
-    {
+	~this()
+	{
 		//debugInstance.stop();
 		writeln("Closing the app");
 	}
@@ -84,6 +80,7 @@ class AppWindow : MainWindow
 		writeln(line);
 	}
 
+	/// Opens a file in this window, popping an open file dialog
 	void openFile(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
@@ -98,11 +95,13 @@ class AppWindow : MainWindow
 		openFile(filepath);
 	}
 
+	/// Opens a file in this window
 	void openFile(string filepath)
 	{
-		coral.util.EditorUtil.openFile(notebook, filepath);
+		coral.util.editor.openFile(notebook, filepath);
 	}
 
+	/// Saves the currently focused file, popping a save as dialog
 	void saveFileAs(MenuItem)
 	{
 

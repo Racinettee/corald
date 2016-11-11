@@ -1,6 +1,6 @@
-module coral.debugger.DebugManager;
+module coral.debugger.manager;
 
-import coral.debugger.IDebugger;
+import coral.debugger.idebugger;
 
 DebugManager debugManager;
 
@@ -14,6 +14,8 @@ void deinitDebugManager()
   debugManager.clearAll();
 }
 
+/// This class exists to ensure that all debuggers
+/// are shut down at the programs end
 class DebugManager
 {
   ~this()

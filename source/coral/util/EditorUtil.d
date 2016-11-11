@@ -1,4 +1,4 @@
-module coral.util.EditorUtil;
+module coral.util.editor;
 
 import std.string : lastIndexOf;
 
@@ -98,7 +98,7 @@ void openFile(Notebook notebook, const string filepath)
 
 		GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat) @trusted
 		{
-			import coral.util.MemUtil : dealloc;
+			import coral.util.memory : dealloc;
 			import std.stdio : writeln;
 			
 			auto userDat = cast(UserData)userdat;
@@ -120,7 +120,7 @@ void openFile(Notebook notebook, const string filepath)
 			}
 		};
 
-		import coral.util.MemUtil : alloc;
+		import coral.util.memory : alloc;
 
 		auto userDat = alloc!UserData;
 		userDat.filepath = filepath;
