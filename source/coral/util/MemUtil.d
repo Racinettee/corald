@@ -1,4 +1,4 @@
-module coral.util.MemUtil;
+module coral.util.memory;
 
 T alloc(T, Args...) (Args args) 
 {

@@ -1,4 +1,6 @@
-﻿module coral.debugger.GDB;
+﻿module coral.debugger.gdb;
+
+import coral.debugger.idebugger;
 
 import core.stdc.stdio;
 import core.thread;
@@ -7,8 +9,8 @@ import std.string;
 import std.stdio;
 import std.process;
 
-import coral.debugger.IDebugger;
-
+/// Spawns an instance of gdb.
+/// It can be interacted with through its idebugger interface
 class GDB : IDebugger
 {
   alias OutputHandler = void delegate(string);

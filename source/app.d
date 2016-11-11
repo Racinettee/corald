@@ -2,7 +2,7 @@ module coral.main;
 
 import coral.window.appwindow;
 import coral.plugin.framework;
-import coral.debugger.DebugManager;
+import coral.debugger.manager;
 
 import std.stdio : writeln;
 

@@ -1,5 +1,7 @@
-module coral.debugger.IDebugger;
+module coral.debugger.idebugger;
 
+/// A basic interface by which debugger instances
+/// should conform. Most debuggers support these interactions
 interface IDebugger
 {
   void start();

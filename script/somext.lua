@@ -35,7 +35,6 @@ toolbar:insert(Gtk.ToolButton {
 -- About button in toolbar and its handling.
 local about_button =  Gtk.ToolButton { stock_id = 'gtk-about' }
 function about_button:on_clicked()
-   print(lfs.currentdir())
    mainWindow:openFile(lfs.currentdir() .. "/dub.json")
    local dlg = Gtk.AboutDialog {
       program_name = 'LGI Demo',

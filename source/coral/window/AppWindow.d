@@ -1,9 +1,9 @@
 ﻿module coral.window.appwindow;
 
-import coral.util.EditorUtil;
-import coral.debugger.IDebugger;
-import coral.debugger.GDB;
-import coral.debugger.DebugManager;
+import coral.util.editor;
+import coral.debugger.idebugger;
+import coral.debugger.gdb;
+import coral.debugger.manager;
 
 import std.stdio : writeln;
 
@@ -80,6 +80,7 @@ class AppWindow : MainWindow
 		writeln(line);
 	}
 
+	/// Opens a file in this window, popping an open file dialog
 	void openFile(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
@@ -94,11 +95,13 @@ class AppWindow : MainWindow
 		openFile(filepath);
 	}
 
+	/// Opens a file in this window
 	void openFile(string filepath)
 	{
-		coral.util.EditorUtil.openFile(notebook, filepath);
+		coral.util.editor.openFile(notebook, filepath);
 	}
 
+	/// Saves the currently focused file, popping a save as dialog
 	void saveFileAs(MenuItem)
 	{
 
