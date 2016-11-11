@@ -1,4 +1,9 @@
-﻿module coral.window.AppWindow;
+﻿module coral.window.appwindow;
+
+import coral.util.EditorUtil;
+import coral.debugger.IDebugger;
+import coral.debugger.GDB;
+import coral.debugger.DebugManager;
 
 import std.stdio : writeln;
 
@@ -24,12 +29,6 @@ import gsv.SourceFileLoader;
 import gsv.SourceLanguageManager;
 
 import gtkc.glibtypes : GPriority;
-
-import coral.util.EditorUtil;
-
-import coral.debugger.IDebugger;
-import coral.debugger.GDB;
-import coral.debugger.DebugManager;
 
 /// Primary application window class
 class AppWindow : MainWindow

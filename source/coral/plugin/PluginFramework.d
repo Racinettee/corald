@@ -1,5 +1,9 @@
 module coral.plugin.framework;
 
+import coral.lua.state;
+import coral.lua.userdata;
+import coral.window.appwindow;
+
 import std.json;
 import std.file;
 import std.string;
@@ -8,10 +12,6 @@ import std.path;
 import lua.lua;
 import lua.lualib;
 import lua.lauxlib;
-
-import coral.lua.state;
-import coral.lua.userdata;
-import coral.window.AppWindow;
 
 /// A test function. Sets up the very first window to interface
 /// With the lua scripts that run

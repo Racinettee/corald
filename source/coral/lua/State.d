@@ -1,6 +1,6 @@
 module coral.lua.state;
 
-private import coral.lua.userdata;
+import coral.lua.userdata;
 
 import lua.lua;
 import lua.lualib;

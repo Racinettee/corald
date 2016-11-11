@@ -1,5 +1,6 @@
 module coral.main;
-import coral.window.AppWindow;
+
+import coral.window.appwindow;
 import coral.plugin.framework;
 import coral.debugger.DebugManager;
 
