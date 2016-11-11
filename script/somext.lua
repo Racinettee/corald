@@ -1,8 +1,12 @@
-print("Hello world")
-
 local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local lfs = require 'lfs'
+
+local menuBar = Gtk.MenuBar(mainWindow.menuBar)
+menuBar:append(Gtk.MenuItem {
+  label = 'Hello'
+})
+menuBar:show_all()
 
 -- Create top level window with some properties and connect its 'destroy'
 -- signal to the event loop termination.

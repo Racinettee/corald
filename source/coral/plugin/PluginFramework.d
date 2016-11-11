@@ -29,9 +29,9 @@ void registerMainWindow(State state, AppWindow initialWindow)
 		{null, null}
 	];
 	pushInstance(state.state, initialWindow, mainWindowFunctions);
-	lua_pushvalue(state.state, -1);
-	lua_pushlightuserdata(state.state, &initialWindow.mainMenu);
+	lua_pushlightuserdata(state.state, initialWindow.mainMenu.getMenuBarStruct);
 	lua_setfield(state.state, -2, "menuBar");
+	lua_pop(state.state, 1);
 
 	state.setGlobal("mainWindow");
 }

@@ -27,10 +27,11 @@ void pushInstance(T)(lua_State* state, T instance, const luaL_Reg[] methodTable)
 	if(luaL_newmetatable(state, metatableNamez!T))
 	{
 		lua_pushvalue(state, -1);
-		lua_setfield(state, -2, "__index");
+    lua_pushvalue(state, -1); // test
+		lua_setfield(state, -3, "__index"); // -2 in normal circumstance
 		luaL_setfuncs(state, methodTable.ptr, 0);
   }
-  lua_setmetatable(state, -2);
+  lua_setmetatable(state, -3);
 }
 
 T* checkInstanceOf(T)(lua_State* state, int index)
