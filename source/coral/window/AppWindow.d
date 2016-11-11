@@ -31,12 +31,11 @@ import coral.debugger.IDebugger;
 import coral.debugger.GDB;
 import coral.debugger.DebugManager;
 
-import coral.plugin.PluginFramework;
-
-import coral.lua.Lua;
-
+/// Primary application window class
 class AppWindow : MainWindow
 {
+	/// The default constructor.
+	/// This is the only way to set up the window
 	this()
 	{
 		super("Getting started with Gtkd");
@@ -65,8 +64,8 @@ class AppWindow : MainWindow
 		//debugInstance.setBreakpoint("test/fox.c", 7);
 		//debugInstance.start();
 	}
-    ~this()
-    {
+	~this()
+	{
 		//debugInstance.stop();
 		writeln("Closing the app");
 	}

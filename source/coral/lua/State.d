@@ -1,4 +1,6 @@
-module coral.lua.Lua;
+module coral.lua.state;
+
+private import coral.lua.userdata;
 
 import lua.lua;
 import lua.lualib;
@@ -23,7 +25,7 @@ class State
   this()
   {
     luaState = luaL_newstate();
-	isOwner = true;
+	  isOwner = true;
   }
 	this(lua_State* L, bool isOwner=false)
 	{
@@ -72,9 +74,15 @@ class State
   {
     lua_setglobal(luaState, toStringz(variableName));
   }
+  /// Convert argument to string
   string toString(int index) nothrow
   {
-    return cast(string)fromStringz(lua_tostring(luaState, 2));
+    return cast(string)fromStringz(lua_tostring(luaState, index));
+  }
+  /// Convenience method to push user data onto the lua stack
+  void pushInstance(T)(T instance, const luaL_Reg[] methodTable)
+  {
+    coral.lua.userdata.pushInstance!T(luaState, instance, methodTable);
   }
   /// Get the underlying C object
   pure @safe @property lua_State *state () nothrow
