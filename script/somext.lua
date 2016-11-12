@@ -29,7 +29,11 @@ status_bar:push(ctx, 'This is statusbar message.')
 -- When clicking at the toolbar 'quit' button, destroy the main window.
 toolbar:insert(Gtk.ToolButton {
 		  stock_id = 'gtk-quit',
-		  on_clicked = function() window:destroy() end,
+		  on_clicked = function()
+        local notebook = Gtk.Notebook(mainWindow.notebook)
+        notebook:remove_page(notebook:get_current_page())
+        --window:destroy()
+      end,
 	       }, -1)
 
 -- About button in toolbar and its handling.

@@ -111,7 +111,13 @@ class AppWindow : MainWindow
 	@property Widget currentPage ()
 	{
 		return notebook.getNthPage(notebook.getCurrentPage);
-	} 
+	}
+
+	/// Convenience method to get the tab label for the current page
+	@property Widget currentTabLabel ()
+	{
+		return notebook.getTabLabel(currentPage);
+	}
 
   IDebugger debugInstance;
 	Builder builder;

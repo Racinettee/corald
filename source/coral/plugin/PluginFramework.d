@@ -17,6 +17,7 @@ import lua.lauxlib;
 /// With the lua scripts that run
 void registerMainWindow(State state, AppWindow initialWindow)
 {
+	import gtk.Widget : Widget;
 	lua_CFunction openFile = (L) @trusted {
 		try {
 			AppWindow self = checkClassInstanceOf!AppWindow(L, 1);
@@ -29,8 +30,18 @@ void registerMainWindow(State state, AppWindow initialWindow)
 	lua_CFunction currentPage = (L) @trusted {
 		try {
 			AppWindow self = checkClassInstanceOf!AppWindow(L, 1);
-			import gtk.Widget : Widget;
+			
 			lua_pushlightuserdata(L, self.currentPage.getWidgetStruct);
+		} catch (Exception) {
+			lua_pushnil(L);
+		}
+		return 1;
+	};
+	lua_CFunction currentTabLabel = (L) @trusted {
+		try {
+			AppWindow self = checkClassInstanceOf!AppWindow(L, 1);
+			
+			lua_pushlightuserdata(L, self.currentTabLabel.getWidgetStruct);
 		} catch (Exception) {
 			lua_pushnil(L);
 		}
@@ -39,11 +50,14 @@ void registerMainWindow(State state, AppWindow initialWindow)
 	luaL_Reg[] mainWindowFunctions = [
 		{"openFile", openFile},
 		{"currentPage", currentPage},
+		{"currentTabLabel", currentTabLabel},
 		{null, null}
 	];
 	state.pushInstance(initialWindow, mainWindowFunctions);
 	lua_pushlightuserdata(state.state, initialWindow.mainMenu.getMenuBarStruct);
 	lua_setfield(state.state, -2, "menuBar");
+	lua_pushlightuserdata(state.state, initialWindow.notebook.getNotebookStruct);
+	lua_setfield(state.state, -2, "notebook");
 	lua_pop(state.state, 1);
 
 	state.setGlobal("mainWindow");
