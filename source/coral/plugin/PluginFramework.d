@@ -26,8 +26,19 @@ void registerMainWindow(State state, AppWindow initialWindow)
 
 		return 0;
 	};
+	lua_CFunction currentPage = (L) @trusted {
+		try {
+			AppWindow self = checkClassInstanceOf!AppWindow(L, 1);
+			import gtk.Widget : Widget;
+			lua_pushlightuserdata(L, self.currentPage.getWidgetStruct);
+		} catch (Exception) {
+			lua_pushnil(L);
+		}
+		return 1;
+	};
 	luaL_Reg[] mainWindowFunctions = [
 		{"openFile", openFile},
+		{"currentPage", currentPage},
 		{null, null}
 	];
 	state.pushInstance(initialWindow, mainWindowFunctions);

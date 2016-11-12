@@ -106,6 +106,12 @@ class AppWindow : MainWindow
 	{
 
 	}
+	
+	/// Convenience method to get the currently displayed page
+	@property Widget currentPage ()
+	{
+		return notebook.getNthPage(notebook.getCurrentPage);
+	} 
 
   IDebugger debugInstance;
 	Builder builder;
