@@ -1,4 +1,4 @@
-module coral.component.SourceEditor;
+module coral.component.sourceeditor;
 
 import gtk.ScrolledWindow;
 import gsv.SourceView;

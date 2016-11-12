@@ -14,8 +14,8 @@ import gio.File;
 import gio.Cancellable;
 import gio.SimpleAsyncResult;
 
-import coral.component.TabLabel;
-import coral.component.SourceEditor;
+import coral.component.tablabel;
+import coral.component.sourceeditor;
 
 private const string defaultTitle = "New File";
 

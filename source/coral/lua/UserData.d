@@ -7,11 +7,12 @@ import lua.lauxlib;
 import std.traits : fullyQualifiedName;
 import std.string : toStringz, removechars;
 
+/// Get a metatable name based on fullyQualifiedName of T - minus dots
 pure string metatableName(T)() @safe 
 {
   return removechars(fullyQualifiedName!T, ".");
 }
-
+/// Get a metatable name based on fullyQualifiedName of T - minus dots
 pure const(char)* metatableNamez(T)() @safe 
 {
   return toStringz(metatableName!T);

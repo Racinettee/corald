@@ -56,10 +56,7 @@ class State
     result = lua_pcall(luaState, 0, LUA_MULTRET, 0);
 
     if(result != LUA_OK)
-    {
       printError(this);
-      return;
-    }
   }
 	void require(const string filename)
 	{
