@@ -8,6 +8,7 @@ import gtk.Builder;
 import gsv.SourceBuffer;
 import gsv.SourceFile;
 import gsv.SourceFileLoader;
+import gsv.SourceFileSaver;
 import gsv.SourceLanguageManager;
 
 import gio.File;
@@ -72,63 +73,111 @@ private alias GProgressCallback = extern (C) void function(long, long, void*);
 private alias GProgressCallbackNotify = extern (C) void function(void*);
 void openFile(Notebook notebook, const string filepath)
 {
-		int fileNo = isFileOpen(notebook, filepath);
-		if(fileNo != -1)
-		{
-			notebook.setCurrentPage(fileNo);
-			return;
-		}
+	int fileNo = isFileOpen(notebook, filepath);
+	if(fileNo != -1)
+	{
+		notebook.setCurrentPage(fileNo);
+		return;
+	}
 
-		auto sourceFile = new SourceFile();
-		sourceFile.setLocation(File.parseName(filepath));
-		auto sourceLanguage = SourceLanguageManager.getDefault().guessLanguage(filepath, null);
-		if(!sourceLanguage)
-			sourceLanguage = SourceLanguageManager.getDefault().guessLanguage("default.c", null);
-		auto sourceBuffer = new SourceBuffer(sourceLanguage);
-		auto fileLoader = new SourceFileLoader(sourceBuffer, sourceFile);
-		auto cancellation = new Cancellable();
+	auto sourceFile = new SourceFile();
+	sourceFile.setLocation(File.parseName(filepath));
+	auto sourceLanguage = SourceLanguageManager.getDefault().guessLanguage(filepath, null);
+	if(!sourceLanguage)
+		sourceLanguage = SourceLanguageManager.getDefault().guessLanguage("default.c", null);
+	auto sourceBuffer = new SourceBuffer(sourceLanguage);
+	auto fileLoader = new SourceFileLoader(sourceBuffer, sourceFile);
+	auto cancellation = new Cancellable();
 
-		class UserData
-		{
-			string filepath;
-			SourceFileLoader loader;
-			Notebook notebook;
-			SourceBuffer sourceBuf;
-		}
+	class UserData
+	{
+		string filepath;
+		SourceFileLoader loader;
+		Notebook notebook;
+		SourceBuffer sourceBuf;
+	}
 
-		GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat) @trusted
+	GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat) @trusted
+	{
+		import coral.util.memory : dealloc;
+		import std.stdio : writeln;
+		
+		auto userDat = cast(UserData)userdat;
+		try
 		{
-			import coral.util.memory : dealloc;
-			import std.stdio : writeln;
-			
-			auto userDat = cast(UserData)userdat;
-			try
+			GSimpleAsyncResult* simpleResult = cast(GSimpleAsyncResult*)result;
+			if(userDat.loader.loadFinish(new SimpleAsyncResult(simpleResult)))
 			{
-				GSimpleAsyncResult* simpleResult = cast(GSimpleAsyncResult*)result;
-				if(userDat.loader.loadFinish(new SimpleAsyncResult(simpleResult)))
-				{
-					addNewSourceEditor(userDat.notebook, userDat.sourceBuf, userDat.filepath);
+				addNewSourceEditor(userDat.notebook, userDat.sourceBuf, userDat.filepath);
 
-					userDat.notebook.setCurrentPage(-1);
-				}
+				userDat.notebook.setCurrentPage(-1);
 			}
-			catch(Exception) { writeln("Failed to load file"); }
-			finally
+		}
+		catch(Exception) { writeln("Failed to load file"); }
+		finally
+		{
+			// there is need for an else case that notifies the user that their file cannot be opened
+			dealloc(userDat);
+		}
+	};
+
+	import coral.util.memory : alloc;
+
+	auto userDat = alloc!UserData;
+	userDat.filepath = filepath;
+	userDat.loader = fileLoader;
+	userDat.notebook = notebook;
+	userDat.sourceBuf = sourceBuffer;
+
+	fileLoader.loadAsync(cast(int)GPriority.DEFAULT, cancellation,
+		cast(GProgressCallback)0, cast(void*)0,
+		cast(GProgressCallbackNotify)0, finalize, cast(void*)userDat);
+}
+
+/// Save the current page of the notebook
+void saveFile(Notebook notebook, string filepath)
+{
+	SourceFile sourceFile = new SourceFile();
+	sourceFile.setLocation(File.parseName(filepath));
+	SourceEditor sourceEditor = cast(SourceEditor)notebook.getNthPage(notebook.getCurrentPage);
+	SourceBuffer sourceBuffer = sourceEditor.editor.getBuffer;
+	SourceFileSaver sourceSaver = new SourceFileSaver(sourceBuffer, sourceFile);
+
+	class SaveUserData
+	{
+		string filepath;
+		SourceFileSaver saver;
+	}
+
+	GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat) @trusted
+	{
+		import coral.util.memory : dealloc;
+		import std.stdio : writeln;
+
+		SaveUserData userData = cast(SaveUserData)userdat;
+		try
+		{
+			GSimpleAsyncResult* simpleResult = cast(GSimpleAsyncResult*)result;
+			if(userData.saver.saveFinish(new SimpleAsyncResult(simpleResult)))
 			{
-				// there is need for an else case that notifies the user that their file cannot be opened
-				dealloc(userDat);
+				writeln("File saved");
 			}
-		};
+		}
+		catch(Exception) { writeln("Error saving file"); }
+		finally
+		{
+			dealloc(userData);
+		}
+	};
 
-		import coral.util.memory : alloc;
+	import coral.util.memory : alloc;
 
-		auto userDat = alloc!UserData;
-		userDat.filepath = filepath;
-		userDat.loader = fileLoader;
-		userDat.notebook = notebook;
-		userDat.sourceBuf = sourceBuffer;
+	auto userDat = alloc!SaveUserData;
+	userDat.filepath = filepath;
+	userDat.saver = sourceSaver;
+	auto cancellation = new Cancellable();
 
-		fileLoader.loadAsync(cast(int)GPriority.DEFAULT, cancellation,
-			cast(GProgressCallback)0, cast(void*)0,
-			cast(GProgressCallbackNotify)0, finalize, cast(void*)userDat);
+	sourceSaver.saveAsync(cast(int)GPriority.DEFAULT, cancellation,
+		cast(GProgressCallback)0, cast(void*)0,
+		cast(GProgressCallbackNotify)0, finalize, cast(void*)userDat);
 }

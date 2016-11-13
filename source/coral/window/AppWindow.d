@@ -85,7 +85,7 @@ class AppWindow : MainWindow
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
 			GtkFileChooserAction.OPEN, ["Open", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
-		auto response = fc.run();
+		immutable auto response = fc.run();
 		if(response == ResponseType.CANCEL)
 			return;
 		
@@ -104,7 +104,23 @@ class AppWindow : MainWindow
 	/// Saves the currently focused file, popping a save as dialog
 	void saveFileAs(MenuItem)
 	{
+		auto fc = new FileChooserDialog("Choose a file to open", this,
+			GtkFileChooserAction.SAVE, ["Save", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
+		immutable auto response = fc.run();
+		if(response == ResponseType.CANCEL)
+			return;
 
+		string filepath = fc.getFilename();
+		fc.destroy();
+
+		import std.path : exists;
+		import coral.util.windows : runOkCancelDialog, Response;
+
+		if(exists(filepath))
+			if(runOkCancelDialog(this, "File you are saving already exists. Continue?") == Response.Cancel)
+				return;
+		
+		coral.util.editor.saveFile(notebook, filepath);
 	}
 	
 	/// Convenience method to get the currently displayed page
