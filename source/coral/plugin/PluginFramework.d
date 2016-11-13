@@ -90,9 +90,9 @@ void initPlugins(AppWindow initialWindow)
 		if(entry["enabled"].type == JSON_TYPE.TRUE)
 		{
 			string filename = entry["name"].str;
-
-			if(!exists(chainPath("script",filename~".lua")))
-				if(!exists(chainPath("script",filename~".moon")))
+			import std.array;
+			if(!exists(cast(string)array(chainPath("script",filename~".lua"))))
+				if(!exists(cast(string)array(chainPath("script",filename~".moon"))))
 					throw new Exception("Plugin: "~filename~" does not exist");
 				
 			globalState.require(entry["name"].str);
