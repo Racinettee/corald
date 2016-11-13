@@ -114,10 +114,11 @@ class AppWindow : MainWindow
 		fc.destroy();
 
 		import std.path : exists;
-		import coral.util.windows : runOkCancelDialog, Response;
+		import coral.util.windows : runOkCancelDialog;
+		import gtkc.gtktypes : GtkResponseType;
 
 		if(exists(filepath))
-			if(runOkCancelDialog(this, "File you are saving already exists. Continue?") == Response.Cancel)
+			if(runOkCancelDialog(this, "File you are saving already exists. Continue?") == GtkResponseType.CANCEL)
 				return;
 		
 		coral.util.editor.saveFile(notebook, filepath);
