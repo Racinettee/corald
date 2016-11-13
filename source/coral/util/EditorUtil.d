@@ -68,10 +68,12 @@ int isFileOpen(Notebook nb, const string fullpath)
   return -1;
 }
 
+alias FileOpenSaveCallback = void delegate (bool result, string filepath);
+
 private alias GAsyncReadyCallback = extern (C) void function(GObject* source_object, GAsyncResult* res, void* user_data);
 private alias GProgressCallback = extern (C) void function(long, long, void*);
 private alias GProgressCallbackNotify = extern (C) void function(void*);
-void openFile(Notebook notebook, const string filepath)
+void openFile(Notebook notebook, const string filepath, FileOpenSaveCallback callback = null)
 {
 	int fileNo = isFileOpen(notebook, filepath);
 	if(fileNo != -1)
@@ -92,6 +94,7 @@ void openFile(Notebook notebook, const string filepath)
 	class UserData
 	{
 		string filepath;
+		FileOpenSaveCallback callback;
 		SourceFileLoader loader;
 		Notebook notebook;
 		SourceBuffer sourceBuf;
@@ -111,9 +114,20 @@ void openFile(Notebook notebook, const string filepath)
 				addNewSourceEditor(userDat.notebook, userDat.sourceBuf, userDat.filepath);
 
 				userDat.notebook.setCurrentPage(-1);
+				if(userDat.callback)
+					userDat.callback(true, userDat.filepath);
+			}
+			else
+			{
+				throw new Exception("Error occured loading file");
 			}
 		}
-		catch(Exception) { writeln("Failed to load file"); }
+		catch(Exception e)
+		{
+			writeln(e.msg);
+			if(userDat.callback)
+				userDat.callback(false, userDat.filepath);
+		}
 		finally
 		{
 			// there is need for an else case that notifies the user that their file cannot be opened
@@ -125,6 +139,7 @@ void openFile(Notebook notebook, const string filepath)
 
 	auto userDat = alloc!UserData;
 	userDat.filepath = filepath;
+	userDat.callback = callback;
 	userDat.loader = fileLoader;
 	userDat.notebook = notebook;
 	userDat.sourceBuf = sourceBuffer;
@@ -135,7 +150,7 @@ void openFile(Notebook notebook, const string filepath)
 }
 
 /// Save the current page of the notebook
-void saveFile(Notebook notebook, string filepath)
+void saveFile(Notebook notebook, string filepath, FileOpenSaveCallback callback = null)
 {
 	SourceFile sourceFile = new SourceFile();
 	sourceFile.setLocation(File.parseName(filepath));
@@ -146,13 +161,16 @@ void saveFile(Notebook notebook, string filepath)
 	class SaveUserData
 	{
 		string filepath;
+		FileOpenSaveCallback callback;
 		SourceFileSaver saver;
+		TabLabel tablabel;
 	}
 
 	GAsyncReadyCallback finalize = function(GObject* sourceObj, GAsyncResult* result, void* userdat) @trusted
 	{
 		import coral.util.memory : dealloc;
 		import std.stdio : writeln;
+		import std.path : baseName;
 
 		SaveUserData userData = cast(SaveUserData)userdat;
 		try
@@ -161,9 +179,21 @@ void saveFile(Notebook notebook, string filepath)
 			if(userData.saver.saveFinish(new SimpleAsyncResult(simpleResult)))
 			{
 				writeln("File saved");
+				userData.tablabel.setTitleAndPath(userData.filepath);
+				if(userData.callback)
+					userData.callback(true, userData.filepath);
+			}
+			else
+			{
+				throw new Exception("Failed to save file.");
 			}
 		}
-		catch(Exception) { writeln("Error saving file"); }
+		catch(Exception e)
+		{
+			writeln(e.msg);
+			if(userData.callback)
+				userData.callback(false, userData.filepath);
+		}
 		finally
 		{
 			dealloc(userData);
@@ -174,7 +204,9 @@ void saveFile(Notebook notebook, string filepath)
 
 	auto userDat = alloc!SaveUserData;
 	userDat.filepath = filepath;
+	userDat.callback = callback;
 	userDat.saver = sourceSaver;
+	userDat.tablabel = cast(TabLabel)notebook.getTabLabel(notebook.getNthPage(notebook.getCurrentPage));
 	auto cancellation = new Cancellable();
 
 	sourceSaver.saveAsync(cast(int)GPriority.DEFAULT, cancellation,

@@ -35,7 +35,17 @@ class TabLabel : Box
 		int pageNum = notebook.pageNum(childRef);
 		notebook.removePage(pageNum);
 	}
-	@safe @property const string fullPath () { return filePath; }
+	void setTitle(const string title)
+	{
+		textLabel.setText(title);
+	}
+	void setTitleAndPath(const string path)
+	{
+		filePath = path;
+		import std.path : baseName;
+		setTitle(baseName(path));
+	}
+	@safe @property string fullPath () const { return filePath; }
 	private string filePath;
 	private Widget childRef;
 	private Button closeButton;

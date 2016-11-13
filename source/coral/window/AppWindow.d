@@ -4,6 +4,7 @@ import coral.util.editor;
 import coral.debugger.idebugger;
 import coral.debugger.gdb;
 import coral.debugger.manager;
+import coral.component.tablabel;
 
 import std.stdio : writeln;
 
@@ -94,7 +95,7 @@ class AppWindow : MainWindow
 
 		openFile(filepath);
 	}
-
+	
 	/// Opens a file in this window
 	void openFile(string filepath)
 	{
@@ -120,7 +121,7 @@ class AppWindow : MainWindow
 		if(exists(filepath))
 			if(runOkCancelDialog(this, "File you are saving already exists. Continue?") == GtkResponseType.CANCEL)
 				return;
-		
+
 		coral.util.editor.saveFile(notebook, filepath);
 	}
 	
@@ -131,9 +132,9 @@ class AppWindow : MainWindow
 	}
 
 	/// Convenience method to get the tab label for the current page
-	@property Widget currentTabLabel ()
+	@property TabLabel currentTabLabel ()
 	{
-		return notebook.getTabLabel(currentPage);
+		return cast(TabLabel)notebook.getTabLabel(currentPage);
 	}
 
   IDebugger debugInstance;
