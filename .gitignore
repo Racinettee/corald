@@ -6,6 +6,7 @@ __dummy.html
 *.so
 *.dll
 *.exe
-*~ # temporary files
+# temporary files
+*~
 corald
 .vscode/
