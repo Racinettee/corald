@@ -102,6 +102,18 @@ class AppWindow : MainWindow
 		coral.util.editor.openFile(notebook, filepath);
 	}
 
+	/// Saves the currently focused file, only pops
+	/// save as dialog if file is new
+	void saveFile(MenuItem m)
+	{
+		auto tabLabel = currentTabLabel;
+		if(tabLabel.noPath)
+		{
+			saveFileAs(m);
+			return;
+		}
+		coral.util.editor.saveFile(notebook, tabLabel.fullPath);
+	}
 	/// Saves the currently focused file, popping a save as dialog
 	void saveFileAs(MenuItem)
 	{
@@ -109,7 +121,10 @@ class AppWindow : MainWindow
 			GtkFileChooserAction.SAVE, ["Save", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
 		immutable auto response = fc.run();
 		if(response == ResponseType.CANCEL)
+		{
+			fc.destroy();
 			return;
+		}
 
 		string filepath = fc.getFilename();
 		fc.destroy();
@@ -155,6 +170,9 @@ class AppWindow : MainWindow
 
 		menuItem = getItem!MenuItem(builder, "menunewwindow");
 		menuItem.addOnActivate((m)=>new AppWindow().show());
+
+		menuItem = getItem!MenuItem(builder, "menusavefile");
+		menuItem.addOnActivate(&saveFile);
 
 		menuItem = getItem!MenuItem(builder, "menusavefileas");
 		menuItem.addOnActivate(&saveFileAs);

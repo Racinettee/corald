@@ -45,7 +45,9 @@ class TabLabel : Box
 		import std.path : baseName;
 		setTitle(baseName(path));
 	}
-	@safe @property string fullPath () const { return filePath; }
+	@property immutable(bool) noPath () const @safe @nogc { return filePath.length == 0; }
+	@property immutable(string) fullPath () const @safe @nogc { return filePath; }
+	
 	private string filePath;
 	private Widget childRef;
 	private Button closeButton;
