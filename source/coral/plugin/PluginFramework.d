@@ -41,7 +41,51 @@ void registerMainWindow(State state, AppWindow initialWindow)
 		try {
 			AppWindow self = checkClassInstanceOf!AppWindow(L, 1);
 			
-			lua_pushlightuserdata(L, self.currentTabLabel.getWidgetStruct);
+			// Grabs lua_State, but doesnt take ownership
+			State state = new State(L, false);
+
+			import coral.component.tablabel : TabLabel;
+
+			lua_CFunction noPath = (L) @trusted {
+				try {
+					TabLabel self = checkClassInstanceOf!TabLabel(L, 1);
+					lua_pushboolean(L, cast(int)self.noPath);
+				} catch (Exception) {
+					lua_pushnil(L);
+				}
+				return 1;
+			};
+
+			lua_CFunction getTitle = (L) @trusted {
+				try {
+					TabLabel self = checkClassInstanceOf!TabLabel(L, 1);
+					lua_pushstring(L, toStringz(self.title));
+				} catch (Exception) {
+					lua_pushnil(L);
+				}
+				return 1;
+			};
+
+			lua_CFunction getPath = (L) @trusted {
+				try {
+					TabLabel self = checkClassInstanceOf!TabLabel(L, 1);
+					lua_pushstring(L, toStringz(self.fullPath));
+				} catch (Exception) {
+					lua_pushnil(L);
+				}
+				return 1;
+			};
+
+			luaL_Reg[] tabLabelMethods = [
+				{"noPath", noPath},
+				{"getTitle", getTitle},
+				{"getPath", getPath},
+				{null, null}
+			];
+
+			state.pushInstance(self.currentTabLabel, tabLabelMethods);
+
+			//lua_pushlightuserdata(L, self.currentTabLabel.getWidgetStruct);
 		} catch (Exception) {
 			lua_pushnil(L);
 		}

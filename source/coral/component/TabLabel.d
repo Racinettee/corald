@@ -19,7 +19,7 @@ class TabLabel : Box
 	this(string text, Widget cref, string fullPath)
 	{
 		super(GtkOrientation.HORIZONTAL, 0);
-		textLabel = new Label(text);
+		textLabel = new Label(titleText = text);
 		closeButton = new Button(StockID.CLOSE, true);
 		closeButton.setRelief(GtkReliefStyle.NONE);
 		childRef = cref;
@@ -37,7 +37,7 @@ class TabLabel : Box
 	}
 	void setTitle(const string title)
 	{
-		textLabel.setText(title);
+		textLabel.setText(titleText = title);
 	}
 	void setTitleAndPath(const string path)
 	{
@@ -45,9 +45,14 @@ class TabLabel : Box
 		import std.path : baseName;
 		setTitle(baseName(path));
 	}
-	@property immutable(bool) noPath () const @safe @nogc { return filePath.length == 0; }
-	@property immutable(string) fullPath () const @safe @nogc { return filePath; }
+	@safe @nogc @property 
+	immutable(bool) noPath () const nothrow { return filePath.length == 0; }
+	@safe @nogc @property 
+	immutable(string) fullPath () const nothrow { return filePath; }
+	@safe @nogc @property 
+	immutable(string) title() const nothrow { return titleText; }
 	
+	private string titleText;
 	private string filePath;
 	private Widget childRef;
 	private Button closeButton;
