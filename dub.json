@@ -12,11 +12,6 @@
 	"subPackages": [
 		"../nluad"
 	],
-	"buildTypes": {
-		"releasenoinl": {
-			"buildOptions": ["releaseMode", "optimize"]
-		}
-	},
 	"preBuildCommands": [
 		"./depbuild.sh"
 	],
