@@ -18,18 +18,6 @@ pure const(char)* metatableNamez(T)() @safe
   return toStringz(metatableName!T);
 }
 
-//void pushInstance(T)(lua_State)
-
-/// Create a class with a metatable
-/// leaves the table on the stack
-void pushClass(T)(lua_State* state, const luaL_Reg[] methods)
-{
-  if(luaL_newmetatable(state, metatableNamez!T))
-	{
-    luaL_setfuncs(state, methods.ptr, 0);
-  }
-}
-
 /// Push an instance of T with a group of methods on to the stack
 /// The table for the user data is left on the stack
 void pushInstance(T)(lua_State* state, T instance, const luaL_Reg[] methodTable)
@@ -56,6 +44,7 @@ T* checkInstanceOf(T)(lua_State* state, int index) @trusted
   return cast(T*)luaL_checkudata(state, 1, metatableNamez!T);
 }
 
+/// Check and return that the value at the index is of T and return
 T checkClassInstanceOf(T)(lua_State* state, int index) @safe
 {
   return *checkInstanceOf!T(state, index);
