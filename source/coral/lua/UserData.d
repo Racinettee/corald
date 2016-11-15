@@ -18,6 +18,15 @@ pure const(char)* metatableNamez(T)() @safe
   return toStringz(metatableName!T);
 }
 
+/// Push an instance to lua, assuming that its class was registered
+void pushInstance(T)(lua_State* state, T instance)
+{
+  T* t = cast(T*)lua_newuserdata(state, instance.sizeof);
+  *t = instance;
+  luaL_getmetatable(L, metatableNamez!T);
+	lua_setmetatable(L, -2);
+}
+
 /// Push an instance of T with a group of methods on to the stack
 /// The table for the user data is left on the stack
 void pushInstance(T)(lua_State* state, T instance, const luaL_Reg[] methodTable)
