@@ -23,8 +23,9 @@ void pushInstance(T)(lua_State* state, T instance)
 {
   T* t = cast(T*)lua_newuserdata(state, instance.sizeof);
   *t = instance;
-  luaL_getmetatable(L, metatableNamez!T);
-	lua_setmetatable(L, -2);
+  luaL_getmetatable(state, metatableNamez!T);
+  lua_pushvalue(state, -1);
+	lua_setmetatable(state, -3);
 }
 
 /// Push an instance of T with a group of methods on to the stack
@@ -57,4 +58,33 @@ T* checkInstanceOf(T)(lua_State* state, int index) @trusted
 T checkClassInstanceOf(T)(lua_State* state, int index) @safe
 {
   return *checkInstanceOf!T(state, index);
+}
+
+void registerClass(T)(lua_State* L, const luaL_Reg[] static_methods, const luaL_Reg[] meta_methods)
+{
+  lua_CFunction register = (L) @trusted {
+    // Create a new table, and apply functions to it
+    lua_newtable(L);
+    luaL_setfuncs(L, static_methods.ptr, 0);
+
+    // Create a metatable, and apply meta functions to it
+    if(luaL_newmetatable(L, metatableNamez!T))
+    {
+      luaL_setfuncs(L, meta_methods.ptr, 0);
+
+      // Apply the metatable to the index field
+      lua_pushliteral(L, "__index");
+      lua_pushvalue(L, -3);               /* dup methods table*/
+      lua_rawset(L, -3);                  /* metatable.__index = methods */
+      lua_pushliteral(L, "__metatable");
+      lua_pushvalue(L, -3);               /* dup methods table*/
+      lua_rawset(L, -3);                  /* hide metatable:
+                      metatable.__metatable = methods */
+    }
+    lua_pop(L, 1);                      /* drop metatable */
+    return 1;                           /* return methods on the stack */
+  };
+
+  luaL_requiref(L, T.stringof, register, 0);
+  lua_pop(L, 1);
 }

@@ -42,8 +42,9 @@ void initPlugins(AppWindow initialWindow)
 	globalState.require("moonscript");
 
 	//registerMainWindow(globalState, initialWindow);
-	registerTabLabel(globalState);
-	registerAppWindow(globalState);
+	//registerTabLabel(globalState.state);
+	//registerAppWindow(globalState.state);
+	//registerMainWindow(globalState, initialWindow);
 	
 	immutable string pluginFile = "coralPlugins.json";
 
