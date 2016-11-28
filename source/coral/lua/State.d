@@ -77,10 +77,10 @@ class State
     return cast(string)fromStringz(lua_tostring(luaState, index));
   }
   /// Convenience method to push user data to the stack
-  void pushInstance(T)(T instance)
-  {
-    coral.lua.userdata.pushInstance(luaState, instance);
-  }
+  //void pushInstance(T)(T instance)
+  //{
+  //  coral.lua.userdata.pushInstance(luaState, instance);
+  //}
   /// Convenience method to push user data onto the lua stack
   void pushInstance(T)(T instance, const luaL_Reg[] methodTable)
   {

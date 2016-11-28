@@ -14,21 +14,6 @@ import lua.lua;
 import lua.lualib;
 import lua.lauxlib;
 
-/// A test function. Sets up the very first window to interface
-/// With the lua scripts that run
-void registerMainWindow(State state, AppWindow initialWindow)
-{
-//	state.pushInstance(self.currentTabLabel, tabLabelMethods);
-	state.pushInstance(initialWindow);
-	lua_pushlightuserdata(state.state, initialWindow.mainMenu.getMenuBarStruct);
-	lua_setfield(state.state, -2, "menuBar");
-	lua_pushlightuserdata(state.state, initialWindow.notebook.getNotebookStruct);
-	lua_setfield(state.state, -2, "notebook");
-	lua_pop(state.state, 1);
-
-	state.setGlobal("mainWindow");
-}
-
 /// Call to initialize plugins
 void initPlugins(AppWindow initialWindow)
 {
@@ -41,6 +26,7 @@ void initPlugins(AppWindow initialWindow)
 
 	globalState.require("moonscript");
 
+	setRequire(globalState.state, "AppWindow", &registerAppWindow!AppWindow, 0);
 	//registerMainWindow(globalState, initialWindow);
 	//registerTabLabel(globalState.state);
 	//registerAppWindow(globalState.state);

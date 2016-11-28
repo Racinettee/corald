@@ -12,30 +12,9 @@ import coral.lua.userdata;
 import coral.util.memory;
 import coral.window.appwindow : AppWindow;
 
-//int registerAppWindow(lua_State* L)
-//{
-//  lua_newtable(L);
-//  luaL_setfuncs(L, )
-//}
-
-/// Create an instance that is a pointer in lua
-T* pushNewInstance(T)(lua_State* state)
-{
-  T* obj = cast(T*)lua_newuserdata(L, (T*).sizeof);
-  luaL_getmetatable(state, metatableNamez!T);
-  lua_setmetatable(state, -2);
-  return obj;
-}
-/// Create a new instaance that is a pointer in lua, but assign it to an existing instance
-T* pushInstance(T)(lua_State* state, T instance)
-{
-  T* obj = pushNewInstance!T(state);
-  *obj = instance;
-  return obj;
-}
-
 /// Register the application window class
-void requireAppWindow(T)(lua_State* state)
+/// making the class requirable
+int registerAppWindow(T)(lua_State* state) nothrow
 {
   import gtk.Widget : Widget;
 
@@ -45,17 +24,31 @@ void requireAppWindow(T)(lua_State* state)
 
       if(nargs != 3) {
         writeln("Expected 3 arguments to app window");
-        throw new Exception;
+        throw new Exception("Lua AppWindow ctor");
       }
+      // String, int, int - title, width, height
+      // Create a new window with those properties
+      immutable string title = cast(string)fromStringz(lua_tostring(L, 1));
+      immutable int width = cast(int)lua_tointeger(L, 2);
+      immutable int height = cast(int)lua_tointeger(L, 3);
+      AppWindow win = alloc!AppWindow(title, width, height);
 
-
-        // String, int, int - title, width, height
-        // Create a new window with those properties
+      pushInstance(L, win);
+      lua_pushlightuserdata(L, win.mainMenu.getMenuBarStruct);
+      lua_setfield(L, -2, "menuBar");
+      lua_pushlightuserdata(L, win.notebook.getNotebookStruct);
+      lua_setfield(L, -2, "notebook");
     } catch (Exception) {
       lua_pushnil(L);
     }
     return 1;
   };
+
+  luaL_Reg[] methodTable = [
+    {"new", newAppWindow},
+    {null, null}
+  ];
+
   lua_CFunction openFile = (L) @trusted {
     try {
       AppWindow self = checkClassInstanceOf!AppWindow(L, 1);
@@ -85,19 +78,18 @@ void requireAppWindow(T)(lua_State* state)
   };
   lua_CFunction gcAppWin = (L) @trusted {
     try {
-
-    } catch (Exception) {
-
-    }
+      dealloc(checkClassInstanceOf!AppWindow(L, 1));
+    } catch (Exception) { }
     return 0;
   };
   luaL_Reg[] metaTable = [
     {"openFile", openFile},
     {"currentPage", currentPage},
     {"currentTabLabel", currentTabLabel},
+    {"__gc", gcAppWin},
     {null, null}
   ];
-  registerClass!AppWindow(state, )
+  return registerClass!AppWindow(state, methodTable, metaTable);
 }
 
 /// Register the tablabel class

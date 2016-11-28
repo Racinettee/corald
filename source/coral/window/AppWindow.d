@@ -36,10 +36,10 @@ class AppWindow : MainWindow
 {
 	/// The default constructor.
 	/// This is the only way to set up the window
-	this()
+	this(string title="CoralD", int width=600, int height=400)
 	{
-		super("Getting started with Gtkd");
-		setSizeRequest(600, 400);
+		super(title);
+		setSizeRequest(width, height);
 
 		builder = new Builder();
 		notebook = new Notebook();
