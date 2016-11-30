@@ -27,6 +27,10 @@ void initPlugins(AppWindow initialWindow)
 	globalState.require("moonscript");
 
 	setRequire(globalState.state, "AppWindow", &registerAppWindow!AppWindow, 0);
+	//globalState.require("AppWindow");
+	pushInstance(globalState.state, initialWindow);
+	globalState.setGlobal("mainWindow");
+
 	//registerMainWindow(globalState, initialWindow);
 	//registerTabLabel(globalState.state);
 	//registerAppWindow(globalState.state);

@@ -14,7 +14,7 @@ import coral.window.appwindow : AppWindow;
 
 /// Register the application window class
 /// making the class requirable
-int registerAppWindow(T)(lua_State* state) nothrow
+extern (C) int registerAppWindow(T)(lua_State* state) nothrow
 {
   import gtk.Widget : Widget;
 

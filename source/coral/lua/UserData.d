@@ -8,28 +8,34 @@ import std.traits : fullyQualifiedName;
 import std.string : toStringz, removechars;
 
 /// Get a metatable name based on fullyQualifiedName of T - minus dots
-pure immutable(string) metatableName(T)() @safe 
+pure nothrow immutable(string) metatableName(T)() @safe
 {
-  return removechars(fullyQualifiedName!T, ".");
+  try {
+    return removechars(fullyQualifiedName!T, ".");
+  }
+  catch(Exception) { }
+  return null;
 }
 /// Get a metatable name based on fullyQualifiedName of T - minus dots
-pure const(char)* metatableNamez(T)() @safe 
+pure nothrow const(char)* metatableNamez(T)() @safe
 {
   return toStringz(metatableName!T);
 }
 
 /// Creates a pointer sized user data, and sets the metatable
-T* pushNewInstance(T)(lua_State* state)
+T* pushNewInstance(T)(lua_State* state) nothrow
 {
   T* obj = cast(T*)lua_newuserdata(state, (T*).sizeof);
   luaL_getmetatable(state, metatableNamez!T);
+  //lua_pushvalue(state, -1);
   lua_setmetatable(state, -2);
+  //lua_setfield(state, -2, "__index");
   return obj;
 }
 
 /// Creates a pointer sized user data, and sets the pointer
 /// to point to the instance
-T* pushInstance(T)(lua_State* state, T instance)
+T* pushInstance(T)(lua_State* state, T instance) nothrow
 {
   T* obj = pushNewInstance!T(state);
   *obj = instance;
@@ -90,11 +96,12 @@ int registerClass(T)(lua_State* L, const luaL_Reg[] static_methods, const luaL_R
                       metatable.__metatable = methods */
     }
     lua_pop(L, 1);                      /* drop metatable */
-    return 1;                           /* return methods on the stack */
+                             /* return methods on the stack */
   }
-  finally {
+  catch(Exception) {
     lua_pushnil(L);
   }
+  return 1;
 }
 
 void setRequire(lua_State* L, string name, lua_CFunction f, int glb)
