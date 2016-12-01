@@ -8,19 +8,43 @@ import std.traits : fullyQualifiedName;
 import std.string : toStringz, removechars;
 
 /// Get a metatable name based on fullyQualifiedName of T - minus dots
-pure immutable(string) metatableName(T)() @safe 
+pure nothrow immutable(string) metatableName(T)() @safe
 {
-  return removechars(fullyQualifiedName!T, ".");
+  try {
+    return removechars(fullyQualifiedName!T, ".");
+  }
+  catch(Exception) { }
+  return null;
 }
 /// Get a metatable name based on fullyQualifiedName of T - minus dots
-pure const(char)* metatableNamez(T)() @safe 
+pure nothrow const(char)* metatableNamez(T)() @safe
 {
   return toStringz(metatableName!T);
 }
 
+/// Creates a pointer sized user data, and sets the metatable
+T* pushNewInstance(T)(lua_State* state) nothrow
+{
+  T* obj = cast(T*)lua_newuserdata(state, (T*).sizeof);
+  luaL_getmetatable(state, metatableNamez!T);
+  //lua_pushvalue(state, -1);
+  lua_setmetatable(state, -2);
+  //lua_setfield(state, -2, "__index");
+  return obj;
+}
+
+/// Creates a pointer sized user data, and sets the pointer
+/// to point to the instance
+T* pushInstance(T)(lua_State* state, T instance) nothrow
+{
+  T* obj = pushNewInstance!T(state);
+  *obj = instance;
+  return obj;
+}
+
 /// Push an instance of T with a group of methods on to the stack
 /// The table for the user data is left on the stack
-void pushInstance(T)(lua_State* state, T instance, const luaL_Reg[] methodTable)
+void pushSingleton(T)(lua_State* state, T instance, const luaL_Reg[] methodTable)
 {	
 	T* t = cast(T*)lua_newuserdata(state, instance.sizeof);
 	*t = instance;
@@ -49,3 +73,69 @@ T checkClassInstanceOf(T)(lua_State* state, int index) @safe
 {
   return *checkInstanceOf!T(state, index);
 }
+
+int registerClass(T)(lua_State* L, const luaL_Reg[] static_methods, const luaL_Reg[] meta_methods) nothrow
+{
+  try {
+    // Create a new table, and apply functions to it
+    lua_newtable(L);
+    luaL_setfuncs(L, static_methods.ptr, 0);
+
+    // Create a metatable, and apply meta functions to it
+    if(luaL_newmetatable(L, metatableNamez!T))
+    {
+      luaL_setfuncs(L, meta_methods.ptr, 0);
+
+      // Apply the metatable to the index field
+      lua_pushliteral(L, "__index");
+      lua_pushvalue(L, -3);               /* dup methods table*/
+      lua_rawset(L, -3);                  /* metatable.__index = methods */
+      lua_pushliteral(L, "__metatable");
+      lua_pushvalue(L, -3);               /* dup methods table*/
+      lua_rawset(L, -3);                  /* hide metatable:
+                      metatable.__metatable = methods */
+    }
+    lua_pop(L, 1);                      /* drop metatable */
+                             /* return methods on the stack */
+  }
+  catch(Exception) {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+void setRequire(lua_State* L, string name, lua_CFunction f, int glb)
+{
+  luaL_requiref(L, toStringz(name), f, glb);
+  lua_pop(L, 1);
+}
+/// Create a class that can be required
+/*
+void registerClass(T)(lua_State* L, const luaL_Reg[] static_methods, const luaL_Reg[] meta_methods)
+{
+  lua_CFunction register = (L) @trusted {
+    // Create a new table, and apply functions to it
+    lua_newtable(L);
+    luaL_setfuncs(L, static_methods.ptr, 0);
+
+    // Create a metatable, and apply meta functions to it
+    if(luaL_newmetatable(L, metatableNamez!T))
+    {
+      luaL_setfuncs(L, meta_methods.ptr, 0);
+
+      // Apply the metatable to the index field
+      lua_pushliteral(L, "__index");
+      lua_pushvalue(L, -3);               /* dup methods table/
+      lua_rawset(L, -3);                  /* metatable.__index = methods /
+      lua_pushliteral(L, "__metatable");
+      lua_pushvalue(L, -3);               /* dup methods table/
+      lua_rawset(L, -3);                  /* hide metatable:
+                      metatable.__metatable = methods /
+    }
+    lua_pop(L, 1);                      /* drop metatable /
+    return 1;                           /* return methods on the stack /
+  };
+
+  luaL_requiref(L, T.stringof, register, 0);
+  lua_pop(L, 1);
+}*/
