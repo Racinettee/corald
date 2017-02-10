@@ -7,16 +7,12 @@
 	"dependencies": {
 		"gtk-d": "~>3.3.1",
 		"gtk-d:sv": "~>3.3.1",
-		"corald:nluad": "~>0.0.2"
+		"luad": "~master"
 	},
-	"subPackages": [
-		"../nluad"
-	],
 	"preBuildCommands": [
 		"./depbuild.sh"
 	],
 	"lflags": [
-		"-L./dep/lua/src"
-	],
-	"libs": ["lua"]
+		"-L./dep/LuaJIT-2.0.4/src libluajit.a"
+	]
 }

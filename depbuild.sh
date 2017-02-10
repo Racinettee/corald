@@ -1,11 +1,11 @@
 cd dep
-cd lgi-0.9.1 && make CFLAGS="-Wall -Wextra -O2 -g -I../../lua/src"
+cd lgi-0.9.1 && make CFLAGS="-Wall -Wextra -O2 -g -I../../LuaJIT-2.0.4/src"
 cd - 
-cd lua && make PLAT=linux
+cd LuaJIT-2.0.4 && make
 cd -
-cd lpeg-1.0.0 && make LUADIR=../lua/src
+cd lpeg-1.0.0 && make LUADIR=../LuaJIT-2.0.4/src
 cd -
-cd luafilesystem && make LUA_INC=../lua/src LUA_LIBDIR=../lua/src
+cd luafilesystem && make LUA_INC=../LuaJIT-2.0.4/src LUA_LIBDIR=../LuaJIT-2.0.4/src
 cd -
 mkdir -p bin
 cd bin

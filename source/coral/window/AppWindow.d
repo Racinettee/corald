@@ -31,6 +31,8 @@ import gsv.SourceLanguageManager;
 
 import gtkc.glibtypes : GPriority;
 
+import luad.all;
+
 /// Primary application window class
 class AppWindow : MainWindow
 {
@@ -38,6 +40,11 @@ class AppWindow : MainWindow
 	/// This is the only way to set up the window
 	this()
 	{
+		this(cast(LuaState)null);
+	}
+	this(LuaState state)
+	{
+		lua = state;
 		super("Getting started with Gtkd");
 		setSizeRequest(600, 400);
 
@@ -152,10 +159,11 @@ class AppWindow : MainWindow
 		return cast(TabLabel)notebook.getTabLabel(currentPage);
 	}
 
-  IDebugger debugInstance;
+	IDebugger debugInstance;
 	Builder builder;
 	MenuBar mainMenu;
 	Notebook notebook;
+	LuaState lua;
 
 	private void hookMenuItems()
 	{

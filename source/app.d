@@ -11,18 +11,23 @@ import glib.MainLoop;
 import glib.MainContext;
 import glib.Timeout;
 
+import luad.all;
+
 void main()
 {
 	try
 	{
+		auto lua = new LuaState;
+		lua.openLibs();
+
 		initDebugManager();	
 		string[] args = [];
 
 		Main.init(args);
 
-		auto appWin = new AppWindow;
+		auto appWin = new AppWindow(lua);
 
-		initPlugins(appWin);
+		initPlugins(lua, appWin);
 		Main.run();
 	}
 	catch(Exception e)

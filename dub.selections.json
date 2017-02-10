@@ -2,6 +2,7 @@
 	"fileVersion": 1,
 	"versions": {
 		"gtk-d": "3.3.1",
-		"nluad": "0.0.2"
+		"nluad": "0.0.2",
+		"luad": "~master"
 	}
 }
