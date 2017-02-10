@@ -1,0 +1,3 @@
+[submodule "dep/luafilesystem"]
+	path = dep/luafilesystem
+	url = git@github.com:keplerproject/luafilesystem.git
