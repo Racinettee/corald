@@ -9,11 +9,16 @@ import std.path;
 
 import luad.all;
 
+import gtk.Widget;
+
 /// A test function. Sets up the very first window to interface
 /// With the lua scripts that run
 void registerMainWindow(LuaState state, AppWindow initialWindow)
 {
-
+	//state.registerType!(GtkWidget*)();
+	alias GData = void*;
+	state.registerType!AppWindow;
+	//state["mainWindow"] = initialWindow;
 }
 
 /// Call to initialize plugins

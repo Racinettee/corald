@@ -25,7 +25,7 @@ void main()
 
 		Main.init(args);
 
-		auto appWin = new AppWindow(lua);
+		auto appWin = new AppWindow;
 
 		initPlugins(lua, appWin);
 		Main.run();

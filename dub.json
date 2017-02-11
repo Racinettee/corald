@@ -6,8 +6,7 @@
 	"authors": ["Racinettee"],
 	"dependencies": {
 		"gtk-d": "~>3.3.1",
-		"gtk-d:sv": "~>3.3.1",
-		"luad": "~master"
+		"gtk-d:sv": "~>3.3.1"
 	},
 	"preBuildCommands": [
 		"./depbuild.sh"

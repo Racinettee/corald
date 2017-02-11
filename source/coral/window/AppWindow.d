@@ -38,13 +38,13 @@ class AppWindow : MainWindow
 {
 	/// The default constructor.
 	/// This is the only way to set up the window
+	//this()
+	//{
+	//	this(cast(LuaState)null);
+	//}
 	this()
 	{
-		this(cast(LuaState)null);
-	}
-	this(LuaState state)
-	{
-		lua = state;
+		//lua = state;
 		super("Getting started with Gtkd");
 		setSizeRequest(600, 400);
 
@@ -163,7 +163,7 @@ class AppWindow : MainWindow
 	Builder builder;
 	MenuBar mainMenu;
 	Notebook notebook;
-	LuaState lua;
+	//LuaState lua;
 
 	private void hookMenuItems()
 	{
