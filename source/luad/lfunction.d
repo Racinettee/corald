@@ -5,7 +5,7 @@ import luad.table;
 import luad.stack;
 import luad.conversions.functions;
 
-import luad.c.all;
+import coral.lua.c.all;
 
 /// Represents a Lua function.
 struct LuaFunction

@@ -8,7 +8,7 @@ module luad.conversions.classes;
 import luad.conversions.helpers;
 import luad.conversions.functions;
 
-import luad.c.all;
+import coral.lua.c.all;
 import luad.stack;
 import luad.base;
 
@@ -18,6 +18,7 @@ import std.traits;
 import std.typetuple;
 import std.typecons;
 
+import coral.lua.attrib;
 
 private void pushGetters(T)(lua_State* L)
 {
@@ -27,7 +28,8 @@ private void pushGetters(T)(lua_State* L)
 	// populate getters
 	foreach(member; __traits(derivedMembers, T))
 	{
-		static if(!skipMember!(T, member) &&
+		static if(hasUDA!(member, LuaExport) &&
+				  !skipMember!(T, member) &&
 		          !isStaticMember!(T, member) &&
 		          member != "Monitor")
 		{
@@ -57,7 +59,8 @@ private void pushSetters(T)(lua_State* L)
 	// populate setters
 	foreach(member; __traits(derivedMembers, T))
 	{
-		static if(!skipMember!(T, member) &&
+		static if(hasUDA!(member, LuaExport) &&
+				  !skipMember!(T, member) &&
 		          !isStaticMember!(T, member) &&
 		          canWrite!(T, member) && // TODO: move into the setter for readonly fields (...and throw a useful error messasge)
 		          member != "Monitor")
@@ -195,8 +198,7 @@ void pushStaticTypeInterface(T)(lua_State* L) if(is(T == class) || is(T == struc
 
 	lua_newtable(L);
 
-	foreach(member; __traits(allMembers, T))
-	/*foreach(member; __traits(derivedMembers, T))*/
+	foreach(member; __traits(derivedMembers, T))
 	{
 		static if(is(typeof(__traits(getMember, T, member))) && isStaticMember!(T, member))
 		{

@@ -1,7 +1,7 @@
 /* Converted to D from lua.h by htod */
-module luad.c.lua;
+module coral.lua.c.lua;
 import core.vararg;
-import luad.c.luaconf;
+import coral.lua.c.luaconf;
 
 /*
 ** Lua - An Extensible Extension Language
@@ -17,7 +17,7 @@ import luad.c.luaconf;
 
 //C	 #include "luaconf.h"
 //import luaconf;
-import luad.c.lauxlib;
+import coral.lua.c.lauxlib;
 
 extern (C):
 

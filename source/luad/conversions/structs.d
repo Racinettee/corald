@@ -10,7 +10,7 @@ module luad.conversions.structs;
 import luad.conversions.helpers;
 import luad.conversions.functions;
 
-import luad.c.all;
+import coral.lua.c.all;
 import luad.stack;
 
 import core.memory;

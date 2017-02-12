@@ -4,7 +4,7 @@ Currently, only $(STDREF _variant,Algebraic) is supported.
 */
 module luad.conversions.variant;
 
-import luad.c.all;
+import coral.lua.c.all;
 
 import luad.stack;
 import luad.base;

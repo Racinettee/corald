@@ -1,6 +1,6 @@
 module luad.table;
 
-import luad.c.all;
+import coral.lua.c.all;
 
 import luad.base;
 import luad.stack;

@@ -12,7 +12,7 @@ This is still a work-in-progress. Outstanding issues include:
 */
 module luad.conversions.enums;
 
-import luad.c.all;
+import coral.lua.c.all;
 import luad.stack;
 
 import std.typetuple;

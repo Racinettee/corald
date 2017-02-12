@@ -1,6 +1,6 @@
 module luad.base;
 
-import luad.c.all;
+import coral.lua.c.all;
 import luad.stack;
 
 import core.stdc.string : strlen;

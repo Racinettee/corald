@@ -1,7 +1,7 @@
 /// Module used internally by the unittest code.
 module luad.testing;
 
-import luad.c.all;
+import coral.lua.c.all;
 
 import core.stdc.string : strcmp;
 import std.string : format;

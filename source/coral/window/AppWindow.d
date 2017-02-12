@@ -33,6 +33,8 @@ import gtkc.glibtypes : GPriority;
 
 import luad.all;
 
+import coral.lua.attrib;
+
 /// Primary application window class
 class AppWindow : MainWindow
 {
@@ -104,6 +106,7 @@ class AppWindow : MainWindow
 	}
 	
 	/// Opens a file in this window
+	@LuaExport("openFile")
 	void openFile(string filepath)
 	{
 		coral.util.editor.openFile(notebook, filepath);
@@ -148,21 +151,22 @@ class AppWindow : MainWindow
 	}
 	
 	/// Convenience method to get the currently displayed page
-	@property Widget currentPage ()
+	@LuaExport("currentPage")
+	@property private Widget currentPage ()
 	{
 		return notebook.getNthPage(notebook.getCurrentPage);
 	}
 
 	/// Convenience method to get the tab label for the current page
-	@property TabLabel currentTabLabel ()
+	@property private TabLabel currentTabLabel ()
 	{
 		return cast(TabLabel)notebook.getTabLabel(currentPage);
 	}
 
-	IDebugger debugInstance;
-	Builder builder;
-	MenuBar mainMenu;
-	Notebook notebook;
+	private IDebugger debugInstance;
+	private Builder builder;
+	private MenuBar mainMenu;
+	private Notebook notebook;
 	//LuaState lua;
 
 	private void hookMenuItems()

@@ -7,7 +7,7 @@ module luad.conversions.arrays;
 import std.traits;
 import std.range : ElementType;
 
-import luad.c.all;
+import coral.lua.c.all;
 import luad.stack;
 
 void pushArray(T)(lua_State* L, ref T arr) if (isArray!T)

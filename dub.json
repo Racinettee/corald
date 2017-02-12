@@ -12,6 +12,9 @@
 		"./depbuild.sh"
 	],
 	"lflags": [
-		"-L./dep/LuaJIT-2.0.4/src libluajit.a"
+		"-L./dep/LuaJIT-2.0.4/src"
+	],
+	"sourceFiles": [
+		"./dep/LuaJIT-2.0.4/src/libluajit.a"
 	]
 }

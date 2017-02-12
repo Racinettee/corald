@@ -5,7 +5,7 @@ import std.array, std.range;
 import std.string : toStringz;
 import std.typecons : isTuple;
 
-import luad.c.all;
+import coral.lua.c.all;
 import luad.stack;
 import luad.conversions.classes;
 import luad.conversions.enums;

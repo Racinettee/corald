@@ -1,5 +1,5 @@
 /* Converted to D from luaconf.h by htod */
-module luad.c.luaconf;
+module coral.lua.c.luaconf;
 /*
 ** Configuration file for Lua
 ** See Copyright Notice in lua.h

@@ -1,6 +1,6 @@
-module luad.c.tostring;
+module coral.lua.c.tostring;
 
-import luad.c.lua, luad.c.lauxlib;
+import coral.lua.c.lua, coral.lua.c.lauxlib;
 
 const(char)* luaL_tolstring(lua_State* L, int idx, size_t* len)
 {

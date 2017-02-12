@@ -1,6 +1,6 @@
 /* Converted to D from lualib.h by htod */
-module luad.c.lualib;
-import luad.c.lua;
+module coral.lua.c.lualib;
+import coral.lua.c.lua;
 /*
 ** Lua standard libraries
 ** See Copyright Notice in lua.h

@@ -11,13 +11,13 @@ import glib.MainLoop;
 import glib.MainContext;
 import glib.Timeout;
 
-import luad.all;
+import coral.lua.state;
 
 void main()
 {
 	try
 	{
-		auto lua = new LuaState;
+		auto lua = new State;
 		lua.openLibs();
 
 		initDebugManager();	

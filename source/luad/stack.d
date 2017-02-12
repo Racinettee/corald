@@ -59,7 +59,7 @@ import std.range;
 import std.traits;
 import std.typecons;
 
-import luad.c.all;
+import coral.lua.c.all;
 
 import luad.base;
 import luad.table;

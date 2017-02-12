@@ -5,7 +5,7 @@ module luad.conversions.helpers;
 
 import luad.conversions.functions;
 
-import luad.c.all;
+import coral.lua.c.all;
 import luad.all;
 
 import core.memory;
@@ -28,6 +28,7 @@ template InOutReturnType(alias func, T)
 // Note: should we only consider @property functions?
 enum isGetter(alias m) = !is(ReturnType!m == void) && ParameterTypeTuple!(m).length == 0;// && isProperty!m;
 enum isSetter(alias m) = is(ReturnType!m == void) && ParameterTypeTuple!(m).length == 1;// && isProperty!m;
+
 
 template GetterType(T, string member)
 {

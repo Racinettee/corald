@@ -1,5 +1,5 @@
-module luad.c.lauxlib;
-import luad.c.luaconf;
+module coral.lua.c.lauxlib;
+import coral.lua.c.luaconf;
 /*
 ** Auxiliary functions for building Lua libraries
 ** See Copyright Notice in lua.h
@@ -16,7 +16,7 @@ import luad.c.luaconf;
 //import std.stdio;
 
 //C	 #include "lua.h"
-import luad.c.lua;
+import coral.lua.c.lua;
 
 extern (C):
 

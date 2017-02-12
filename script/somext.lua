@@ -40,6 +40,7 @@ toolbar:insert(Gtk.ToolButton {
 local about_button =  Gtk.ToolButton { stock_id = 'gtk-about' }
 function about_button:on_clicked()
    mainWindow:openFile(lfs.currentdir() .. "/dub.json")
+   --mainWindow.openFile(mainWindow.__index, lfs.currentdir() .. "/dub.json")
    local dlg = Gtk.AboutDialog {
       program_name = 'LGI Demo',
       title = 'About...',
