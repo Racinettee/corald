@@ -15,7 +15,7 @@ import gtk.Widget;
 /// With the lua scripts that run
 void registerMainWindow(State state, AppWindow initialWindow)
 {
-	
+	state.registerClass!AppWindow;
 }
 
 /// Call to initialize plugins

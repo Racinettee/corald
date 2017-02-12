@@ -3,6 +3,7 @@ module coral.lua.state;
 import std.string;
 
 import coral.lua.c.all;
+import coral.lua.classes : registerClassType = registerClass;
 
 class State
 {
@@ -31,6 +32,10 @@ class State
     void require(const string filename)
     {
         requireFile(luastate, toStringz(filename));
+    }
+    void registerClass(T)()
+    {
+        registerClassType!T(this);
     }
     @property
     lua_State* state() { return luastate; }

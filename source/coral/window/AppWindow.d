@@ -36,6 +36,7 @@ import luad.all;
 import coral.lua.attrib;
 
 /// Primary application window class
+@LuaExport("AppWindow")
 class AppWindow : MainWindow
 {
 	/// The default constructor.
@@ -91,6 +92,7 @@ class AppWindow : MainWindow
 	}
 
 	/// Opens a file in this window, popping an open file dialog
+	@LuaExport("openFileMI")
 	void openFile(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
@@ -107,14 +109,15 @@ class AppWindow : MainWindow
 	
 	/// Opens a file in this window
 	@LuaExport("openFile")
-	void openFile(string filepath)
+	public void openFile(string filepath)
 	{
 		coral.util.editor.openFile(notebook, filepath);
 	}
 
 	/// Saves the currently focused file, only pops
 	/// save as dialog if file is new
-	void saveFile(MenuItem m)
+	@LuaExport("saveFile")
+	public void saveFile(MenuItem m)
 	{
 		auto tabLabel = currentTabLabel;
 		if(tabLabel.noPath)
@@ -125,6 +128,7 @@ class AppWindow : MainWindow
 		coral.util.editor.saveFile(notebook, tabLabel.fullPath);
 	}
 	/// Saves the currently focused file, popping a save as dialog
+	@LuaExport("saveFileAs")
 	void saveFileAs(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
