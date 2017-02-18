@@ -15,84 +15,42 @@ import gtk.Widget;
 /// With the lua scripts that run
 void registerMainWindow(State state, AppWindow initialWindow)
 {
-	state.registerClass!AppWindow;
+    state.registerClass!AppWindow;
 }
 
 /// Call to initialize plugins
 void initPlugins(State state, AppWindow initialWindow)
 {
-	state.doString(
-		"local projRoot = '"~absolutePath("script")~"'\n"
-		"local binRoot = '"~absolutePath(buildPath("dep","bin"))~"'\n"
-		"package.path = package.path .. ';' .. projRoot .. '/?.lua;' .. projRoot .. '/?.moon'\n"
-		"package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'");
-	//lua_pop(state.state, -1); // ?
+  state.doString(
+    "local projRoot = '"~absolutePath("script")~"'\n"
+    "local binRoot = '"~absolutePath(buildPath("dep","bin"))~"'\n"
+    "package.path = package.path .. ';' .. projRoot .. '/?.lua;' .. projRoot .. '/?.moon'\n"
+    "package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'");
+    //lua_pop(state.state, -1); // ?
 
-	state.require("moonscript");
+  state.require("moonscript");
 
-	registerMainWindow(state, initialWindow);
-	
-	immutable string pluginFile = "coralPlugins.json";
+  registerMainWindow(state, initialWindow);
+  
+  immutable string pluginFile = "coralPlugins.json";
 
-	if(!exists(pluginFile))
-		throw new Exception("File coralPlugins.json does not exist");
-	JSONValue pluginFramework = parseJSON(cast(char[])read(pluginFile), JSONOptions.none);
+  if(!exists(pluginFile))
+      throw new Exception("File coralPlugins.json does not exist");
+  JSONValue pluginFramework = parseJSON(cast(char[])read(pluginFile), JSONOptions.none);
 
-	JSONValue installedPlugins = pluginFramework["plugins"];
-	
-	foreach(entry; installedPlugins.array)
-	{
-		if(entry["enabled"].type == JSON_TYPE.TRUE)
-		{
-			import std.array;
-			string filename = cast(string)array(chainPath("script", entry["name"].str));
-			
-			if(!exists(filename))
-				throw new Exception("Plugin: "~filename~" does not exist");
-				
-			state.doFile(filename);
-		}
-	}
-}
+  JSONValue installedPlugins = pluginFramework["plugins"];
+  
+  foreach(entry; installedPlugins.array)
+  {
+    if(entry["enabled"].type == JSON_TYPE.TRUE)
+    {
+      import std.array;
+      string filename = cast(string)array(chainPath("script", entry["name"].str));
 
-void pushType(T)(lua_State* L) if(is(T == class) || is(T == struct))
-{
-	lua_newtable(L);
+      if(!exists(filename))
+        throw new Exception("Plugin: "~filename~" does not exist");
 
-	enum metaName = T.mangleof ~ "_static";
-	if(luaL_newmetatable(L, metaName.ptr) == 0)
-	{
-		lua_setmetatable(L, -2);
-		return;
-	}
-
-	pushCallMetaConstructor!T(L);
-
-	lua_newtable(L);
-
-	pushValue(L, &AppWindow.showAll);
-	lua_setfield(L, -2, "showAll");
-	/*foreach(member; __traits(derivedMembers, T))
-	{
-		static if(is(typeof(__traits(getMember, T, member))) && isStaticMember!(T, member))
-		{
-			enum isFunction = is(typeof(mixin("T." ~ member)) == function);
-			static if(isFunction)
-				enum isProperty = (functionAttributes!(mixin("T." ~ member)) & FunctionAttribute.property);
-			else
-				enum isProperty = false;
-
-			// TODO: support static properties
-			static if(isFunction)
-				pushValue(L, mixin("&T." ~ member));
-			else
-				pushValue(L, mixin("T." ~ member)); // TODO: this needs to push a function that returns the member.. no?
-
-			lua_setfield(L, -2, member.ptr);
-		}
-	}*/
-
-	lua_setfield(L, -2, "__index");
-
-	lua_setmetatable(L, -2);
+      state.doFile(filename);
+    }
+  }
 }
