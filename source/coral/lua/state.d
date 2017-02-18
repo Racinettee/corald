@@ -31,7 +31,7 @@ class State
   void doString(string line)
   {
     if(luaL_dostring(luastate, toStringz(line)) != 0)
-        printError(this);
+      printError(this);
   }
   void openLibs()
   {
