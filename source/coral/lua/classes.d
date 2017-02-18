@@ -29,7 +29,8 @@ void registerClass(T)(State state)
 
 void iterateUDAMembers(T, uint index)(ref luaL_Reg[] methods)
 {
-    static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" && hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport))
+    static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
+              hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport))
     {
         pragma(msg, "Found a member with uda "~__traits(derivedMembers, T)[index]);
         methods ~= luaL_Reg(cast(char*)toStringz(__traits(derivedMembers, T)[index]), cast(lua_CFunction)mixin("&T."~__traits(derivedMembers, T)[index]));

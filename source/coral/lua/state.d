@@ -4,6 +4,7 @@ import std.string;
 
 import coral.lua.c.all;
 import coral.lua.classes : registerClassType = registerClass;
+import coral.lua.stack;
 
 class State
 {
@@ -36,6 +37,10 @@ class State
     void registerClass(T)()
     {
         registerClassType!T(this);
+    }
+    void push(T)(T value);
+    {
+        pushValue!T(luastate, value);
     }
     @property
     lua_State* state() { return luastate; }
