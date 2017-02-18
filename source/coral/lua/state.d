@@ -38,7 +38,7 @@ class State
     {
         registerClassType!T(this);
     }
-    void push(T)(T value);
+    void push(T)(T value)
     {
         pushValue!T(luastate, value);
     }

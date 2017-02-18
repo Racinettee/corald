@@ -1,4 +1,4 @@
-module coral.lua.private.function;
+module coral.lua.priv.functions;
 
 import core.memory;
 import std.typetuple;
@@ -13,6 +13,22 @@ void argsError(lua_State* L, int nargs, ptrdiff_t expected)
 	lua_getinfo(L, "n", &debugInfo);
 	luaL_error(L, "call to %s '%s': got %d arguments, expected %d",
 		debugInfo.namewhat, debugInfo.name, nargs, expected);
+}
+template StripHeadQual(T : const(T*)){alias StripHeadQual = const(T)*;}
+template StripHeadQual(T : const(T[])){alias StripHeadQual = const(T)[];}
+template StripHeadQual(T : immutable(T*)){alias StripHeadQual = immutable(T)*;}
+template StripHeadQual(T : immutable(T[])){alias StripHeadQual = immutable(T)[];}
+template StripHeadQual(T : T[]){alias StripHeadQual = T[];}
+template StripHeadQual(T : T*){alias StripHeadQual = T*;}
+template StripHeadQual(T : T[N], size_t N){alias StripHeadQual = T[N];}
+template StripHeadQual(T){alias StripHeadQual = T;}
+template FillableParameterTypeTuple(T)
+{
+	alias FillableParameterTypeTuple = staticMap!(StripHeadQual, ParameterTypeTuple!T);
+}
+template BindableReturnType(T)
+{
+  alias BindableReturnType = StripHeadQual!(ReturnType!T);
 }
 template TreatArgs(T...)
 {
@@ -39,7 +55,7 @@ if((returnsRef!T && isUserStruct!RT) || (!is(RT == const) && !is(RT == immutable
       // Should we support references for all types?
       static if(returnsRef!T && isUserStruct!RT)
         auto ret = Ref!RT(func(args));
-      else static if(is(RT == inout(U), ))
+      else static if(is(RT == inout(U), U))
         // Note: args[0] might not be the inout arg! We may have to search ParameterTypeTuple!T for inout args :/
         InOutReturnType!(func, typeof(args[0])) ret = func(args);
       else
@@ -69,7 +85,7 @@ if((!returnsRef!T || !isUserStruct!RT) && (is(RT==const) || is(RT==immutable)))
   }
   return pushReturnValues(L, call());
 }
-package:
+protected:
 extern(C) int functionWrapper(T)(lua_State* L)
 {
   alias Args = FillableParameterTypeTuple!T;

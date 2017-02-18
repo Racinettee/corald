@@ -20,17 +20,17 @@ void pushValue(T)(lua_State* L, T value) if(!isUserStruct!T)
     lua_pushcfunction(L, value);
   else static if(isSomeFunction!T)
     // Push function...
-    ;
+  { }
   else static if(isPointer!T)
     // Push pointer
-    ;
+  { }
   else static if(is(T == class))
   {
     if(value is null)
       lua_pushnil(L);
     else
       // push class instance
-      ;
+    { }
   }
   else
     static assert(false, "Unsupported type being pushed: "~T.stringof~" in stack.d");
@@ -39,11 +39,9 @@ void pushValue(T)(lua_State* L, T value) if(!isUserStruct!T)
 void pushValue(T)(lua_State* L, ref T value) if(isUserStruct!T)
 {
   static if(isArray!T)
-    // push array
-    ;
+  { }// push array
   else static if(is(T == struct))
-    // push struct
-    ;
+  { }// push struct
   else
     static assert(false, "Unknown type being pushed: "~T.stringof~" in stack.d");
 }
