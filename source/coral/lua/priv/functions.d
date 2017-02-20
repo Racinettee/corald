@@ -5,6 +5,7 @@ import std.traits;
 import std.typetuple;
 
 import coral.lua.c.all;
+import coral.lua.priv.util;
 
 private:
 void argsError(lua_State* L, int nargs, ptrdiff_t expected)

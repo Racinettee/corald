@@ -22,9 +22,9 @@ void registerMainWindow(State state, AppWindow initialWindow)
 void initPlugins(State state, AppWindow initialWindow)
 {
   state.doString(
-    "local projRoot = '"~absolutePath("script")~"'\n"
-    "local binRoot = '"~absolutePath(buildPath("dep","bin"))~"'\n"
-    "package.path = package.path .. ';' .. projRoot .. '/?.lua;' .. projRoot .. '/?.moon'\n"
+    "local projRoot = '"~absolutePath("script")~"'\n"~
+    "local binRoot = '"~absolutePath(buildPath("dep","bin"))~"'\n"~
+    "package.path = package.path .. ';' .. projRoot .. '/?.lua;' .. projRoot .. '/?.moon'\n"~
     "package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'");
     //lua_pop(state.state, -1); // ?
 

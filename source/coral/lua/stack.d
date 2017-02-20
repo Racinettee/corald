@@ -5,7 +5,7 @@ import std.traits;
 import coral.lua.c.all;
 import coral.lua.priv.functions;
 
-void pushValue(T)(lua_State* L, T value) if(!isUserStruct!T)
+void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
 {
   static if(is(T == bool))
     lua_pushboolean(L, value);
@@ -39,7 +39,7 @@ void pushValue(T)(lua_State* L, T value) if(!isUserStruct!T)
     static assert(false, "Unsupported type being pushed: "~T.stringof~" in stack.d");
 }
 
-void pushValue(T)(lua_State* L, ref T value) if(isUserStruct!T)
+void pushValue(T)(lua_State* L, ref T value) if(is(T == struct))
 {
   static if(isArray!T)
   { }// push array
@@ -68,4 +68,50 @@ void pushFunction(T)(lua_State* L, T func) if(isSomeFunction!T)
     lua_setmetatable(L, -2);
   }
   lua_pushcclosure(L, &functionWrapper!T, 1);
+}
+
+/// Get a function argument from the stack.
+auto getArgument(T, int narg)(lua_State* L, int idx)
+{
+	alias ParameterTypeTuple!T Args;
+
+	static if(narg == -1) // varargs causes this
+		alias ForeachType!(Args[$-1]) Arg;
+	else
+		alias Args[narg] Arg;
+
+	enum isVarargs = variadicFunctionStyle!T == Variadic.typesafe;
+
+	static if(isVarargs && narg == Args.length-1)
+	{
+		alias Args[narg] LastArg;
+		alias ForeachType!LastArg ElemType;
+
+		auto top = lua_gettop(L);
+		auto size = top - idx + 1;
+		LastArg result = new LastArg(size);
+		foreach(i; 0 .. size)
+		{
+			result[i] = getArgument!(T, -1)(L, idx + i);
+		}
+		return result;
+	}
+	else static if(is(Arg == const(char)[]) || is(Arg == const(void)[]) ||
+				   is(Arg == const(char[])) || is(Arg == const(void[])))
+	{
+		if(lua_type(L, idx) != LUA_TSTRING)
+			argumentTypeMismatch(L, idx, LUA_TSTRING);
+
+		size_t len;
+		const(char)* cstr = lua_tolstring(L, idx, &len);
+		return cstr[0 .. len];
+	}
+	else
+	{
+		// TODO: make an overload to handle struct and static array, and remove this Ref! hack?
+		static if(isUserStruct!Arg) // user struct's need to return wrapped in a Ref
+			return Ref!Arg(getValue!(Arg, argumentTypeMismatch)(L, idx));
+		else
+			return getValue!(Arg, argumentTypeMismatch)(L, idx);
+	}
 }
