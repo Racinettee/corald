@@ -60,12 +60,13 @@ package void printError(State state)
 {
   writeln(fromStringz(lua_tostring(state.state, -1)));
 }
-private int requireFile (lua_State *L, const char *name) {
+private:
+int requireFile (lua_State *L, const char *name) {
   lua_getglobal(L, "require");
   lua_pushstring(L, name);
   return report(L, lua_pcall(L, 1, 1, 0));
 }
-private int report(lua_State* L, int status)
+int report(lua_State* L, int status)
 {
 	if (status && !lua_isnil(L, -1)) {
     string msg = cast(string)fromStringz(lua_tostring(L, -1));

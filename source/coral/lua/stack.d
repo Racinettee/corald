@@ -1,6 +1,9 @@
 module coral.lua.stack;
 
+import std.traits;
+
 import coral.lua.c.all;
+import coral.lua.priv.functions;
 
 void pushValue(T)(lua_State* L, T value) if(!isUserStruct!T)
 {

@@ -1,6 +1,7 @@
 module coral.lua.priv.functions;
 
 import core.memory;
+import std.traits;
 import std.typetuple;
 
 import coral.lua.c.all;
@@ -85,7 +86,7 @@ if((!returnsRef!T || !isUserStruct!RT) && (is(RT==const) || is(RT==immutable)))
   }
   return pushReturnValues(L, call());
 }
-protected:
+package:
 extern(C) int functionWrapper(T)(lua_State* L)
 {
   alias Args = FillableParameterTypeTuple!T;
