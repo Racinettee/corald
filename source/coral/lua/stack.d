@@ -3,6 +3,7 @@ module coral.lua.stack;
 import std.traits;
 
 import coral.lua.c.all;
+import coral.lua.priv.util;
 import coral.lua.priv.functions;
 
 void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
@@ -113,5 +114,156 @@ auto getArgument(T, int narg)(lua_State* L, int idx)
 			return Ref!Arg(getValue!(Arg, argumentTypeMismatch)(L, idx));
 		else
 			return getValue!(Arg, argumentTypeMismatch)(L, idx);
+	}
+}
+private:
+/**
+ * Get a value of any type from the stack.
+ * Params:
+ *	 T = type of value
+ *	 typeMismatchHandler = function called to produce an error in case of an invalid conversion.
+ *	 L = stack to get from
+ *	 idx = value stack index
+ */
+T getValue(T, alias typeMismatchHandler = defaultTypeMismatch)(lua_State* L, int idx) if(!isUserStruct!T)
+{
+	debug //ensure unchanged stack
+	{
+		int _top = lua_gettop(L);
+		scope(success) assert(lua_gettop(L) == _top);
+	}
+
+	//ambiguous types
+	static if(is(T == wchar) || is(T : const(wchar)[]) ||
+			  is(T == dchar) || is(T : const(dchar)[]))
+	{
+		static assert("Ambiguous type " ~ T.stringof ~ " in stack push operation. Consider converting before pushing.");
+	}
+
+	static if(!is(T == LuaObject) && !is(T == LuaDynamic) && !isVariant!T)
+	{
+		int type = lua_type(L, idx);
+		enum expectedType = luaTypeOf!T;
+
+		//if a class reference, return null for nil values
+		static if(is(T : const(Object)) || isPointer!T)
+		{
+			if(type == LuaType.Nil)
+				return null;
+		}
+
+		if(type != expectedType)
+			typeMismatchHandler(L, idx, expectedType);
+	}
+
+	static if(is(T == LuaFunction)) // WORKAROUND: bug #6036
+	{
+		LuaFunction func;
+		func.object = LuaObject(L, idx);
+		return func;
+	}
+	else static if(is(T == LuaDynamic)) // ditto
+	{
+		LuaDynamic obj;
+		obj.object = LuaObject(L, idx);
+		return obj;
+	}
+	else static if(is(T : LuaObject))
+		return T(L, idx);
+
+	else static if(is(T == Nil))
+		return nil;
+
+	else static if(is(T == enum))
+		return getEnum!T(L, idx);
+
+	else static if(is(T == bool))
+		return lua_toboolean(L, idx);
+
+	else static if(is(T == char))
+		return *lua_tostring(L, idx); // TODO: better define this
+
+	else static if(is(T : lua_Integer))
+		return cast(T)lua_tointeger(L, idx);
+
+	else static if(is(T : lua_Number))
+		return cast(T)lua_tonumber(L, idx);
+
+	else static if(is(T : const(char)[]) || isVoidArray!T)
+	{
+		size_t len;
+		const(char)* str = lua_tolstring(L, idx, &len);
+		static if(is(T == char[]) || is(T == void[]))
+			return str[0 .. len].dup;
+		else
+			return str[0 .. len].idup;
+	}
+	else static if(is(T : const(char)*))
+		return lua_tostring(L, idx);
+
+	else static if(isAssociativeArray!T)
+		return getAssocArray!T(L, idx);
+
+	else static if(isArray!T)
+		return getArray!T(L, idx);
+
+	else static if(isVariant!T)
+	{
+		if(!isAllowedType!T(L, idx))
+			luaL_error(L, "Type not allowed in Variant: %s", luaL_typename(L, idx));
+
+		return getVariant!T(L, idx);
+	}
+
+	else static if(isSomeFunction!T)
+		return getFunction!T(L, idx);
+
+	else static if(isPointer!T)
+		return getPointer!T(L, idx);
+
+	else static if(is(T : const(Object)))
+		return getClassInstance!T(L, idx);
+
+	else
+	{
+		static assert(false, "Unsupported type `" ~ T.stringof ~ "` in stack read operation");
+	}
+}
+
+// we need an overload that handles struct and static arrays (which need to return by ref)
+ref T getValue(T, alias typeMismatchHandler = defaultTypeMismatch)(lua_State* L, int idx) if(isUserStruct!T)
+{
+	debug //ensure unchanged stack
+	{
+		int _top = lua_gettop(L);
+		scope(success) assert(lua_gettop(L) == _top);
+	}
+
+	// TODO: confirm that we need this in this overload...?
+	static if(!is(T == LuaObject) && !is(T == LuaDynamic) && !isVariant!T)
+	{
+		int type = lua_type(L, idx);
+		enum expectedType = luaTypeOf!T;
+
+		//if a class reference, return null for nil values
+		static if(is(T : const(Object)))
+		{
+			if(type == LuaType.Nil)
+				return null;
+		}
+
+		if(type != expectedType)
+			typeMismatchHandler(L, idx, expectedType);
+	}
+
+	static if(isArray!T)
+		return getArray!T(L, idx);
+
+	else static if(is(T == struct))
+		return getStruct!T(L, idx);
+
+	else
+	{
+		static assert(false, "Shouldn't be here! `" ~ T.stringof ~ "` should be handled by the other overload.");
 	}
 }

@@ -5,6 +5,7 @@ import std.traits;
 import std.typetuple;
 
 import coral.lua.c.all;
+import coral.lua.stack;
 import coral.lua.priv.util;
 
 private:
