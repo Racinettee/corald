@@ -77,6 +77,40 @@ import luad.conversions.variant;
 import luad.conversions.helpers;
 
 /**
+ * Get the associated Lua type for T.
+ * Returns: Lua type for T
+ */
+template luaTypeOf(T)
+{
+	static if(is(T == enum))
+		enum luaTypeOf = LUA_TSTRING;
+
+	else static if(is(T == bool))
+		enum luaTypeOf = LUA_TBOOLEAN;
+
+	else static if(is(T == Nil))
+		enum luaTypeOf = LUA_TNIL;
+
+	else static if(is(T : const(char)[]) || is(T : const(char)*) || is(T == char) || isVoidArray!T)
+		enum luaTypeOf = LUA_TSTRING;
+
+	else static if(is(T : lua_Integer) || is(T : lua_Number))
+		enum luaTypeOf = LUA_TNUMBER;
+
+	else static if(isSomeFunction!T || is(T == LuaFunction))
+		enum luaTypeOf = LUA_TFUNCTION;
+
+	else static if(isArray!T || isAssociativeArray!T || is(T == LuaTable))
+		enum luaTypeOf = LUA_TTABLE;
+
+	else static if(is(T : const(Object)) || is(T == struct) || isPointer!T)
+		enum luaTypeOf = LUA_TUSERDATA;
+
+	else
+		static assert(false, "No Lua type defined for `" ~ T.stringof ~ "`");
+}
+
+/**
  * Push a value of any type to the stack.
  * Params:
  *	 L = stack to push to
@@ -176,40 +210,6 @@ template isVoidArray(T)
 	                   is(T == const(void[])) ||
 	                   is(T == immutable(void)[]) ||
 	                   is(T == immutable(void[]));
-}
-
-/**
- * Get the associated Lua type for T.
- * Returns: Lua type for T
- */
-template luaTypeOf(T)
-{
-	static if(is(T == enum))
-		enum luaTypeOf = LUA_TSTRING;
-
-	else static if(is(T == bool))
-		enum luaTypeOf = LUA_TBOOLEAN;
-
-	else static if(is(T == Nil))
-		enum luaTypeOf = LUA_TNIL;
-
-	else static if(is(T : const(char)[]) || is(T : const(char)*) || is(T == char) || isVoidArray!T)
-		enum luaTypeOf = LUA_TSTRING;
-
-	else static if(is(T : lua_Integer) || is(T : lua_Number))
-		enum luaTypeOf = LUA_TNUMBER;
-
-	else static if(isSomeFunction!T || is(T == LuaFunction))
-		enum luaTypeOf = LUA_TFUNCTION;
-
-	else static if(isArray!T || isAssociativeArray!T || is(T == LuaTable))
-		enum luaTypeOf = LUA_TTABLE;
-
-	else static if(is(T : const(Object)) || is(T == struct) || isPointer!T)
-		enum luaTypeOf = LUA_TUSERDATA;
-
-	else
-		static assert(false, "No Lua type defined for `" ~ T.stringof ~ "`");
 }
 
 // generic type mismatch message

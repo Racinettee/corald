@@ -3,8 +3,47 @@ module coral.lua.stack;
 import std.traits;
 
 import coral.lua.c.all;
+import coral.lua.base;
+import coral.lua.table;
+import coral.lua.dynamic;
+import coral.lua.lfunction;
 import coral.lua.priv.util;
+import coral.lua.priv.variant;
 import coral.lua.priv.functions;
+
+/**
+ * Get the associated Lua type for T.
+ * Returns: Lua type for T
+ */
+template luaTypeOf(T)
+{
+	static if(is(T == enum))
+		enum luaTypeOf = LUA_TSTRING;
+
+	else static if(is(T == bool))
+		enum luaTypeOf = LUA_TBOOLEAN;
+
+	else static if(is(T == Nil))
+		enum luaTypeOf = LUA_TNIL;
+
+	else static if(is(T : const(char)[]) || is(T : const(char)*) || is(T == char) || isVoidArray!T)
+		enum luaTypeOf = LUA_TSTRING;
+
+	else static if(is(T : lua_Integer) || is(T : lua_Number))
+		enum luaTypeOf = LUA_TNUMBER;
+
+	else static if(isSomeFunction!T || is(T == LuaFunction))
+		enum luaTypeOf = LUA_TFUNCTION;
+
+	else static if(isArray!T || isAssociativeArray!T || is(T == LuaTable))
+		enum luaTypeOf = LUA_TTABLE;
+
+	else static if(is(T : const(Object)) || is(T == struct) || isPointer!T)
+		enum luaTypeOf = LUA_TUSERDATA;
+
+	else
+		static assert(false, "No Lua type defined for `" ~ T.stringof ~ "`");
+}
 
 void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
 {
@@ -23,11 +62,14 @@ void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
   else static if(is(T == lua_CFunction) && functionLinkage!T == "C")
     lua_pushcfunction(L, value);
   else static if(isSomeFunction!T)
-    // Push function...
-  { }
+    pushFunction(L, value);
   else static if(isPointer!T)
-    // Push pointer
-  { }
+	{
+    if(value is null)
+			lua_pushnil(L);
+		else
+			pushPointer(L, value);
+	}
   else static if(is(T == class))
   {
     if(value is null)
@@ -117,6 +159,19 @@ auto getArgument(T, int narg)(lua_State* L, int idx)
 	}
 }
 private:
+template isVoidArray(T)
+{
+	enum isVoidArray = is(T == void[]) ||
+	                   is(T == const(void)[]) ||
+	                   is(T == const(void[])) ||
+	                   is(T == immutable(void)[]) ||
+	                   is(T == immutable(void[]));
+}
+// type mismatch for function arguments of unexpected type
+void argumentTypeMismatch(lua_State* L, int idx, int expectedType)
+{
+	luaL_typerror(L, idx, lua_typename(L, expectedType));
+}
 /**
  * Get a value of any type from the stack.
  * Params:
@@ -228,6 +283,16 @@ T getValue(T, alias typeMismatchHandler = defaultTypeMismatch)(lua_State* L, int
 	{
 		static assert(false, "Unsupported type `" ~ T.stringof ~ "` in stack read operation");
 	}
+}
+
+/**
+ * Same as calling getValue!(T, typeMismatchHandler)(L, -1), then popping one value from the stack.
+ * See_Also: $(MREF getValue)
+ */
+auto ref popValue(T, alias typeMismatchHandler = defaultTypeMismatch)(lua_State* L)
+{
+	scope(success) lua_pop(L, 1);
+	return getValue!(T, typeMismatchHandler)(L, -1);
 }
 
 // we need an overload that handles struct and static arrays (which need to return by ref)

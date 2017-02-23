@@ -1,4 +1,4 @@
-module luad.base;
+module coral.lua.base;
 
 import coral.lua.c.all;
 import coral.lua.stack;
