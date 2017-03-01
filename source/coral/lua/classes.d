@@ -51,21 +51,25 @@ void registerClass(T)(State state)
 {
   static assert(hasUDA!(T, LuaExport));
 
+  lua_CFunction x_new = (lua_State* L)
+  {
+    T* ud = cast(T*)lua_newuserdata(L, __traits(classInstanceSize, T));
+    *ud = new T();
+    lua_getglobal(L, T.stringof);
+    lua_setmetatable(L, -2);
+    return 1;
+  };
+
   lua_State* L = state.state;
 
-  lua_newtable(L);
-
-  enum metaName = T.mangleof ~ "_static";
-  if(luaL_newmetatable(L, metaName.ptr) == 0)
-  {
-    lua_setmetatable(L, -2);
-    return;
-  }
-
-  pushCallMetaConstructor!T(L);
-
-  lua_newtable(L);
-
+  // -------------------------------
+  lua_newtable(L); // x : {}
+  lua_pushvalue(L, -1); // x : {}, x : {} 
+  lua_setfield(L, -1, "__index"); // x : {__index = x}
+  lua_pushcfunction(L, x_new); // x : {__index = x}, x_new
+  lua_setfield(L, -2, "new"); // x : {__index = x, new = x_new}
+  
+  // ---------------------------------
   pushUDAMembers!(T, 0)(L);
 
   writeln("Registering methods");
@@ -73,6 +77,16 @@ void registerClass(T)(State state)
   //{
   //    writeln(fromStringz(method.name));
   //}
+}
+
+void pushMethods(T, uint index)(lua_State* L)
+{
+  static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
+    hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)) 
+  {
+    lua_pushcclosure
+    getUDAs!(T, LuaExport)[0].name;
+  }
 }
 
 void pushUDAMembers(T, uint index)(lua_State* L)

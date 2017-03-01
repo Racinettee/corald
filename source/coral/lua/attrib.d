@@ -3,6 +3,8 @@ module coral.lua.attrib;
 /// Declare above desired field to have luad pick it up
 struct LuaExport
 {
-    /// Name that luad should use
+    /// Name that luad should use (unimplemented yet)
     string name = "";
+    // Help the exporting routine distinguish things like userdata vs lightuserdata
+    string type = "function";
 }
