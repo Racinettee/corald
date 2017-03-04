@@ -47,36 +47,81 @@ void pushCallMetaConstructor(T)(lua_State* L)
   lua_setfield(L, -2, "__call");
 }
 
+extern(C) int methodWrapper(Del, Class)(lua_State* L)
+{
+  alias ParameterTypeTuple!Del Args;
+
+  static assert ((variadicFunctionStyle!Del != Variadic.d && variadicFunctionStyle!Del != Variadic.c),
+		"Non-typesafe variadic functions are not supported.");
+
+  int top = lua_gettop(L);
+
+  static if (variadicFunctionStyle!Del == Variadic.typesafe)
+		enum requiredArgs = Args.length;
+	else
+		enum requiredArgs = Args.length + 1;
+
+  if(top < requiredArgs)
+  {
+    writeln("Argument error in D method wrapper");
+    return 0;
+  }
+  Class self = *cast(Class*)luaL_checkudata(L, 1, toStringz(Class.stringof));
+  
+  Del func;
+  func.ptr = cast(void*)self;
+  func.funcptr = cast(typeof(func.funcptr))lua_touserdata(L, lua_upvalueindex(1));
+
+  Args allArgs;
+  alias allArgs args;
+
+  foreach(i, Arg; Args)
+    args[i] = getArgument!(T, i)(L, i + 2);
+
+  return callFunction!(typeof(func))(L, func, allArgs);
+}
+
 void registerClass(T)(State state)
 {
   static assert(hasUDA!(T, LuaExport));
 
+  // ----------------------------------------------------------------
+  // A lua function to construct a user data the size of
+  // the class instance. If we're constructing the full object in lua
+  // we should use malloc perhaps and not new so that the D-garbage
+  // collector wont come in and try to eat our instance
+  // ---------------------------------------------------
   lua_CFunction x_new = (lua_State* L)
   {
-    T* ud = cast(T*)lua_newuserdata(L, __traits(classInstanceSize, T));
+    T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof); //__traits(classInstanceSize, T));
     *ud = new T();
+    GC.addRoot(ud);
     lua_getglobal(L, T.stringof);
     lua_setmetatable(L, -2);
     return 1;
   };
+  lua_CFunction x_gc = (lua_State* L)
+  {
+    GC.removeRoot(lua_touserdata(L, 1));
+    return 0;
+  };
 
   lua_State* L = state.state;
 
-  // -------------------------------
-  lua_newtable(L); // x : {}
-  lua_pushvalue(L, -1); // x : {}, x : {} 
-  lua_setfield(L, -1, "__index"); // x : {__index = x}
-  lua_pushcfunction(L, x_new); // x : {__index = x}, x_new
-  lua_setfield(L, -2, "new"); // x : {__index = x, new = x_new}
-  
+  // -------------------------------------------------------------------
+  // the top of the stack being the right-most in the following comments
+  // -----------------------------------------------------
+  // Create a metatable named after the D-class and add some constructors and methods
+  // ---------------------------------------------------------------------------------
+  lua_newmetatable(L, T.stringof); // x = {}
+  lua_pushvalue(L, -1); // x = {}, x = {} 
+  lua_setfield(L, -1, "__index"); // x = {__index = x}
+  lua_pushcfunction(L, x_new); // x = {__index = x}, x_new
+  lua_setfield(L, -2, "new"); // x = {__index = x, new = x_new}
+  lua_pushcfunction(L, x_gc); // x = {__index = x, new = x_new}, x_gc
+  lua_setfield(L, -2, "__gc"); // x = {__index = x, new = x_new, __gc = x_gc}
   // ---------------------------------
   pushUDAMembers!(T, 0)(L);
-
-  writeln("Registering methods");
-  //foreach(method; methods)
-  //{
-  //    writeln(fromStringz(method.name));
-  //}
 }
 
 void pushMethods(T, uint index)(lua_State* L)
@@ -84,8 +129,10 @@ void pushMethods(T, uint index)(lua_State* L)
   static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
     hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)) 
   {
-    lua_pushcclosure
-    getUDAs!(T, LuaExport)[0].name;
+    alias typeof(mixin("&T.init."~__traits(derivedMembers, T)[index])) DelType;
+    lua_pushlightuserdata(L, &mixin("T."~__traits(derivedMembers,T)[index])); // x = { ... }, &T.member
+    lua_pushcclosure(L, &methodWrapper!(DelType, T), 1); // x = { ... }, closure { &T.member }
+    lua_setfield(L, -2, toStringz(getUDAs!(T, LuaExport)[0].name)); // x = { ..., fn = closure { &T.member } }
   }
 }
 
