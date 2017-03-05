@@ -1,5 +1,6 @@
 module coral.lua.classes;
 
+import core.memory;
 import std.stdio;
 import std.string;
 import std.traits;
@@ -75,10 +76,12 @@ extern(C) int methodWrapper(Del, Class)(lua_State* L)
   Args allArgs;
   alias allArgs args;
 
-  foreach(i, Arg; Args)
-    args[i] = getArgument!(T, i)(L, i + 2);
+  //foreach(i, Arg; Args)
+  //  args[i] = getArgument!(Del, i)(L, i + 2);
 
-  return callFunction!(typeof(func))(L, func, allArgs);
+  //return callFunction!(typeof(func))(L, func, allArgs);
+  // For now try to just call the function
+  return 0;
 }
 
 void registerClass(T)(State state)
@@ -113,15 +116,26 @@ void registerClass(T)(State state)
   // -----------------------------------------------------
   // Create a metatable named after the D-class and add some constructors and methods
   // ---------------------------------------------------------------------------------
-  lua_newmetatable(L, T.stringof); // x = {}
+  pragma(msg, T.stringof~" IS THE CLSS");
+  luaL_newmetatable(L, T.stringof); // x = {}
   lua_pushvalue(L, -1); // x = {}, x = {} 
   lua_setfield(L, -1, "__index"); // x = {__index = x}
   lua_pushcfunction(L, x_new); // x = {__index = x}, x_new
   lua_setfield(L, -2, "new"); // x = {__index = x, new = x_new}
   lua_pushcfunction(L, x_gc); // x = {__index = x, new = x_new}, x_gc
   lua_setfield(L, -2, "__gc"); // x = {__index = x, new = x_new, __gc = x_gc}
+
+  lua_CFunction sof = (lua_State* L)
+  {
+    //writeln("D STRINGOF");
+    lua_pushstring(L, "D STRING HUEHUE");
+    return 1;
+  };
+  lua_pushcfunction(L, sof);
+  lua_setfield(L, -2, "__tostring");
   // ---------------------------------
-  pushUDAMembers!(T, 0)(L);
+  pushMethods!(T, 0)(L);
+  lua_setglobal(L, T.stringof);
 }
 
 void pushMethods(T, uint index)(lua_State* L)
@@ -133,10 +147,13 @@ void pushMethods(T, uint index)(lua_State* L)
     lua_pushlightuserdata(L, &mixin("T."~__traits(derivedMembers,T)[index])); // x = { ... }, &T.member
     lua_pushcclosure(L, &methodWrapper!(DelType, T), 1); // x = { ... }, closure { &T.member }
     lua_setfield(L, -2, toStringz(getUDAs!(T, LuaExport)[0].name)); // x = { ..., fn = closure { &T.member } }
+    pragma(msg, getUDAs!(T, LuaExport)[0].name);
   }
+  static if(index + 1 < __traits(derivedMembers, T).length)
+    pushMethods!(T, index+1)(L);
 }
 
-void pushUDAMembers(T, uint index)(lua_State* L)
+/*void pushUDAMembers(T, uint index)(lua_State* L)
 {
   static if(
     __traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
@@ -149,4 +166,4 @@ void pushUDAMembers(T, uint index)(lua_State* L)
   
   static if(index + 1 < __traits(derivedMembers, T).length)
     pushUDAMembers!(T, index+1)(L);
-}
+}*/

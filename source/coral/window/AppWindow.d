@@ -31,8 +31,6 @@ import gsv.SourceLanguageManager;
 
 import gtkc.glibtypes : GPriority;
 
-import luad.all;
-
 import coral.lua.attrib;
 
 /// Primary application window class

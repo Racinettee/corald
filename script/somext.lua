@@ -2,6 +2,9 @@ local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local lfs = require 'lfs'
 
+print(AppWindow.__tostring())
+AppWindow.new():openFile(lfs.currentdir() .. '/.gitignore')
+
 local menuBar = Gtk.MenuBar(mainWindow.menuBar)
 menuBar:append(Gtk.MenuItem {
   label = 'Hello'

@@ -4,9 +4,6 @@ import std.traits;
 
 import coral.lua.c.all;
 import coral.lua.base;
-import coral.lua.table;
-import coral.lua.dynamic;
-import coral.lua.lfunction;
 import coral.lua.priv.util;
 import coral.lua.priv.variant;
 import coral.lua.priv.functions;
