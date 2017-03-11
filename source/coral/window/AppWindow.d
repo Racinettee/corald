@@ -88,10 +88,16 @@ class AppWindow : MainWindow
 	{
 		writeln(line);
 	}
+	/// Opens a file in this window
+	@LuaExport("openFile", "method")
+	public void openFile(string filepath)
+	{
+		coral.util.editor.openFile(notebook, filepath);
+	}
 
 	/// Opens a file in this window, popping an open file dialog
-	@LuaExport("openFileMI")
-	void openFile(MenuItem)
+	@LuaExport("openFileMI", "method")
+	public void openFile(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
 			GtkFileChooserAction.OPEN, ["Open", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
@@ -105,16 +111,10 @@ class AppWindow : MainWindow
 		openFile(filepath);
 	}
 	
-	/// Opens a file in this window
-	@LuaExport("openFile")
-	public void openFile(string filepath)
-	{
-		coral.util.editor.openFile(notebook, filepath);
-	}
 
 	/// Saves the currently focused file, only pops
 	/// save as dialog if file is new
-	@LuaExport("saveFile")
+	@LuaExport("saveFile", "method")
 	public void saveFile(MenuItem m)
 	{
 		auto tabLabel = currentTabLabel;
@@ -126,7 +126,7 @@ class AppWindow : MainWindow
 		coral.util.editor.saveFile(notebook, tabLabel.fullPath);
 	}
 	/// Saves the currently focused file, popping a save as dialog
-	@LuaExport("saveFileAs")
+	@LuaExport("saveFileAs", "method")
 	void saveFileAs(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
@@ -153,7 +153,7 @@ class AppWindow : MainWindow
 	}
 	
 	/// Convenience method to get the currently displayed page
-	@LuaExport("currentPage")
+	@LuaExport("currentPage", "method")
 	@property private Widget currentPage ()
 	{
 		return notebook.getNthPage(notebook.getCurrentPage);
@@ -168,7 +168,8 @@ class AppWindow : MainWindow
 	private IDebugger debugInstance;
 	private Builder builder;
 	private MenuBar mainMenu;
-	private Notebook notebook;
+	@LuaExport("notebook", "lightud", "getNotebookStruct()")
+	Notebook notebook;
 	//LuaState lua;
 
 	private void hookMenuItems()

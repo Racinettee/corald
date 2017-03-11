@@ -5,6 +5,8 @@ struct LuaExport
 {
     /// Name that luad should use (unimplemented yet)
     string name = "";
-    // Help the exporting routine distinguish things like userdata vs lightuserdata
+    /// Help the exporting routine distinguish things like userdata vs lightuserdata
     string type = "function";
+    /// Sub-member to refer to during the exporting routine
+    string submember = "";
 }

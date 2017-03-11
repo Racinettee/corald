@@ -3,7 +3,19 @@ local Gtk = lgi.require('Gtk')
 local lfs = require 'lfs'
 
 print(AppWindow.__tostring())
-AppWindow.new():openFile(lfs.currentdir() .. '/.gitignore')
+local wind = AppWindow.new()
+print(Gtk.Notebook(wind.notebook):get_current_page())
+local windMeta = getmetatable(wind)
+
+for k,v in pairs(windMeta) do
+  print(k)
+end
+
+for k,v in pairs(windMeta.__index) do
+  print(k)
+end
+
+wind:openFile(lfs.currentdir() .. "/dub.json")
 
 local menuBar = Gtk.MenuBar(mainWindow.menuBar)
 menuBar:append(Gtk.MenuItem {

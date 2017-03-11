@@ -67,42 +67,58 @@ extern(C) int methodWrapper(Del, Class)(lua_State* L)
     writeln("Argument error in D method wrapper");
     return 0;
   }
-  Class self = *cast(Class*)luaL_checkudata(L, 1, toStringz(Class.stringof));
+  
+  Class self = *cast(Class*)lua_touserdata(L, 1);
   
   Del func;
   func.ptr = cast(void*)self;
   func.funcptr = cast(typeof(func.funcptr))lua_touserdata(L, lua_upvalueindex(1));
 
-  Args allArgs;
-  alias allArgs args;
+  Parameters!Del typeObj;
+  // Lua index start at 1, and 1 should be the instance in this case, so we are starting at 2
+  for(auto i = 2; i < requiredArgs; i++)
+  {
+    auto type = lua_type(L, i);
+    switch(type)
+    {
+    case LUA_TSTRING:
+      typeObj[i-1] = cast(string)lua_tostring(L, i);
+      break;
+    }
+  }
+  //writeln("Nifty open file function : )");
+  string fp = cast(string)fromStringz(luaL_checkstring(L, 2));
+
+
+  func(typeObj[1..$]);
 
   //foreach(i, Arg; Args)
   //  args[i] = getArgument!(Del, i)(L, i + 2);
+  // arity - returns number of arguments of function
 
+  //func(args);
   //return callFunction!(typeof(func))(L, func, allArgs);
   // For now try to just call the function
   return 0;
+}
+
+extern(C) int newUserdata(T)(lua_State* L)
+{
+  T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof);
+  *ud = new T();
+  GC.addRoot(ud);
+  lua_newtable(L); // { }
+  lua_getglobal(L, T.stringof); // { }, tmetatable
+  lua_setfield(L, -2, "__index"); // { __index = tmetatable }
+  pushLightUds!(T, 0)(L, *ud);
+  lua_setmetatable(L, -2);
+  return 1;
 }
 
 void registerClass(T)(State state)
 {
   static assert(hasUDA!(T, LuaExport));
 
-  // ----------------------------------------------------------------
-  // A lua function to construct a user data the size of
-  // the class instance. If we're constructing the full object in lua
-  // we should use malloc perhaps and not new so that the D-garbage
-  // collector wont come in and try to eat our instance
-  // ---------------------------------------------------
-  lua_CFunction x_new = (lua_State* L)
-  {
-    T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof); //__traits(classInstanceSize, T));
-    *ud = new T();
-    GC.addRoot(ud);
-    lua_getglobal(L, T.stringof);
-    lua_setmetatable(L, -2);
-    return 1;
-  };
   lua_CFunction x_gc = (lua_State* L)
   {
     GC.removeRoot(lua_touserdata(L, 1));
@@ -120,7 +136,7 @@ void registerClass(T)(State state)
   luaL_newmetatable(L, T.stringof); // x = {}
   lua_pushvalue(L, -1); // x = {}, x = {} 
   lua_setfield(L, -1, "__index"); // x = {__index = x}
-  lua_pushcfunction(L, x_new); // x = {__index = x}, x_new
+  lua_pushcfunction(L, &newUserdata!(T)); // x = {__index = x}, x_new
   lua_setfield(L, -2, "new"); // x = {__index = x, new = x_new}
   lua_pushcfunction(L, x_gc); // x = {__index = x, new = x_new}, x_gc
   lua_setfield(L, -2, "__gc"); // x = {__index = x, new = x_new, __gc = x_gc}
@@ -140,30 +156,46 @@ void registerClass(T)(State state)
 
 void pushMethods(T, uint index)(lua_State* L)
 {
+  pragma(msg, index);
+
   static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
     hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)) 
   {
-    alias typeof(mixin("&T.init."~__traits(derivedMembers, T)[index])) DelType;
-    lua_pushlightuserdata(L, &mixin("T."~__traits(derivedMembers,T)[index])); // x = { ... }, &T.member
-    lua_pushcclosure(L, &methodWrapper!(DelType, T), 1); // x = { ... }, closure { &T.member }
-    lua_setfield(L, -2, toStringz(getUDAs!(T, LuaExport)[0].name)); // x = { ..., fn = closure { &T.member } }
-    pragma(msg, getUDAs!(T, LuaExport)[0].name);
+    // Get the lua uda struct associated with this member function
+    enum luaUda = getUDAs!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)[0];
+    pragma(msg, luaUda.name);
+    static if(luaUda.type == "method")
+    {
+      alias DelType = typeof(mixin("&T.init."~__traits(derivedMembers, T)[index]));
+      lua_pushlightuserdata(L, &mixin("T."~__traits(derivedMembers,T)[index])); // x = { ... }, &T.member
+      lua_pushcclosure(L, &methodWrapper!(DelType, T), 1); // x = { ... }, closure { &T.member }
+      lua_setfield(L, -2, toStringz(luaUda.name)); // x = { ..., fn = closure { &T.member } }
+    }
   }
-  static if(index + 1 < __traits(derivedMembers, T).length)
+  static if(index+1 < __traits(derivedMembers, T).length)
     pushMethods!(T, index+1)(L);
 }
 
-/*void pushUDAMembers(T, uint index)(lua_State* L)
+// T refers to a de-referenced instance
+void pushLightUds(T, uint index)(lua_State* L, T instance)
 {
-  static if(
-    __traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
+  pragma(msg, index);
+
+  static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
     hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport))
   {
-    pragma(msg, "Found a member with uda "~__traits(derivedMembers, T)[index]);
-    //methods ~= luaL_Reg(cast(char*)toStringz(__traits(derivedMembers, T)[index]), cast(lua_CFunction)mixin("&T."~__traits(derivedMembers, T)[index]));
-    pushFunction(__traits(derivedMembers,T)[index]);
+    // Get the lua uda struct associated with this member function
+    enum luaUda = getUDAs!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)[0];
+    pragma(msg, luaUda.name);
+    static if(luaUda.type == "lightud")
+    {
+      static if(luaUda.submember != "")
+        lua_pushlightuserdata(L, mixin("instance."~__traits(derivedMembers, T)[index]~"."~luaUda.submember));
+      else
+        lua_pushlightuserdata(L, &mixin("instance."~__traits(derivedMembers, T)[index]));
+      lua_setfield(L, -2, toStringz(luaUda.name));
+    }
   }
-  
-  static if(index + 1 < __traits(derivedMembers, T).length)
-    pushUDAMembers!(T, index+1)(L);
-}*/
+  static if(index+1 < __traits(derivedMembers, T).length)
+    pushLightUds!(T, index+1)(L, instance);
+}
