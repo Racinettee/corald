@@ -97,7 +97,7 @@ class AppWindow : MainWindow
 
 	/// Opens a file in this window, popping an open file dialog
 	@LuaExport("openFileMI", "method")
-	public void openFile(MenuItem)
+	public void openFileMenuItem(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
 			GtkFileChooserAction.OPEN, ["Open", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
@@ -178,7 +178,7 @@ class AppWindow : MainWindow
 		menuItem.addOnActivate((m)=>addNewSourceEditor(notebook));
 
 		menuItem = getItem!MenuItem(builder, "menuopenfile");
-		menuItem.addOnActivate(&openFile);
+		menuItem.addOnActivate(&openFileMenuItem);
 
 		menuItem = getItem!MenuItem(builder, "menuquit");
 		menuItem.addOnActivate((m)=>close());

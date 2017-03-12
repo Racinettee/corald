@@ -48,6 +48,14 @@ void pushCallMetaConstructor(T)(lua_State* L)
   lua_setfield(L, -2, "__call");
 }
 
+void fillArgs(Del, int index)(lua_State* L, ref Parameters!Del params)
+{
+  static if(is(params[index] == int))
+  {
+
+  }
+}
+
 extern(C) int methodWrapper(Del, Class)(lua_State* L)
 {
   alias ParameterTypeTuple!Del Args;
@@ -75,30 +83,20 @@ extern(C) int methodWrapper(Del, Class)(lua_State* L)
   func.funcptr = cast(typeof(func.funcptr))lua_touserdata(L, lua_upvalueindex(1));
 
   Parameters!Del typeObj;
-  // Lua index start at 1, and 1 should be the instance in this case, so we are starting at 2
-  for(auto i = 2; i < requiredArgs; i++)
-  {
-    auto type = lua_type(L, i);
-    switch(type)
-    {
-    case LUA_TSTRING:
-      typeObj[i-1] = cast(string)lua_tostring(L, i);
-      break;
-    }
-  }
+  pragma(msg, typeObj);
+  fillArgs!(Del, 0)(L, typeObj);
+
   //writeln("Nifty open file function : )");
   string fp = cast(string)fromStringz(luaL_checkstring(L, 2));
+  typeObj[0] = fp;
 
 
-  func(typeObj[1..$]);
+  func(typeObj);
 
   //foreach(i, Arg; Args)
   //  args[i] = getArgument!(Del, i)(L, i + 2);
   // arity - returns number of arguments of function
 
-  //func(args);
-  //return callFunction!(typeof(func))(L, func, allArgs);
-  // For now try to just call the function
   return 0;
 }
 
