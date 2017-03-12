@@ -53,17 +53,28 @@ void fillArgs(Del, int index)(lua_State* L, ref Parameters!Del params)
   alias ParamList = Parameters!Del;
   pragma(msg, "Fill arguments");
   const int luaStartingArgIndex = 1; // index 1 is the self, index 2 is our first arugment that we want to deal with
+  const int luaOffsetArg = index+luaStartingArgIndex+1;
   static if(is(typeof(params[index]) == int))
   {
     pragma(msg, "Generating int parameter");
-    params[0] = luaL_checkint(L, index+luaStartingArgIndex+1);
+    params[index] = luaL_checkint(L, luaOffsetArg);
   }
   else static if(is(typeof(params[index]) == string))
   {
     pragma(msg, "Generating string parameter");
-    params[0] = cast(string)fromStringz(luaL_checkstring(L, index+luaStartingArgIndex+1));
+    params[index] = cast(string)fromStringz(luaL_checkstring(L, luaOffsetArg));
   }
-  static if(index+1 < Parameters!Del.length)
+  else static if(is(typeof(params[index]) == float) || is(typeof(params[index]) == double))
+  {
+    pragma(msg, "Generating float parameter");
+    params[index] = luaL_checknumber(L, luaOffsetArg);
+  }
+  else static if(is(typeof(params[index]) == bool))
+  {
+    pragma(msg, "Generating bool parameter");
+    params[index] = cast(bool)luaL_checkboolean(L, luaOffsetArg);
+  }
+  static if(index+1 < ParamList.length)
     fillArgs!(Del, index+1)(L, params);
 }
 
@@ -97,16 +108,7 @@ extern(C) int methodWrapper(Del, Class)(lua_State* L)
   pragma(msg, Parameters!Del);
   fillArgs!(Del, 0)(L, typeObj);
 
-  //writeln("Nifty open file function : )");
-  //string fp = cast(string)fromStringz(luaL_checkstring(L, 2));
-  //typeObj[0] = fp;
-
-
   func(typeObj);
-
-  //foreach(i, Arg; Args)
-  //  args[i] = getArgument!(Del, i)(L, i + 2);
-  // arity - returns number of arguments of function
 
   return 0;
 }
