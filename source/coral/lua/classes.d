@@ -50,10 +50,21 @@ void pushCallMetaConstructor(T)(lua_State* L)
 
 void fillArgs(Del, int index)(lua_State* L, ref Parameters!Del params)
 {
-  static if(is(params[index] == int))
+  alias ParamList = Parameters!Del;
+  pragma(msg, "Fill arguments");
+  const int luaStartingArgIndex = 1; // index 1 is the self, index 2 is our first arugment that we want to deal with
+  static if(is(typeof(params[index]) == int))
   {
-
+    pragma(msg, "Generating int parameter");
+    params[0] = luaL_checkint(L, index+luaStartingArgIndex+1);
   }
+  else static if(is(typeof(params[index]) == string))
+  {
+    pragma(msg, "Generating string parameter");
+    params[0] = cast(string)fromStringz(luaL_checkstring(L, index+luaStartingArgIndex+1));
+  }
+  static if(index+1 < Parameters!Del.length)
+    fillArgs!(Del, index+1)(L, params);
 }
 
 extern(C) int methodWrapper(Del, Class)(lua_State* L)
@@ -83,12 +94,12 @@ extern(C) int methodWrapper(Del, Class)(lua_State* L)
   func.funcptr = cast(typeof(func.funcptr))lua_touserdata(L, lua_upvalueindex(1));
 
   Parameters!Del typeObj;
-  pragma(msg, typeObj);
+  pragma(msg, Parameters!Del);
   fillArgs!(Del, 0)(L, typeObj);
 
   //writeln("Nifty open file function : )");
-  string fp = cast(string)fromStringz(luaL_checkstring(L, 2));
-  typeObj[0] = fp;
+  //string fp = cast(string)fromStringz(luaL_checkstring(L, 2));
+  //typeObj[0] = fp;
 
 
   func(typeObj);

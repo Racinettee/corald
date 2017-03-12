@@ -2,10 +2,10 @@ LUADIR=`pwd`/dep/LuaJIT-2.0.4/src
 LUA_INC=$(LUADIR)
 LUA_LIBDIR=$(LUADIR)
 
-all: deps corald
+all: gather deps corald
 
 corald:
-	dub build
+	dub build --nodeps --parallel
 
 deps:
 	make -C dep/LuaJIT-2.0.4
@@ -25,6 +25,7 @@ deps:
 gather:
 	git submodule init
 	git submodule update
+	dub upgrade --missing-only
 
 clean:
 	make -C dep/LuaJIT-2.0.4 clean
