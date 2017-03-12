@@ -7,9 +7,6 @@
 	"dependencies": {
 		"gtk-d": "~>3.3.1"
 	},
-	"preBuildCommands": [
-		"./depbuild.sh"
-	],
 	"lflags": [
 		"-L./dep/LuaJIT-2.0.4/src"
 	],
