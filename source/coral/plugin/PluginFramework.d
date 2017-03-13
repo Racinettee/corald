@@ -27,12 +27,8 @@ void initPlugins(State state, AppWindow initialWindow)
     "local projRoot = '"~absolutePath("script")~"'\n"~
     "local binRoot = '"~absolutePath(buildPath("dep","bin"))~"'\n"~
     "package.path = package.path .. ';' .. projRoot .. '/?.lua;' .. projRoot .. '/?.moon'\n"~
-    "package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'"~
-    "require 'moonscript'");
-    //lua_pop(state.state, -1); // ?
-
-  state.require("moonscript");
-  state.doFile("script/moonscript.lua");
+    "package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'\n"~
+    "local moonscript = require 'moonscript'");
 
   registerMainWindow(state, initialWindow);
   
@@ -54,7 +50,7 @@ void initPlugins(State state, AppWindow initialWindow)
       if(!exists(filename))
         throw new Exception("Plugin: "~filename~" does not exist");
 
-      state.doFile(filename);
+      state.require(filename[0..lastIndexOf(filename, '.')]);
     }
   }
 }

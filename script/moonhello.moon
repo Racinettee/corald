@@ -1,4 +1,3 @@
-require 'moonscript'
 lgi = require 'lgi'
 lfs = require 'lfs'
 Gtk = lgi.require('Gtk')
