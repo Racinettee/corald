@@ -16,6 +16,8 @@ import gtk.Widget;
 void registerMainWindow(State state, AppWindow initialWindow)
 {
     state.registerClass!AppWindow;
+    state.push(initialWindow);
+    state.setGlobal("mainWindow");
 }
 
 /// Call to initialize plugins

@@ -49,6 +49,10 @@ class State
   {
     pushValue!T(luastate, value);
   }
+  void setGlobal(string name)
+  {
+    coral.lua.stack.setGlobal(luastate, name);
+  }
   @property
   lua_State* state() { return luastate; }
   private lua_State* luastate;

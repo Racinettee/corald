@@ -1,8 +1,11 @@
 module coral.lua.stack;
 
 import std.traits;
+import std.string;
+import core.memory;
 
 import coral.lua.c.all;
+import coral.lua.classes : pushLightUds;
 
 /**
  * Get the associated Lua type for T.
@@ -38,6 +41,18 @@ template luaTypeOf(T)
 		static assert(false, "No Lua type defined for `" ~ T.stringof ~ "`");
 }
 
+void pushInstance(T)(lua_State* L, T instance)
+{
+  T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof);
+  *ud = new T();
+  GC.addRoot(ud);
+  lua_newtable(L); // { }
+  lua_getglobal(L, T.stringof); // { }, tmetatable
+  lua_setfield(L, -2, "__index"); // { __index = tmetatable }
+  pushLightUds!(T, 0)(L, *ud);
+  lua_setmetatable(L, -2);
+}
+
 void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
 {
   static if(is(T == bool))
@@ -54,23 +69,20 @@ void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
     lua_pushstring(L, value);
   else static if(is(T == lua_CFunction) && functionLinkage!T == "C")
     lua_pushcfunction(L, value);
-  else static if(isSomeFunction!T)
-    pushFunction(L, value);
-  else static if(isPointer!T)
-	{
-    if(value is null)
-			lua_pushnil(L);
-		else
-			pushPointer(L, value);
-	}
   else static if(is(T == class))
   {
     if(value is null)
       lua_pushnil(L);
     else
-      // push class instance
-    { }
+    {
+			pushInstance(L, value);
+		}
   }
   else
     static assert(false, "Unsupported type being pushed: "~T.stringof~" in stack.d");
+}
+
+void setGlobal(lua_State* L, string name)
+{
+	lua_setglobal(L, toStringz(name));
 }
