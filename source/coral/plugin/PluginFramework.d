@@ -27,10 +27,12 @@ void initPlugins(State state, AppWindow initialWindow)
     "local projRoot = '"~absolutePath("script")~"'\n"~
     "local binRoot = '"~absolutePath(buildPath("dep","bin"))~"'\n"~
     "package.path = package.path .. ';' .. projRoot .. '/?.lua;' .. projRoot .. '/?.moon'\n"~
-    "package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'");
+    "package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'"~
+    "require 'moonscript'");
     //lua_pop(state.state, -1); // ?
 
   state.require("moonscript");
+  state.doFile("script/moonscript.lua");
 
   registerMainWindow(state, initialWindow);
   
