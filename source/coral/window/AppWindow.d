@@ -37,15 +37,8 @@ import coral.lua.attrib;
 @LuaExport("AppWindow")
 class AppWindow : MainWindow
 {
-	/// The default constructor.
-	/// This is the only way to set up the window
-	//this()
-	//{
-	//	this(cast(LuaState)null);
-	//}
 	this()
 	{
-		//lua = state;
 		super("Getting started with Gtkd");
 		setSizeRequest(600, 400);
 
