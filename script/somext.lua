@@ -2,9 +2,6 @@ local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local lfs = require 'lfs'
 
-local wind = AppWindow.new()
-wind:openFile(lfs.currentdir() .. "/dub.json")
-
 local menuBar = Gtk.MenuBar(mainWindow.menuBar)
 menuBar:append(Gtk.MenuItem {
   label = 'Hello'

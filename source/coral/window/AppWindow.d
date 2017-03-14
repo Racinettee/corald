@@ -163,7 +163,6 @@ class AppWindow : MainWindow
 	private MenuBar mainMenu;
 	@LuaExport("notebook", "lightud", "getNotebookStruct()")
 	Notebook notebook;
-	//LuaState lua;
 
 	private void hookMenuItems()
 	{

@@ -44,7 +44,7 @@ template luaTypeOf(T)
 void pushInstance(T)(lua_State* L, T instance)
 {
   T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof);
-  *ud = new T();
+  *ud = instance;
   GC.addRoot(ud);
   lua_newtable(L); // { }
   lua_getglobal(L, T.stringof); // { }, tmetatable
