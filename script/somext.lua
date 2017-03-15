@@ -2,6 +2,17 @@ local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local lfs = require 'lfs'
 
+function printTable(t)
+  for k,v in pairs(t) do
+    print(k)
+  end
+end
+
+print("main window:")
+printTable(getmetatable(mainWindow))
+print(mainWindow.notebook)
+print(getmetatable(mainWindow).notebook)
+
 local menuBar = Gtk.MenuBar(mainWindow.menuBar)
 menuBar:append(Gtk.MenuItem {
   label = 'Hello'
@@ -30,9 +41,8 @@ status_bar:push(ctx, 'This is statusbar message.')
 toolbar:insert(Gtk.ToolButton {
 		  stock_id = 'gtk-quit',
 		  on_clicked = function()
-        local notebook = Gtk.Notebook(mainWindow.notebook)
+        local notebook = Gtk.Notebook(getmetatable(mainWindow).notebook)
         notebook:remove_page(notebook:get_current_page())
-        --window:destroy()
       end,
 	       }, -1)
 
@@ -40,7 +50,6 @@ toolbar:insert(Gtk.ToolButton {
 local about_button =  Gtk.ToolButton { stock_id = 'gtk-about' }
 function about_button:on_clicked()
    mainWindow:openFile(lfs.currentdir() .. "/dub.json")
-   --mainWindow.openFile(mainWindow.__index, lfs.currentdir() .. "/dub.json")
    local dlg = Gtk.AboutDialog {
       program_name = 'LGI Demo',
       title = 'About...',

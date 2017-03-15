@@ -167,8 +167,6 @@ void registerClass(T)(State state)
 
 void pushMethods(T, uint index)(lua_State* L)
 {
-  pragma(msg, index);
-
   static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
     hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)) 
   {
@@ -190,8 +188,6 @@ void pushMethods(T, uint index)(lua_State* L)
 // T refers to a de-referenced instance
 void pushLightUds(T, uint index)(lua_State* L, T instance)
 {
-  pragma(msg, index);
-
   static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
     hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport))
   {
@@ -201,7 +197,13 @@ void pushLightUds(T, uint index)(lua_State* L, T instance)
     static if(luaUda.type == "lightud")
     {
       static if(luaUda.submember != "")
-        lua_pushlightuserdata(L, mixin("instance."~__traits(derivedMembers, T)[index]~"."~luaUda.submember));
+      {
+        auto lightuserdata = mixin("instance."~__traits(derivedMembers, T)[index]~"."~luaUda.submember);
+        writeln("Light ud addy: ", lightuserdata);
+        if(lightuserdata is null)
+          writeln("Error: provided light userdata "~luaUda.name~" is null");
+        lua_pushlightuserdata(L, lightuserdata);
+      }
       else
         lua_pushlightuserdata(L, &mixin("instance."~__traits(derivedMembers, T)[index]));
       lua_setfield(L, -2, toStringz(luaUda.name));
