@@ -2,6 +2,7 @@ module coral.lua.stack;
 
 import std.traits;
 import std.string;
+import std.stdio;
 import core.memory;
 
 import coral.lua.c.all;
@@ -41,16 +42,35 @@ template luaTypeOf(T)
 		static assert(false, "No Lua type defined for `" ~ T.stringof ~ "`");
 }
 
+private extern(C) int udIndexMetamethod(lua_State* L)
+{
+  if(lua_type(L, 1) == LUA_TUSERDATA)
+  {
+    writeln("First argument is user data, indexing for: ", fromStringz(luaL_checkstring(L, 2)));
+    lua_getmetatable(L, 1);
+    lua_getfield(L, -1, luaL_checkstring(L, 2));
+    if(lua_type(L, -1) == LUA_TNIL)
+    {
+      lua_pop(L, 1);
+      lua_getfield(L, -1, "__class");
+      lua_getfield(L, -1, luaL_checkstring(L, 2));
+    }
+  }
+  return 1;
+}
+
 void pushInstance(T)(lua_State* L, T instance)
 {
-  T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof);
+  T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof); // ud
   *ud = instance;
   GC.addRoot(ud);
-  lua_newtable(L); // { }
-  lua_getglobal(L, T.stringof); // { }, tmetatable
-  lua_setfield(L, -2, "__index"); // { __index = tmetatable }
-  pushLightUds!(T, 0)(L, *ud);
-  lua_setmetatable(L, -2);
+  lua_newtable(L); // ud, { }
+  lua_pushcfunction(L, &udIndexMetamethod); // ud, { }, cindxmethod
+  lua_setfield(L, -2, "__index"); // ud, { __index=cindxmethod }
+  lua_getglobal(L, T.stringof); // ud, { __index=cindxmethod }, tmetatable
+  lua_setfield(L, -2, "__class"); // ud, { __index=cindxmethod, __class=tmetatable }
+  pushLightUds!(T, 0)(L, *ud); // ud, { }, { __index=cindxmethod, __class=tmetatable, lightuds }
+  lua_setmetatable(L, -2); // ud( ^ )
 }
 
 void pushValue(T)(lua_State* L, T value) if(!is(T == struct))

@@ -8,12 +8,7 @@ function printTable(t)
   end
 end
 
-print("main window:")
-printTable(getmetatable(mainWindow))
-print(mainWindow.notebook)
-print(getmetatable(mainWindow).notebook)
-
-local menuBar = Gtk.MenuBar(mainWindow.menuBar)
+local menuBar = Gtk.MenuBar(mainWindow.menubar)
 menuBar:append(Gtk.MenuItem {
   label = 'Hello'
 })
@@ -41,7 +36,7 @@ status_bar:push(ctx, 'This is statusbar message.')
 toolbar:insert(Gtk.ToolButton {
 		  stock_id = 'gtk-quit',
 		  on_clicked = function()
-        local notebook = Gtk.Notebook(getmetatable(mainWindow).notebook)
+        local notebook = Gtk.Notebook(mainWindow.notebook)
         notebook:remove_page(notebook:get_current_page())
       end,
 	       }, -1)

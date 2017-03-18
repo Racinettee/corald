@@ -160,7 +160,10 @@ class AppWindow : MainWindow
 
 	private IDebugger debugInstance;
 	private Builder builder;
-	private MenuBar mainMenu;
+	/// The menubar displayed for this window
+	@LuaExport("menubar", "lightud", "getMenuBarStruct()")
+	MenuBar mainMenu;
+	/// The notebook subview for this window
 	@LuaExport("notebook", "lightud", "getNotebookStruct()")
 	Notebook notebook;
 

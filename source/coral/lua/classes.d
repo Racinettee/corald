@@ -113,18 +113,26 @@ extern(C) int methodWrapper(Del, Class)(lua_State* L)
   return 0;
 }
 
+/// Method used for instantiating userdata
 extern(C) int newUserdata(T)(lua_State* L)
 {
-  T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof);
+  /*&T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof);
   *ud = new T();
   GC.addRoot(ud);
   lua_newtable(L); // { }
   lua_getglobal(L, T.stringof); // { }, tmetatable
   lua_setfield(L, -2, "__index"); // { __index = tmetatable }
   pushLightUds!(T, 0)(L, *ud);
-  lua_setmetatable(L, -2);
+  lua_setmetatable(L, -2);*/
+  pushInstance!T(L, new T());
   return 1;
 }
+/// Method for garbage collecting userdata
+extern(C) int gcUserdata(lua_State* L)
+{
+  GC.removeRoot(lua_touserdata(L, 1));
+  return 0;
+};
 
 void registerClass(T)(State state)
 {
@@ -152,14 +160,6 @@ void registerClass(T)(State state)
   lua_pushcfunction(L, x_gc); // x = {__index = x, new = x_new}, x_gc
   lua_setfield(L, -2, "__gc"); // x = {__index = x, new = x_new, __gc = x_gc}
 
-  lua_CFunction sof = (lua_State* L)
-  {
-    //writeln("D STRINGOF");
-    lua_pushstring(L, "D STRING HUEHUE");
-    return 1;
-  };
-  lua_pushcfunction(L, sof);
-  lua_setfield(L, -2, "__tostring");
   // ---------------------------------
   pushMethods!(T, 0)(L);
   lua_setglobal(L, T.stringof);
