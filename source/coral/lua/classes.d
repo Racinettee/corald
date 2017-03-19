@@ -124,6 +124,11 @@ extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
           return 1;
         }
       }
+      else
+      {
+        pushValue(L, returnValue);
+        return 1;
+      }
     }
     else
     {
@@ -174,7 +179,6 @@ void registerClass(T)(State state)
   // -----------------------------------------------------
   // Create a metatable named after the D-class and add some constructors and methods
   // ---------------------------------------------------------------------------------
-  pragma(msg, T.stringof~" IS THE CLSS");
   luaL_newmetatable(L, T.stringof); // x = {}
   lua_pushvalue(L, -1); // x = {}, x = {} 
   lua_setfield(L, -1, "__index"); // x = {__index = x}
@@ -195,7 +199,6 @@ void pushMethods(T, uint index)(lua_State* L)
   {
     // Get the lua uda struct associated with this member function
     enum luaUda = getUDAs!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)[0];
-    pragma(msg, luaUda.name);
     static if(luaUda.type == "method")
     {
       alias DelType = typeof(mixin("&T.init."~__traits(derivedMembers, T)[index]));
@@ -216,7 +219,6 @@ void pushLightUds(T, uint index)(lua_State* L, T instance)
   {
     // Get the lua uda struct associated with this member function
     enum luaUda = getUDAs!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)[0];
-    pragma(msg, luaUda.name);
     static if(luaUda.type == "lightud")
     {
       static if(luaUda.submember != "")
