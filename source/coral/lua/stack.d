@@ -94,9 +94,7 @@ void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
     if(value is null)
       lua_pushnil(L);
     else
-    {
 			pushInstance(L, value);
-		}
   }
   else
     static assert(false, "Unsupported type being pushed: "~T.stringof~" in stack.d");
