@@ -46,7 +46,6 @@ private extern(C) int udIndexMetamethod(lua_State* L)
 {
   if(lua_type(L, 1) == LUA_TUSERDATA)
   {
-    writeln("First argument is user data, indexing for: ", fromStringz(luaL_checkstring(L, 2)));
     lua_getmetatable(L, 1);
     lua_getfield(L, -1, luaL_checkstring(L, 2));
     if(lua_type(L, -1) == LUA_TNIL)
@@ -54,6 +53,7 @@ private extern(C) int udIndexMetamethod(lua_State* L)
       lua_pop(L, 1);
       lua_getfield(L, -1, "__class");
       lua_getfield(L, -1, luaL_checkstring(L, 2));
+      lua_remove(L, -2);
     }
   }
   return 1;
