@@ -44,17 +44,14 @@ template luaTypeOf(T)
 
 private extern(C) int udIndexMetamethod(lua_State* L)
 {
-  if(lua_type(L, 1) == LUA_TUSERDATA)
+  lua_getmetatable(L, 1);
+  lua_getfield(L, -1, luaL_checkstring(L, 2));
+  if(lua_type(L, -1) == LUA_TNIL)
   {
-    lua_getmetatable(L, 1);
+    lua_pop(L, 1);
+    lua_getfield(L, -1, "__class");
     lua_getfield(L, -1, luaL_checkstring(L, 2));
-    if(lua_type(L, -1) == LUA_TNIL)
-    {
-      lua_pop(L, 1);
-      lua_getfield(L, -1, "__class");
-      lua_getfield(L, -1, luaL_checkstring(L, 2));
-      lua_remove(L, -2);
-    }
+    lua_remove(L, -2);
   }
   return 1;
 }
