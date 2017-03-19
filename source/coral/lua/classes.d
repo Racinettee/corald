@@ -78,7 +78,7 @@ void fillArgs(Del, int index)(lua_State* L, ref Parameters!Del params)
     fillArgs!(Del, index+1)(L, params);
 }
 
-extern(C) int methodWrapper(Del, Class)(lua_State* L)
+extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
 {
   alias ParameterTypeTuple!Del Args;
 
@@ -108,9 +108,32 @@ extern(C) int methodWrapper(Del, Class)(lua_State* L)
   pragma(msg, Parameters!Del);
   fillArgs!(Del, 0)(L, typeObj);
 
-  func(typeObj);
-
-  return 0;
+  static if(hasUDA!(mixin("Class."~__traits(derivedMembers, Class)[index]), LuaExport))
+  {
+    writeln("Calling function with return value");
+    alias RT = ReturnType!Del;
+    static if(!is(RT == void))
+    {
+      RT returnValue = func(typeObj);
+      enum luaUda = getUDAs!(mixin("Class."~__traits(derivedMembers, Class)[index]), LuaExport)[0];
+      static if(luaUda.returntype == "lightud")
+      {
+        static if(luaUda.submember != "")
+        {
+          lua_pushlightuserdata(L, mixin("returnValue."~luaUda.submember));
+          return 1;
+        }
+      }
+    }
+    else
+    {
+      writeln("Calling function with no return");
+      func(typeObj);
+      return 0;
+    }
+  }
+  
+  assert(0, "Somehow reached a spot in methodWrapper that shouldn't be possible");
 }
 
 /// Method used for instantiating userdata
@@ -177,7 +200,7 @@ void pushMethods(T, uint index)(lua_State* L)
     {
       alias DelType = typeof(mixin("&T.init."~__traits(derivedMembers, T)[index]));
       lua_pushlightuserdata(L, &mixin("T."~__traits(derivedMembers,T)[index])); // x = { ... }, &T.member
-      lua_pushcclosure(L, &methodWrapper!(DelType, T), 1); // x = { ... }, closure { &T.member }
+      lua_pushcclosure(L, &methodWrapper!(DelType, T, index), 1); // x = { ... }, closure { &T.member }
       lua_setfield(L, -2, toStringz(luaUda.name)); // x = { ..., fn = closure { &T.member } }
     }
   }
