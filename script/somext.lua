@@ -2,12 +2,6 @@ local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local lfs = require 'lfs'
 
-function printTable(t)
-  for k,v in pairs(t) do
-    print(k)
-  end
-end
-
 local menuBar = Gtk.MenuBar(mainWindow.menubar)
 menuBar:append(Gtk.MenuItem {
   label = 'Hello'

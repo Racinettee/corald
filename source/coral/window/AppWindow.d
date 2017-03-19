@@ -146,14 +146,14 @@ class AppWindow : MainWindow
 	}
 	
 	/// Convenience method to get the currently displayed page
-	@LuaExport("currentPage", "method")
-	@property private Widget currentPage ()
+	@LuaExport("currentPage", "method", "getWidgetStruct()", "lightud")
+	@property Widget currentPage ()
 	{
 		return notebook.getNthPage(notebook.getCurrentPage);
 	}
 
 	/// Convenience method to get the tab label for the current page
-	@property private TabLabel currentTabLabel ()
+	@property TabLabel currentTabLabel ()
 	{
 		return cast(TabLabel)notebook.getTabLabel(currentPage);
 	}

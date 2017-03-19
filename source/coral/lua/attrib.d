@@ -9,4 +9,6 @@ struct LuaExport
     string type = "function";
     /// Sub-member to refer to during the exporting routine
     string submember = "";
+    /// Return type to put on the stack
+    string returntype = "";
 }
