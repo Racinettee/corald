@@ -51,7 +51,6 @@ void pushCallMetaConstructor(T)(lua_State* L)
 void fillArgs(Del, int index)(lua_State* L, ref Parameters!Del params)
 {
   alias ParamList = Parameters!Del;
-  pragma(msg, "Fill arguments");
   const int luaStartingArgIndex = 1; // index 1 is the self, index 2 is our first arugment that we want to deal with
   const int luaOffsetArg = index+luaStartingArgIndex+1;
   static if(is(typeof(params[index]) == int))
@@ -144,14 +143,6 @@ extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
 /// Method used for instantiating userdata
 extern(C) int newUserdata(T)(lua_State* L)
 {
-  /*&T* ud = cast(T*)lua_newuserdata(L, (void*).sizeof);
-  *ud = new T();
-  GC.addRoot(ud);
-  lua_newtable(L); // { }
-  lua_getglobal(L, T.stringof); // { }, tmetatable
-  lua_setfield(L, -2, "__index"); // { __index = tmetatable }
-  pushLightUds!(T, 0)(L, *ud);
-  lua_setmetatable(L, -2);*/
   pushInstance!T(L, new T());
   return 1;
 }
@@ -224,7 +215,6 @@ void pushLightUds(T, uint index)(lua_State* L, T instance)
       static if(luaUda.submember != "")
       {
         auto lightuserdata = mixin("instance."~__traits(derivedMembers, T)[index]~"."~luaUda.submember);
-        writeln("Light ud addy: ", lightuserdata);
         if(lightuserdata is null)
           writeln("Error: provided light userdata "~luaUda.name~" is null");
         lua_pushlightuserdata(L, lightuserdata);
