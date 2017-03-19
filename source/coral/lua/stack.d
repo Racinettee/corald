@@ -65,6 +65,10 @@ void pushInstance(T)(lua_State* L, T instance)
   lua_pushcfunction(L, &udIndexMetamethod); // ud, { }, cindxmethod
   lua_setfield(L, -2, "__index"); // ud, { __index=cindxmethod }
   lua_getglobal(L, T.stringof); // ud, { __index=cindxmethod }, tmetatable
+  if(lua_type(L, -1) == LUA_TNIL) // Make sure that the metatable for the class exists
+  {
+    luaL_error(L, toStringz("Error: class "~T.stringof~" has not been registered"));
+  }
   lua_setfield(L, -2, "__class"); // ud, { __index=cindxmethod, __class=tmetatable }
   pushLightUds!(T, 0)(L, *ud); // ud, { }, { __index=cindxmethod, __class=tmetatable, lightuds }
   lua_setmetatable(L, -2); // ud( ^ )
