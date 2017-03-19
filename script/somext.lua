@@ -8,6 +8,7 @@ menuBar:append(Gtk.MenuItem {
 })
 menuBar:show_all()
 
+local scrolledwin = Gtk.ScrolledWindow(mainWindow:currentPage()):get_child():get_buffer():set_text("Holaaa como estas!!", -1)
 -- Create top level window with some properties and connect its 'destroy'
 -- signal to the event loop termination.
 local window = Gtk.Window {

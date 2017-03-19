@@ -109,7 +109,6 @@ extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
 
   static if(hasUDA!(mixin("Class."~__traits(derivedMembers, Class)[index]), LuaExport))
   {
-    writeln("Calling function with return value");
     alias RT = ReturnType!Del;
     static if(!is(RT == void))
     {
@@ -131,7 +130,6 @@ extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
     }
     else
     {
-      writeln("Calling function with no return");
       func(typeObj);
       return 0;
     }
