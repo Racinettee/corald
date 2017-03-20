@@ -54,7 +54,7 @@ class State
   {
     pushValue!T(state, value);
   }
-  @trusted void setGlobal(string name)
+  @safe void setGlobal(string name)
   {
     coral.lua.stack.setGlobal(state, name);
   }
