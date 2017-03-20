@@ -75,7 +75,9 @@ void pushInstance(T)(lua_State* L, T instance)
 
 void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
 {
-  static if(is(T == bool))
+  static if(is(T == typeof(null)))
+    lua_pushnil(L);
+  else static if(is(T == bool))
     lua_pushboolean(L, value);
   else static if(is(T == char))
     lua_pushlstring(L, &value, 1);
@@ -105,30 +107,52 @@ void pushValue(T)(lua_State* L, T value) if(!is(T == struct))
   if(!(L is null) && !(name is null))
 	  (() @trusted => lua_setglobal(L, toStringz(name)))();
   else
-    throw new StateException("Lua state or name for global were null");
+    throw new StateException("Lua state or name for global to be set were null");
+}
+@safe void getGlobal(lua_State* L, string name)
+{
+  if(!(L is null) && !(name is null))
+    (() @trusted => lua_getglobal(L, toStringz(name)))();
+  else
+    throw new StateException("Lua state or name for global to get were null");
 }
 
 import std.exception;
 unittest
 {
-  assertThrown!StateException(setGlobal(null, "Example"), "setGlobal should have thrown because null passed to ptr");
+  assertThrown!StateException(setGlobal(null, "Example"), "setGlobal should have thrown because null passed to arg 0");
+  assertThrown!StateException(getGlobal(null, "Example"), "getGlobal should have thrown because null passed to arg 0");
   lua_State* L = luaL_newstate();
-  assertThrown!StateException(setGlobal(L, null), "setGlobal should have thrown because passed name string was null");
+  assertThrown!StateException(setGlobal(L, null), "setGlobal should have thrown because null passed to arg1");
+  assertThrown!StateException(getGlobal(L, null), "getGlobal should have thrown because null passed to arg1");
+  // Tests push typeof(null)
   pushValue(L, null);
+  assert(lua_isnil(L, -1));
+  // Tests value is null
+  class ExampleClass { }
+  ExampleClass nullExample;
+  pushValue(L, nullExample);
   assert(lua_isnil(L, -1));
   pushValue(L, true);
   assert(lua_type(L, -1) == LUA_TBOOLEAN);
   pushValue(L, 1);
-  assert(lua_type(L, -1) == LUA_TINTEGER);
+  assert(lua_type(L, -1) == LUA_TNUMBER);
   pushValue(L, 1.0f);
   assert(lua_type(L, -1) == LUA_TNUMBER);
   pushValue(L, 1.0);
   assert(lua_type(L, -1) == LUA_TNUMBER);
   pushValue(L, "Hola");
   assert(lua_type(L, -1) == LUA_TSTRING);
-  lua_CFunction holaFunction = (lua_State*) { };
+  lua_CFunction holaFunction = (lua_State*) { return 0; };
   pushValue(L, holaFunction);
   assert(lua_type(L, -1) == LUA_TFUNCTION);
-  lua_pop(L, 7);
+  lua_pop(L, 8);
+  pushValue(L, "Hola como estas");
+  setGlobal(L, "Greeting");
+  getGlobal(L, "Greeting");
+  assert(lua_type(L, -1) == LUA_TSTRING);
+  assert(fromStringz(lua_tostring(L, 1)) == "Hola como estas");
+  lua_pop(L, 1);
+
   lua_close(L);
 }
