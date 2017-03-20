@@ -58,6 +58,10 @@ class State
   {
     coral.lua.stack.setGlobal(state, name);
   }
+  @safe void getGlobal(string name)
+  {
+    coral.lua.stack.getGlobal(state, name);
+  }
   @property
   @safe lua_State* state()
   {
