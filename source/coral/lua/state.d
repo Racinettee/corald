@@ -8,59 +8,69 @@ import coral.lua.stack;
 
 class State
 {
-  this()
+  @safe this()
   {
+    luastate = (() @trusted => luaL_newstate)();
+    if(luastate is null)
+      throw new Exception("Failed to instantiate luastate");
     is_owner = true;
-    luastate = luaL_newstate;
   }
-  this(lua_State* L)
+  @safe this(lua_State* L)
   {
+    if(L is null)
+      throw new Exception("Passing null to State()");
     is_owner = false;
     luastate = L;
   }
-  ~this()
+  @safe ~this()
   {
     if(is_owner)
-      lua_close(state);
+      (() @trusted => lua_close(state))();
   }
-  void doFile(string file)
+  @trusted void doFile(string file)
   {
-    if(luaL_dofile(luastate, toStringz(file)) != 0)
+    if(luaL_dofile(state, toStringz(file)) != 0)
       printError(this);
   }
-  void doString(string line)
+  @trusted void doString(string line)
   {
-    if(luaL_dostring(luastate, toStringz(line)) != 0)
+    if(luaL_dostring(state, toStringz(line)) != 0)
       printError(this);
   }
-  void openLibs()
+  @trusted void openLibs()
   {
-    luaL_openlibs(luastate);
+    luaL_openlibs(state);
   }
-  void require(const string filename)
+  @trusted void require(const string filename)
   {
-    requireFile(luastate, toStringz(filename));
+    if(requireFile(state, toStringz(filename)) != 0)
+      throw new Exception("Lua related exception");
   }
-  void registerClass(T)()
+  @trusted void registerClass(T)()
   {
     registerClassType!T(this);
   }
-  void push(T)(T value)
+  @trusted void push(T)(T value)
   {
-    pushValue!T(luastate, value);
+    pushValue!T(state, value);
   }
-  void setGlobal(string name)
+  @trusted void setGlobal(string name)
   {
-    coral.lua.stack.setGlobal(luastate, name);
+    coral.lua.stack.setGlobal(state, name);
   }
   @property
-  lua_State* state() { return luastate; }
+  @safe lua_State* state()
+  {
+    if(luastate)
+      return luastate;
+    throw new Exception("lua state is null");
+  }
   private lua_State* luastate;
   bool is_owner;
 }
 
 import std.stdio : writeln;
-package void printError(State state)
+package @trusted void printError(State state)
 {
   writeln(fromStringz(lua_tostring(state.state, -1)));
 }
