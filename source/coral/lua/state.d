@@ -5,6 +5,7 @@ import std.string;
 import coral.lua.c.all;
 import coral.lua.classes : registerClassType = registerClass;
 import coral.lua.stack;
+import coral.lua.exception;
 
 class State
 {
@@ -15,12 +16,18 @@ class State
       throw new Exception("Failed to instantiate luastate");
     is_owner = true;
   }
-  @safe this(lua_State* L)
+  package @safe this(lua_State* L)
   {
     if(L is null)
-      throw new Exception("Passing null to State()");
+      throw new StateException("Passing null to State()");
     is_owner = false;
     luastate = L;
+  }
+  @safe this(State other)
+  {
+    if(other is null)
+      throw new StateException("Cannot copy null state");
+    this(other.state);
   }
   @safe ~this()
   {

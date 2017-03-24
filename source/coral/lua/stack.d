@@ -127,12 +127,12 @@ unittest
   assertThrown!StateException(getGlobal(L, null), "getGlobal should have thrown because null passed to arg1");
   // Tests push typeof(null)
   pushValue(L, null);
-  assert(lua_isnil(L, -1));
+  assert(cast(bool)lua_isnil(L, -1));
   // Tests value is null
   class ExampleClass { }
   ExampleClass nullExample;
-  pushValue(L, nullExample);
-  assert(lua_isnil(L, -1));
+  pushValue(L, nullExample); // This is failing because there are no members to index - maybe add a compile time check for members
+  assert(cast(bool)lua_isnil(L, -1));
   pushValue(L, true);
   assert(lua_type(L, -1) == LUA_TBOOLEAN);
   pushValue(L, 1);
