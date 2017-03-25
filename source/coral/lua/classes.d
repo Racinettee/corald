@@ -183,6 +183,7 @@ void registerClass(T)(State state)
 
 void pushMethods(T, uint index)(lua_State* L)
 {
+  static assert(hasUDA!(T, LuaExport));
   static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
     hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)) 
   {
@@ -203,7 +204,10 @@ void pushMethods(T, uint index)(lua_State* L)
 // T refers to a de-referenced instance
 void pushLightUds(T, uint index)(lua_State* L, T instance)
 {
-  static if(__traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
+  static assert(hasUDA!(T, LuaExport));
+  // This first case handles empty classes
+  static if(__traits(derivedMembers, T).length > 1 &&
+    __traits(getProtection, mixin("T."~__traits(derivedMembers, T)[index])) == "public" &&
     hasUDA!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport))
   {
     // Get the lua uda struct associated with this member function

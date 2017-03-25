@@ -9,40 +9,6 @@ import coral.lua.exception;
 import coral.lua.c.all;
 import coral.lua.classes : pushLightUds;
 
-/**
- * Get the associated Lua type for T.
- * Returns: Lua type for T
- */
-template luaTypeOf(T)
-{
-	static if(is(T == enum))
-		enum luaTypeOf = LUA_TSTRING;
-
-	else static if(is(T == bool))
-		enum luaTypeOf = LUA_TBOOLEAN;
-
-	else static if(is(T == Nil))
-		enum luaTypeOf = LUA_TNIL;
-
-	else static if(is(T : const(char)[]) || is(T : const(char)*) || is(T == char) || isVoidArray!T)
-		enum luaTypeOf = LUA_TSTRING;
-
-	else static if(is(T : lua_Integer) || is(T : lua_Number))
-		enum luaTypeOf = LUA_TNUMBER;
-
-	else static if(isSomeFunction!T || is(T == LuaFunction))
-		enum luaTypeOf = LUA_TFUNCTION;
-
-	else static if(isArray!T || isAssociativeArray!T || is(T == LuaTable))
-		enum luaTypeOf = LUA_TTABLE;
-
-	else static if(is(T : const(Object)) || is(T == struct) || isPointer!T)
-		enum luaTypeOf = LUA_TUSERDATA;
-
-	else
-		static assert(false, "No Lua type defined for `" ~ T.stringof ~ "`");
-}
-
 private extern(C) int udIndexMetamethod(lua_State* L)
 {
   lua_getmetatable(L, 1);
@@ -129,6 +95,8 @@ unittest
   pushValue(L, null);
   assert(cast(bool)lua_isnil(L, -1));
   // Tests value is null
+  import coral.lua.attrib;
+  @LuaExport("ExampleClass")
   class ExampleClass { }
   ExampleClass nullExample;
   pushValue(L, nullExample); // This is failing because there are no members to index - maybe add a compile time check for members
