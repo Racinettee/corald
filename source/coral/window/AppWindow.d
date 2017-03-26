@@ -138,9 +138,8 @@ class AppWindow : MainWindow
 		import coral.util.windows : runOkCancelDialog;
 		import gtkc.gtktypes : GtkResponseType;
 
-		if(exists(filepath))
-			if(runOkCancelDialog(this, "File you are saving already exists. Continue?") == GtkResponseType.CANCEL)
-				return;
+		if(exists(filepath) && runOkCancelDialog(this, "File you are saving already exists. Continue?") == GtkResponseType.CANCEL)
+			return;
 
 		coral.util.editor.saveFile(notebook, filepath);
 	}
