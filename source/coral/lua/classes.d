@@ -150,11 +150,9 @@ private T extrapolateThis(T, uint index)(lua_State* L, uint argc)
     //hasUDA!(mixin("T.__ctor(Parameters!(typeof(__traits(getOverloads, T, \"__ctor\")[index])).stringof)"), LuaExport)) //mixin("T."~__traits(getOverloads, T, "__ctor"))[index], LuaExport))
     hasUDA!(__traits(getOverloads, T, "__ctor")[index], LuaExport))
   {
-    pragma(msg, "Found a maybe exported constructor");
     enum luaUda = getUDAs!(__traits(getOverloads, T, "__ctor")[index], LuaExport)[0];
     static if(luaUda.type == MethodType.ctor)
     {
-      pragma(msg, "Found an exported constructor");
       Parameters!(typeof(__traits(getOverloads, T, "__ctor"))[index]) args;
       if(argc == args.length) {
         fillArgs!(typeof(__traits(getOverloads, T, "__ctor")[index]), 0)(L, args);
