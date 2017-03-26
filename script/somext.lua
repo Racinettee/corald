@@ -2,6 +2,8 @@ local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local lfs = require 'lfs'
 
+AppWindow.new()
+
 local menuBar = Gtk.MenuBar(mainWindow.menubar)
 menuBar:append(Gtk.MenuItem {
   label = 'Hello'

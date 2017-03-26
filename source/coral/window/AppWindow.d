@@ -37,7 +37,9 @@ import coral.lua.attrib;
 @LuaExport("AppWindow")
 class AppWindow : MainWindow
 {
-	this()
+	this(string) { super("Starting out"); }
+	@LuaExport("", MethodType.ctor)
+	public this()
 	{
 		super("Getting started with Gtkd");
 		setSizeRequest(600, 400);

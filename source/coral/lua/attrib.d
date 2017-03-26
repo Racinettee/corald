@@ -3,7 +3,7 @@ module coral.lua.attrib;
 /// Specifies the type of method that the binding will deal with
 enum MethodType : string
 {
-    none = "none",
+    none = "none_method",
     func = "function",
     method = "method",
     ctor = "ctor"
@@ -11,16 +11,16 @@ enum MethodType : string
 /// Specifies the kind of return value the binding will deal in
 enum RetType : string
 {
-    none = "none",
-    lightud = "lightud",
-    userdat = "userdat"
+    none = "none_rettype",
+    lightud = "lightud_rettype",
+    userdat = "userdat_rettype"
 }
 /// Specifies the type of data that the binding should treat as
 enum MemberType : string
 {
-    none = "none",
-    lightud = "lightud",
-    userdat = "userdat",
+    none = "none_memtype",
+    lightud = "lightud_memtype",
+    userdat = "userdat_memtype",
 }
 /// Declare above desired field to have the luabinding pick it up
 /// For classes, only the name field matters

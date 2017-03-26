@@ -138,14 +138,43 @@ extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
   assert(0, "Somehow reached a spot in methodWrapper that shouldn't be possible");
 }
 
+private T extrapolateThis(T, uint index)(lua_State* L, uint argc)
+{
+  static assert(hasUDA!(T, LuaExport));
+  //enum thisOverloads = [ __traits(getOverloads, T, "__ctor") ];
+  //alias thisSymbol = thisOverloads[index];
+  //pragma(msg, __traits(getOverloads, T, "__ctor"));
+  pragma(msg, Parameters!(typeof(__traits(getOverloads, T, "__ctor")[index])).stringof);
+  static if(
+    __traits(getProtection, __traits(getOverloads, T, "__ctor")[index]) == "public" &&
+    //hasUDA!(mixin("T.__ctor(Parameters!(typeof(__traits(getOverloads, T, \"__ctor\")[index])).stringof)"), LuaExport)) //mixin("T."~__traits(getOverloads, T, "__ctor"))[index], LuaExport))
+    hasUDA!(__traits(getOverloads, T, "__ctor")[index], LuaExport))
+  {
+    pragma(msg, "Found a maybe exported constructor");
+    enum luaUda = getUDAs!(__traits(getOverloads, T, "__ctor")[index], LuaExport)[0];
+    static if(luaUda.type == MethodType.ctor)
+    {
+      pragma(msg, "Found an exported constructor");
+      Parameters!(typeof(__traits(getOverloads, T, "__ctor"))[index]) args;
+      if(argc == args.length) {
+        fillArgs!(typeof(__traits(getOverloads, T, "__ctor")[index]), 0)(L, args);
+        return new T(args);
+      }
+    }
+  }
+  static if(index+1 < __traits(getOverloads, T, "__ctor").length)
+    return extrapolateThis!(T, index+1)(L, argc);
+  assert(false, "We shouldn't end up here");
+}
+
 /// Method used for instantiating userdata
 extern(C) int newUserdata(T)(lua_State* L)
 {
   int nargs = lua_gettop(L);
   alias thisOverloads = typeof(__traits(getOverloads, T, "__ctor"));
-  pragma(msg, thisOverloads);
+  //pragma(msg, thisOverloads);
 
-  pushInstance!T(L, new T());
+  pushInstance!T(L, extrapolateThis!(T, 0)(L, nargs)); //new T());
   return 1;
 }
 /// Method for garbage collecting userdata
