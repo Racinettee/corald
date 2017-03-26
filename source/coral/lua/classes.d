@@ -114,7 +114,7 @@ extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
     {
       RT returnValue = func(typeObj);
       enum luaUda = getUDAs!(mixin("Class."~__traits(derivedMembers, Class)[index]), LuaExport)[0];
-      static if(luaUda.returntype == "lightud")
+      static if(luaUda.rtype == RetType.lightud)
       {
         static if(luaUda.submember != "")
         {
@@ -141,6 +141,10 @@ extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
 /// Method used for instantiating userdata
 extern(C) int newUserdata(T)(lua_State* L)
 {
+  int nargs = lua_gettop(L);
+  alias thisOverloads = typeof(__traits(getOverloads, T, "__ctor"));
+  pragma(msg, thisOverloads);
+
   pushInstance!T(L, new T());
   return 1;
 }
@@ -189,7 +193,7 @@ void pushMethods(T, uint index)(lua_State* L)
   {
     // Get the lua uda struct associated with this member function
     enum luaUda = getUDAs!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)[0];
-    static if(luaUda.type == "method")
+    static if(luaUda.type == MethodType.method)
     {
       alias DelType = typeof(mixin("&T.init."~__traits(derivedMembers, T)[index]));
       lua_pushlightuserdata(L, &mixin("T."~__traits(derivedMembers,T)[index])); // x = { ... }, &T.member
@@ -212,7 +216,7 @@ void pushLightUds(T, uint index)(lua_State* L, T instance)
   {
     // Get the lua uda struct associated with this member function
     enum luaUda = getUDAs!(mixin("T."~__traits(derivedMembers, T)[index]), LuaExport)[0];
-    static if(luaUda.type == "lightud")
+    static if(luaUda.memtype == MemberType.lightud)
     {
       static if(luaUda.submember != "")
       {

@@ -18,6 +18,8 @@ void registerMainWindow(State state, AppWindow initialWindow)
     state.registerClass!AppWindow;
     state.push(initialWindow);
     state.setGlobal("mainWindow");
+    import coral.component.tablabel;
+    //state.registerClass!TabLabel;
 }
 
 /// Call to initialize plugins

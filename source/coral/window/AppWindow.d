@@ -82,14 +82,14 @@ class AppWindow : MainWindow
 		writeln(line);
 	}
 	/// Opens a file in this window
-	@LuaExport("openFile", "method")
+	@LuaExport("openFile", MethodType.method)
 	public void openFile(string filepath)
 	{
 		coral.util.editor.openFile(notebook, filepath);
 	}
 
 	/// Opens a file in this window, popping an open file dialog
-	@LuaExport("openFileMI", "method")
+	@LuaExport("openFileMI", MethodType.method)
 	public void openFileMenuItem(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
@@ -107,7 +107,7 @@ class AppWindow : MainWindow
 
 	/// Saves the currently focused file, only pops
 	/// save as dialog if file is new
-	@LuaExport("saveFile", "method")
+	@LuaExport("saveFile", MethodType.method)
 	public void saveFile(MenuItem m)
 	{
 		auto tabLabel = currentTabLabel;
@@ -119,7 +119,7 @@ class AppWindow : MainWindow
 		coral.util.editor.saveFile(notebook, tabLabel.fullPath);
 	}
 	/// Saves the currently focused file, popping a save as dialog
-	@LuaExport("saveFileAs", "method")
+	@LuaExport("saveFileAs", MethodType.method)
 	void saveFileAs(MenuItem)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
@@ -146,7 +146,7 @@ class AppWindow : MainWindow
 	}
 	
 	/// Convenience method to get the currently displayed page
-	@LuaExport("currentPage", "method", "getWidgetStruct()", "lightud")
+	@LuaExport("currentPage", MethodType.method, "getWidgetStruct()", RetType.lightud)
 	@property Widget currentPage ()
 	{
 		return notebook.getNthPage(notebook.getCurrentPage);
@@ -161,10 +161,10 @@ class AppWindow : MainWindow
 	private IDebugger debugInstance;
 	private Builder builder;
 	/// The menubar displayed for this window
-	@LuaExport("menubar", "lightud", "getMenuBarStruct()")
+	@LuaExport("menubar", MethodType.none, "getMenuBarStruct()", RetType.none, MemberType.lightud)
 	MenuBar mainMenu;
 	/// The notebook subview for this window
-	@LuaExport("notebook", "lightud", "getNotebookStruct()")
+	@LuaExport("notebook", MethodType.none, "getNotebookStruct()", RetType.none, MemberType.lightud)
 	Notebook notebook;
 
 	private void hookMenuItems()

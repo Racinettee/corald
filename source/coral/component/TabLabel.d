@@ -1,5 +1,7 @@
 module coral.component.tablabel;
 
+import coral.lua.attrib;
+
 import gtk.Box;
 import gtk.Button;
 import gtk.Widget;
@@ -11,6 +13,7 @@ import gtkc.gtktypes : GtkOrientation;
 import gtkc.gtktypes : GtkReliefStyle;
 
 /// This class is the tab in a notebook
+@LuaExport("TabLabel")
 class TabLabel : Box
 {
 	/// Initialize this tablabel which appears in the notebook with
