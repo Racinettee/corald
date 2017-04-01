@@ -37,11 +37,12 @@ import coral.lua.attrib;
 @LuaExport("AppWindow")
 class AppWindow : MainWindow
 {
-	this(string) { super("Starting out"); }
 	@LuaExport("", MethodType.ctor)
-	public this()
+	this() { this("Starting out"); }
+	@LuaExport("", MethodType.ctor)
+	public this(string title)
 	{
-		super("Getting started with Gtkd");
+		super(title);
 		setSizeRequest(600, 400);
 
 		builder = new Builder();

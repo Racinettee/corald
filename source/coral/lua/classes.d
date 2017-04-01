@@ -48,11 +48,14 @@ void pushCallMetaConstructor(T)(lua_State* L)
   lua_setfield(L, -2, "__call");
 }
 
-void fillArgs(Del, int index)(lua_State* L, ref Parameters!Del params)
+void fillArgs(Del, int index, bool forMethod=true)(lua_State* L, ref Parameters!Del params)
 {
   alias ParamList = Parameters!Del;
   const int luaStartingArgIndex = 1; // index 1 is the self, index 2 is our first arugment that we want to deal with
-  const int luaOffsetArg = index+luaStartingArgIndex+1;
+  //static if(forMethod)
+  int luaOffsetArg = index+luaStartingArgIndex+(forMethod ? 1 : 0);
+  //else
+  //  const int luaOffsetArg = index+luaStartingArgIndex;
   static if(is(typeof(params[index]) == int))
   {
     pragma(msg, "Generating int parameter");
@@ -74,7 +77,7 @@ void fillArgs(Del, int index)(lua_State* L, ref Parameters!Del params)
     params[index] = cast(bool)luaL_checkboolean(L, luaOffsetArg);
   }
   static if(index+1 < ParamList.length)
-    fillArgs!(Del, index+1)(L, params);
+    fillArgs!(Del, index+1, forMethod)(L, params);
 }
 
 extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
@@ -105,7 +108,7 @@ extern(C) int methodWrapper(Del, Class, uint index)(lua_State* L)
 
   Parameters!Del typeObj;
   pragma(msg, Parameters!Del);
-  fillArgs!(Del, 0)(L, typeObj);
+  fillArgs!(Del, 0, true)(L, typeObj);
 
   static if(hasUDA!(mixin("Class."~__traits(derivedMembers, Class)[index]), LuaExport))
   {
@@ -147,15 +150,14 @@ private T extrapolateThis(T, uint index)(lua_State* L, uint argc)
   pragma(msg, Parameters!(typeof(__traits(getOverloads, T, "__ctor")[index])).stringof);
   static if(
     __traits(getProtection, __traits(getOverloads, T, "__ctor")[index]) == "public" &&
-    //hasUDA!(mixin("T.__ctor(Parameters!(typeof(__traits(getOverloads, T, \"__ctor\")[index])).stringof)"), LuaExport)) //mixin("T."~__traits(getOverloads, T, "__ctor"))[index], LuaExport))
     hasUDA!(__traits(getOverloads, T, "__ctor")[index], LuaExport))
   {
     enum luaUda = getUDAs!(__traits(getOverloads, T, "__ctor")[index], LuaExport)[0];
     static if(luaUda.type == MethodType.ctor)
     {
-      Parameters!(typeof(__traits(getOverloads, T, "__ctor"))[index]) args;
+      Parameters!(__traits(getOverloads, T, "__ctor")[index]) args;
       if(argc == args.length) {
-        fillArgs!(typeof(__traits(getOverloads, T, "__ctor")[index]), 0)(L, args);
+        fillArgs!(typeof(__traits(getOverloads, T, "__ctor")[index]), 0, false)(L, args);
         return new T(args);
       }
     }
