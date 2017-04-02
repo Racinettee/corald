@@ -31,7 +31,7 @@ import gsv.SourceLanguageManager;
 
 import gtkc.glibtypes : GPriority;
 
-import coral.lua.attrib;
+import reef.lua.attrib;
 
 /// Primary application window class
 @LuaExport("AppWindow")

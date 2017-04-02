@@ -7,7 +7,7 @@ import std.file;
 import std.string;
 import std.path;
 
-import coral.lua.state;
+import reef.lua.state;
 
 import gtk.Widget;
 

@@ -5,7 +5,8 @@
 	"copyright": "Copyright © 2016, steve",
 	"authors": ["Racinettee"],
 	"dependencies": {
-		"gtk-d": "~>3.3.1"
+		"gtk-d": "~>3.3.1",
+		"reef": "~>0.0.0"
 	},
 	"lflags": [
 		"-L./dep/LuaJIT-2.0.4/src"

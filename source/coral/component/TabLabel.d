@@ -1,6 +1,6 @@
 module coral.component.tablabel;
 
-import coral.lua.attrib;
+import reef.lua.attrib;
 
 import gtk.Box;
 import gtk.Button;

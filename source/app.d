@@ -11,7 +11,7 @@ import glib.MainLoop;
 import glib.MainContext;
 import glib.Timeout;
 
-import coral.lua.state;
+import reef.lua.state;
 
 void main()
 {
