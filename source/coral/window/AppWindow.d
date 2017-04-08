@@ -5,6 +5,7 @@ import coral.debugger.idebugger;
 import coral.debugger.gdb;
 import coral.debugger.manager;
 import coral.component.tablabel;
+import coral.component.treeview;
 
 import std.stdio : writeln;
 
@@ -123,7 +124,7 @@ class AppWindow : MainWindow
 	}
 	/// Saves the currently focused file, popping a save as dialog
 	@LuaExport("saveFileAs", MethodType.method)
-	void saveFileAs(MenuItem)
+	void saveFileAs([@LuaExport()] MenuItem mi)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
 			GtkFileChooserAction.SAVE, ["Save", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);

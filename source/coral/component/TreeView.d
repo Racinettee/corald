@@ -8,7 +8,7 @@ class TreeView
 {
   public this()
   {
-   //store = new TreeStore([GtkImageType.PIXBUF, GType.STRING]);
+    store = new TreeStore(cast(GType[])[GtkImageType.PIXBUF, GType.STRING]);
   }
   TreeStore store;
 }
