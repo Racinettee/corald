@@ -65,6 +65,8 @@ class AppWindow : MainWindow
 		
 		showAll();
 
+		new TreeView("/home/steve");
+
 		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
 		//debugInstance.setBreakpoint("test/fox.c", 7);
 		//debugInstance.start();
@@ -124,7 +126,7 @@ class AppWindow : MainWindow
 	}
 	/// Saves the currently focused file, popping a save as dialog
 	@LuaExport("saveFileAs", MethodType.method)
-	void saveFileAs([@LuaExport()] MenuItem mi)
+	void saveFileAs(MenuItem mi)
 	{
 		auto fc = new FileChooserDialog("Choose a file to open", this,
 			GtkFileChooserAction.SAVE, ["Save", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
