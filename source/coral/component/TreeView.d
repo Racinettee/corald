@@ -3,9 +3,9 @@ module coral.component.treeview;
 import gtk.TreeStore;
 import gtkc.gtk;
 import gtkc.gdk;
+import gtkc.gdkpixbuf;
 import gtkc.gobjecttypes : GType;
-import gtkc.gtktypes : GtkImageType;
-import gtd.Pixbuf;
+import gdk.Pixbuf;
 
 import std.file;
 import std.stdio;
@@ -17,7 +17,7 @@ class TreeView
   public this(string path)
   {
     //store = new TreeStore([]); //cast(GType[])[GtkImageType.PIXBUF, GType.STRING]);
-    auto treeviewPtr = new TreeStore([gdk_pixbuf_get_type(), GType.STRING]);
+    store = new TreeStore([gdk_pixbuf_get_type(), GType.STRING]);
     dirwalk(path);
   }
   /// Fill out the tree store
