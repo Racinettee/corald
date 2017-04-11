@@ -65,7 +65,7 @@ class AppWindow : MainWindow
 		
 		showAll();
 
-		new TreeView("/home/steve");
+		new TreeView("/home/steve/Documents/dlang");
 
 		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
 		//debugInstance.setBreakpoint("test/fox.c", 7);
