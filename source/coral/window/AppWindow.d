@@ -5,7 +5,7 @@ import coral.debugger.idebugger;
 import coral.debugger.gdb;
 import coral.debugger.manager;
 import coral.component.tablabel;
-import coral.component.treeview;
+import coral.component.filetree;
 
 import std.stdio : writeln;
 
@@ -58,16 +58,17 @@ class AppWindow : MainWindow
 		
 		hookMenuItems();
 
+		treeview = new FileTree(getcwd);
+
 		auto vbox = new VBox(false, 0);
 		vbox.packStart(mainMenu, false, false, 0);
+		vbox.packStart(treeview, true, true, 0);
 		vbox.packEnd(notebook, true, true, 0);
 		add(vbox);
 
 		addNewSourceEditor(notebook);
 		
 		showAll();
-
-		new TreeView(getcwd);
 
 		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
 		//debugInstance.setBreakpoint("test/fox.c", 7);
@@ -167,6 +168,8 @@ class AppWindow : MainWindow
 
 	private IDebugger debugInstance;
 	private Builder builder;
+
+	FileTree treeview;
 	/// The menubar displayed for this window
 	@LuaExport("menubar", MethodType.none, "getMenuBarStruct()", RetType.none, MemberType.lightud)
 	MenuBar mainMenu;
