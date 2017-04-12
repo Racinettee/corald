@@ -1,17 +1,19 @@
 module coral.component.filetree;
 
-import gtk.TreeStore;
-import gtk.TreeIter;
-import gtk.IconTheme;
-import gtk.TreeView : GtkTreeView=TreeView;
-import gtk.TreeViewColumn;
+import core.thread;
+
+import gdk.Pixbuf;
 import gtk.CellRendererPixbuf;
 import gtk.CellRendererText;
-import gtkc.gtk;
+import gtk.IconTheme;
+import gtk.TreeIter;
+import gtk.TreeStore;
+import gtk.TreeViewColumn;
+import gtk.TreeView : GtkTreeView=TreeView;
 import gtkc.gdk;
 import gtkc.gdkpixbuf;
 import gtkc.gobjecttypes : GType;
-import gdk.Pixbuf;
+import gtkc.gtk;
 
 import std.file;
 import std.path;
@@ -21,8 +23,27 @@ import std.stdio;
 
 class FileTree : GtkTreeView
 {
+  class FileIteratingThread : Thread
+  {
+    FileTree treeView;
+    this(FileTree outter)
+    {
+      super(&run);
+      treeView = outter;
+    }
+    private void run()
+    {
+      string path = treeView.path;
+      TreeStore store = treeView.store;
+      TreeIter topParent = store.createIter();
+      store.setValue(topParent, 0, folderIcon);
+      store.setValue(topParent, 1, baseName(path));
+      treeView.dirwalk(path, topParent);
+    }
+  }
   public this(string path)
   {
+    this.path = path;
     cellRenderPixbuf = new CellRendererPixbuf();
     cellRenderText = new CellRendererText();
     IconTheme iconTheme = IconTheme.getDefault();
@@ -36,16 +57,14 @@ class FileTree : GtkTreeView
     column.addAttribute(cellRenderText, "text", 1);
     store = new TreeStore([gdk_pixbuf_get_type(), GType.STRING]);
     super(store);
-    TreeIter topParent = store.createIter();
-    store.setValue(topParent, 0, folderIcon);
-    store.setValue(topParent, 1, baseName(path));
-    dirwalk(path, topParent);
+    //dirwalk(path, topParent);
+    new FileIteratingThread(this).start();
 
     appendColumn(column);
     showAll;
   }
   /// Fill out the tree store
-  private void dirwalk(string path, TreeIter parent)
+  package void dirwalk(string path, TreeIter parent)
   {
     foreach(DirEntry e; dirEntries(path, SpanMode.shallow))
     {
@@ -70,4 +89,5 @@ class FileTree : GtkTreeView
   CellRendererPixbuf cellRenderPixbuf;
   CellRendererText cellRenderText;
   TreeViewColumn column;
+  string path;
 }
