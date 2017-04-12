@@ -34,6 +34,8 @@ import gtkc.glibtypes : GPriority;
 
 import reef.lua.attrib;
 
+import std.file : getcwd;
+
 /// Primary application window class
 @LuaExport("AppWindow")
 class AppWindow : MainWindow
@@ -65,7 +67,7 @@ class AppWindow : MainWindow
 		
 		showAll();
 
-		new TreeView("/home/steve/Documents/dlang");
+		new TreeView(getcwd);
 
 		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
 		//debugInstance.setBreakpoint("test/fox.c", 7);
