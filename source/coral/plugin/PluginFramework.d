@@ -9,8 +9,6 @@ import std.path;
 
 import reef.lua.state;
 
-import gtk.Widget;
-
 /// A test function. Sets up the very first window to interface
 /// With the lua scripts that run
 void registerMainWindow(State state, AppWindow initialWindow)
