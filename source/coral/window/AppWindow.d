@@ -5,7 +5,7 @@ import coral.debugger.idebugger;
 import coral.debugger.gdb;
 import coral.debugger.manager;
 import coral.component.tablabel;
-import coral.component.filetree;
+import coral.window.scrolledfiletree;
 
 import std.stdio : writeln;
 
@@ -58,7 +58,7 @@ class AppWindow : MainWindow
 		
 		hookMenuItems();
 
-		treeview = new FileTree(getcwd);
+		treeview = new ScrolledFileTree(getcwd);
 
 		auto vbox = new VBox(false, 0);
 		vbox.packStart(mainMenu, false, false, 0);
@@ -169,7 +169,7 @@ class AppWindow : MainWindow
 	private IDebugger debugInstance;
 	private Builder builder;
 
-	FileTree treeview;
+	ScrolledFileTree treeview;
 	/// The menubar displayed for this window
 	@LuaExport("menubar", MethodType.none, "getMenuBarStruct()", RetType.none, MemberType.lightud)
 	MenuBar mainMenu;
