@@ -23,12 +23,9 @@ void registerMainWindow(State state, AppWindow initialWindow)
 /// Call to initialize plugins
 void initPlugins(State state, AppWindow initialWindow)
 {
-  state.doString(
-    "local projRoot = '"~absolutePath("script")~"'\n"~
-    "local binRoot = '"~absolutePath(buildPath("dep","bin"))~"'\n"~
-    "package.path = package.path .. ';' .. projRoot .. '/?.lua;' .. projRoot .. '/?.moon'\n"~
-    "package.cpath = package.cpath .. ';' .. binRoot .. '/?.so'\n"~
-    "local moonscript = require 'moonscript'");
+  state.addPath(absolutePath("script")~"/?.lua;"~absolutePath("script")~"/?.moon");
+  state.addCPath(absolutePath(buildPath("dep","bin")));
+  state.doString("local moonscript = require 'moonscript'");
 
   registerMainWindow(state, initialWindow);
   
