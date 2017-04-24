@@ -85,6 +85,7 @@ class FileTree : GtkTreeView
   }
   Pixbuf folderIcon;
   Pixbuf fileIcon;
+  Pixbuf[string] fileIcons = [];
   TreeStore store;
   CellRendererPixbuf cellRenderPixbuf;
   CellRendererText cellRenderText;
