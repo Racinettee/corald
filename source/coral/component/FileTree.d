@@ -2,26 +2,19 @@ module coral.component.filetree;
 
 import core.thread;
 
-import gdk.Pixbuf;
-import gtk.CellRendererPixbuf;
-import gtk.CellRendererText;
-import gtk.IconTheme;
-import gtk.TreeIter;
-import gtk.TreeStore;
-import gtk.TreeViewColumn;
-import gtk.TreeView : GtkTreeView=TreeView;
-import gtkc.gdk;
-import gtkc.gdkpixbuf;
-import gtkc.gobjecttypes : GType;
-import gtkc.gtk;
+import gdk.Pixbuf : Pixbuf;
+import gtk.IconTheme : IconTheme;
+import gtk.TreeIter : TreeIter;
+import gtk.TreeStore : TreeStore;
+import gtk.TreeView : TreeView;
+import gtkc.gtk : GtkIconLookupFlags;
 
 import std.file;
 import std.path;
-import std.stdio;
 
 //https://github.com/gtkd-developers/GtkD/search?utf8=%E2%9C%93&q=gdk_pixbuf_get_type&type=
 
-class FileTree : GtkTreeView
+class FileTree : TreeView
 {
   class FileIteratingThread : Thread
   {
@@ -44,17 +37,22 @@ class FileTree : GtkTreeView
   public this(string path)
   {
     this.path = path;
-    cellRenderPixbuf = new CellRendererPixbuf();
-    cellRenderText = new CellRendererText();
-    IconTheme iconTheme = IconTheme.getDefault();
+    iconTheme = IconTheme.getDefault();
     folderIcon = iconTheme.lookupIcon("folder", 16, GtkIconLookupFlags.FORCE_SVG).loadIcon;
     fileIcon = iconTheme.lookupIcon("text-x-generic", 16, GtkIconLookupFlags.FORCE_SVG).loadIcon;
-    column = new TreeViewColumn();
+    import gtk.TreeViewColumn : TreeViewColumn;
+    auto column = new TreeViewColumn();
     column.setTitle("Files");
+    import gtk.CellRendererPixbuf : CellRendererPixbuf;
+    import gtk.CellRendererText : CellRendererText;
+    auto cellRenderPixbuf = new CellRendererPixbuf();
+    auto cellRenderText = new CellRendererText();
     column.packStart(cellRenderPixbuf, false);
     column.packEnd(cellRenderText, true);
     column.addAttribute(cellRenderPixbuf, "pixbuf", 0);
     column.addAttribute(cellRenderText, "text", 1);
+    import gtkc.gobjecttypes : GType;
+    import gtkc.gdkpixbuf : gdk_pixbuf_get_type;
     store = new TreeStore([gdk_pixbuf_get_type(), GType.STRING]);
     super(store);
     //dirwalk(path, topParent);
@@ -78,17 +76,32 @@ class FileTree : GtkTreeView
       else
       {
         TreeIter newParent = store.append(parent);
-        store.setValue(newParent, 0, fileIcon);
+        Pixbuf icon = findIcon(baseName(e.name));
+        store.setValue(newParent, 0, icon);
         store.setValue(newParent, 1, baseName(e.name));
       }
     }
   }
+  private Pixbuf findIcon(string name, int size=16, GtkIconLookupFlags lookupFlags=GtkIconLookupFlags.FORCE_SVG)
+  {
+    string extName = name.extension;
+    if(extName is null)
+      return fileIcon;
+    Pixbuf* icon = extName in fileIcons;
+    if(icon !is null)
+      return *icon;
+    bool certainty;
+    import std.array : replaceFirst;
+    import gio.ContentType : ContentType;
+    string fileThemeName = ContentType.typeGuess(name, null, certainty).replaceFirst("/", "-");
+    Pixbuf newIcon = iconTheme.hasIcon(fileThemeName) ? iconTheme.lookupIcon(fileThemeName, size, lookupFlags).loadIcon : fileIcon;
+    fileIcons[extName] = newIcon;
+    return newIcon;
+  }
   Pixbuf folderIcon;
   Pixbuf fileIcon;
-  Pixbuf[string] fileIcons = [];
+  Pixbuf[string] fileIcons;
+  IconTheme iconTheme;
   TreeStore store;
-  CellRendererPixbuf cellRenderPixbuf;
-  CellRendererText cellRenderText;
-  TreeViewColumn column;
   string path;
 }
