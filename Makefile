@@ -26,6 +26,7 @@ gather:
 	git submodule init
 	git submodule update
 	dub upgrade --missing-only
+	echo "install library libgirepository1.0-dev with apt-get on ubuntu"
 
 clean:
 	make -C dep/LuaJIT-2.0.4 clean
