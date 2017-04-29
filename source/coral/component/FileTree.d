@@ -22,7 +22,7 @@ class FileTree : TreeView
     Pixbuf folderIcon;
     Pixbuf[string] fileIcons;
     IconTheme iconTheme;
-    this(string path, TreeStore initialStore)
+    package this(string path, TreeStore initialStore)
     {
       super(&run);
       this.path = path;

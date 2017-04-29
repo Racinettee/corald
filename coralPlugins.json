@@ -1,6 +1,10 @@
 {
 	"plugins": [
 		{
+			"name": "font_chooser.lua",
+			"enabled":true
+		},
+		{
 			"name": "somext.lua",
 			"enabled": true
 		},

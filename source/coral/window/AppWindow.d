@@ -48,6 +48,8 @@ class AppWindow : MainWindow
 		super(title);
 		setSizeRequest(600, 400);
 
+		self = this;
+
 		builder = new Builder();
 		notebook = new Notebook();
 
@@ -58,11 +60,11 @@ class AppWindow : MainWindow
 		
 		hookMenuItems();
 
-		treeview = new ScrolledFileTree(getcwd);
+		//treeview = new ScrolledFileTree(getcwd);
 
 		auto vbox = new VBox(false, 0);
 		vbox.packStart(mainMenu, false, false, 0);
-		vbox.packStart(treeview, true, true, 0);
+		//vbox.packStart(treeview, true, true, 0);
 		vbox.packEnd(notebook, true, true, 0);
 		add(vbox);
 
@@ -176,6 +178,9 @@ class AppWindow : MainWindow
 	/// The notebook subview for this window
 	@LuaExport("notebook", MethodType.none, "getNotebookStruct()", RetType.none, MemberType.lightud)
 	Notebook notebook;
+	/// Reference to self to work better within lua
+	@LuaExport("window", MethodType.none, "getWindowStruct()", RetType.none, MemberType.lightud)
+	MainWindow self;
 
 	private void hookMenuItems()
 	{
