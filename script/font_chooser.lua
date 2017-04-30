@@ -21,12 +21,7 @@ for k, menuItem in ipairs(menuItems) do
 				function chooser:on_response(response_code)
 					if response_code == Gtk.ResponseType.OK then
 						selected_font = chooser:get_font()
-						local page = Gtk.Widget(mainWindow:currentPage())
-						print('gonna override that font ; )')
-						for k,v in pairs(Pango) do
-							print(k)
-						end
-						page:override_font(Pango.FontDescription.from_string(selected_font))
+						Gtk.Widget(mainWindow:currentPage()):override_font(Pango.FontDescription.from_string(selected_font))
 					end
 					chooser:hide()
 				end
