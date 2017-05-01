@@ -3,6 +3,8 @@ local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local Pango = lgi.require('Pango')
 
+
+
 local notebook = Gtk.Notebook(mainWindow.notebook)
 function notebook:on_page_added(child_widget, page_number)
 	print('Page added: ', page_number)
@@ -13,6 +15,7 @@ end
 local menuItems = Gtk.MenuBar(mainWindow.menubar):get_children()
 for k, menuItem in ipairs(menuItems) do
 	if menuItem:get_label() == "_View" then
+	
 		local submenu = menuItem:get_submenu()
 		if submenu == nil then
 			submenu = Gtk.Menu()

@@ -20,6 +20,16 @@ void registerMainWindow(State state, AppWindow initialWindow)
     state.registerClass!TabLabel;
 }
 
+void requirePlugin(State state, string name, AppWindow window)
+{
+  state.getGlobal("require");
+  state.push(name);
+  import luad.c.lua : lua_pcall, lua_tostring;
+  if((() @trusted => lua_pcall(state.state, 1, 1, 0))() != 0)
+    throw new Exception("Lua error: "~cast(string)fromStringz(lua_tostring(state.state, -1)));
+  
+}
+
 /// Call to initialize plugins
 void initPlugins(State state, AppWindow initialWindow)
 {
