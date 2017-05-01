@@ -1,6 +1,14 @@
+local lfs = require 'lfs'
 local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local Pango = lgi.require('Pango')
+
+local notebook = Gtk.Notebook(mainWindow.notebook)
+function notebook:on_page_added(child_widget, page_number)
+	print('Page added: ', page_number)
+	local page = notebook:get_nth_page(page_number)
+	page:override_font(Pango.FontDescription.from_string('DejaVu Sans Mono Book'))
+end
 
 local menuItems = Gtk.MenuBar(mainWindow.menubar):get_children()
 for k, menuItem in ipairs(menuItems) do
