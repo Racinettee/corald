@@ -7,6 +7,7 @@ import std.file;
 import std.string;
 import std.path;
 
+import coral.plugin.callbackmanager;
 import reef.lua.state;
 
 /// A test function. Sets up the very first window to interface
@@ -27,7 +28,7 @@ void requirePlugin(State state, string name, AppWindow window)
   import luad.c.lua : lua_pcall, lua_tostring;
   if((() @trusted => lua_pcall(state.state, 1, 1, 0))() != 0)
     throw new Exception("Lua error: "~cast(string)fromStringz(lua_tostring(state.state, -1)));
-  
+  CallbackManager.get().registerModule(state, "");
 }
 
 /// Call to initialize plugins

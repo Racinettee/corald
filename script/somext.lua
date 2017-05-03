@@ -2,7 +2,7 @@ local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk')
 local lfs = require 'lfs'
 
-local startingOut = AppWindow.new("Will have 'starting out' as title")
+--local startingOut = AppWindow.new("Will have 'starting out' as title")
 --AppWindow.new()
 
 local menuBar = Gtk.MenuBar(mainWindow.menubar)
@@ -11,11 +11,11 @@ menuBar:append(Gtk.MenuItem {
 })
 menuBar:show_all()
 
-local startBar = Gtk.MenuBar(startingOut.menubar)
-startBar:append(Gtk.MenuItem {
-  label = 'Hello'
-})
-startBar:show_all()
+--local startBar = Gtk.MenuBar(startingOut.menubar)
+--startBar:append(Gtk.MenuItem {
+--  label = 'Hello'
+--})
+--startBar:show_all()
 
 local scrolledwin = Gtk.ScrolledWindow(mainWindow:currentPage()):get_child():get_buffer():set_text("Holaaa como estas!!", -1)
 -- Create top level window with some properties and connect its 'destroy'
