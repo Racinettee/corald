@@ -6,11 +6,11 @@
 		},
 		{
 			"name": "somext.lua",
-			"enabled": true
+			"enabled": false
 		},
 		{
 			"name": "moonhello.moon",
-			"enabled": true
+			"enabled": false
 		}
 	]
 }

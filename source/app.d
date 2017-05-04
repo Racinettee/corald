@@ -13,12 +13,14 @@ import glib.Timeout;
 
 import reef.lua.state;
 
+State luaState;
+
 void main()
 {
 	try
 	{
-		auto lua = new State;
-		lua.openLibs();
+		luaState = new State;
+		luaState.openLibs();
 
 		initDebugManager();	
 		string[] args = [];
@@ -27,12 +29,15 @@ void main()
 
 		auto appWin = new AppWindow;
 
-		initPlugins(lua, appWin);
+		initPlugins(luaState, appWin);
 		Main.run();
 	}
 	catch(Exception e)
 	{
 		writeln(e.msg);
 	}
-	deinitDebugManager();
+	finally
+	{
+		deinitDebugManager();
+	}
 }

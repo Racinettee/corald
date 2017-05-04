@@ -9,3 +9,5 @@ moonWindow = with Gtk.Window!
     \show_all!
 
 mainWindow\openFile lfs.currentdir! .. "/script/moonhello.moon"
+
+return { }

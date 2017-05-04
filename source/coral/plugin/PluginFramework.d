@@ -1,7 +1,5 @@
 module coral.plugin.framework;
 
-import coral.window.appwindow;
-
 import std.json;
 import std.file;
 import std.string;
@@ -10,18 +8,23 @@ import std.path;
 import coral.plugin.callbackmanager;
 import reef.lua.state;
 
+import coral.window.appwindow;
+import coral.component.tablabel;
+void registerClasses(State state)
+{
+    state.registerClass!AppWindow;
+    state.registerClass!TabLabel;
+}
+
 /// A test function. Sets up the very first window to interface
 /// With the lua scripts that run
 void registerMainWindow(State state, AppWindow initialWindow)
 {
-    state.registerClass!AppWindow;
     state.push(initialWindow);
     state.setGlobal("mainWindow");
-    import coral.component.tablabel;
-    state.registerClass!TabLabel;
 }
 
-void requirePlugin(State state, string name, AppWindow window)
+void requirePlugin(State state, string name)
 {
   state.getGlobal("require");
   state.push(name);
@@ -38,7 +41,7 @@ void initPlugins(State state, AppWindow initialWindow)
   state.addCPath(absolutePath(buildPath("dep","bin")));
   state.doString("local moonscript = require 'moonscript'");
 
-  registerMainWindow(state, initialWindow);
+  registerClasses(state);
   
   immutable string pluginFile = "coralPlugins.json";
 
@@ -58,7 +61,8 @@ void initPlugins(State state, AppWindow initialWindow)
       if(!exists(filename))
         throw new Exception("Plugin: "~filename~" does not exist");
 
-      state.require(filename[0..lastIndexOf(filename, '.')]);
+      //state.require(filename[0..lastIndexOf(filename, '.')]);
+      requirePlugin(state, filename[0..lastIndexOf(filename, '.')]);
     }
   }
 }

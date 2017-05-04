@@ -73,3 +73,5 @@ window:add(vbox)
 
 -- Show window and start the loop.
 window:show_all()
+
+return { }

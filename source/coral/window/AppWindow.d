@@ -33,8 +33,11 @@ import gsv.SourceLanguageManager;
 import gtkc.glibtypes : GPriority;
 
 import reef.lua.attrib;
+import reef.lua.state : State;
 
 import std.file : getcwd;
+
+import coral.main : luaState;
 
 /// Primary application window class
 @LuaExport("AppWindow")
@@ -70,8 +73,15 @@ class AppWindow : MainWindow
 
 		addNewSourceEditor(notebook);
 		
-		showAll();
+		auto newWindowArgs(State s) {
+			writeln("New window args function");
+			s.push(this);
+			return 1;
+		}
+		import coral.plugin.callbackmanager : CallbackManager;
+		CallbackManager.get().callHandlers(luaState, CallbackManager.EDITOR_CREATED, (s) => newWindowArgs(s));
 
+		showAll();
 		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
 		//debugInstance.setBreakpoint("test/fox.c", 7);
 		//debugInstance.start();
