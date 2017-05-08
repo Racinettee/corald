@@ -26,15 +26,16 @@ return {
 				submenu:append(Gtk.MenuItem {
 					label = 'Choose Font',
 					on_activate = function()
-						local selected_font = ''
 						local chooser = Gtk.FontChooserDialog {
 							title = 'Select a font',
 							transient_for = Gtk.Window(window.window),
 						}
 						function chooser:on_response(response_code)
 							if response_code == Gtk.ResponseType.OK then
-								selected_font = chooser:get_font()
-								Gtk.Widget(window:currentPage()):override_font(Pango.FontDescription.from_string(selected_font))
+								local font_description = Pango.FontDescription.from_string(chooser:get_font())
+								notebook:foreach(function(page)
+									page:override_font(font_description)
+								end)
 							end
 							chooser:hide()
 						end
