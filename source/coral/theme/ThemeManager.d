@@ -16,6 +16,7 @@ class ThemeManager
         {
             prefsPath = cast(string)fromStringz(getenv(toStringz("HOME")));
         }
+        // build the path to .coral/theme.css
         this(prefsPath);
     }
     this(string file_path)
