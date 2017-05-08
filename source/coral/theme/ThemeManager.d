@@ -10,7 +10,7 @@ class ThemeManager
         version(Windows)
         {
             //APPDATA
-            prefsPath = fromStringz(getenv(toStringz("APPDATA")));
+            prefsPath = cast(string)fromStringz(getenv(toStringz("APPDATA")));
         }
         else
         {
@@ -20,7 +20,7 @@ class ThemeManager
     }
     this(string file_path)
     {
-        
+
     }
     void save()
     {
