@@ -1,5 +1,32 @@
-import std.stdio;
+module coral.css.css;
 
+import std.stdio;
+import std.outbuffer;
+
+class StyleSheet
+{
+    static StyleSheet fromFile(string filepath)
+    {
+        auto sheet = new StyleSheet;
+        auto file = File(filepath);
+
+        // parse through the file - creating new selectors and stuff
+
+        return sheet; 
+    }
+    void addSelector(Selector sel)
+    {
+        selectors ~= sel;
+    }
+    void emit(OutBuffer buffer)
+    {
+        foreach(sel; selectors)
+        {
+            sel.emit(buffer);
+        }
+    }
+    private Selector[] selectors;
+}
 class Selector
 {
     this(string name, string constraint=null)
@@ -7,22 +34,34 @@ class Selector
         selectorName = name;
         this.constraint=constraint;
     }
-    void emit(File file)
+    void emit(OutBuffer buffer)
     {
-        file.writeln(selector, constraint ? constraint : "", " {");
+        buffer.writefln("%s %s {", selector, constraint ? constraint : "");
         foreach(e; properties.byKeyValue)
         {
-            file.writeln(e.key, ": ", e.value, ";");
+            buffer.writefln("  %s: %s;", e.key, e.value);
         }
-        file.writeln("}");
+        buffer.writefln("}");
     }
     void addProperty(string key, string value)
+    {
+        properties[key] = value;
+    }
+    void removeProperty(string key)
+    {
+        properties.remove(key);
+    }
+    void setProperty(string key, string value)
     {
         properties[key] = value;
     }
     void addConstraint(string constraint)
     {
         this.constraint = constraint;
+    }
+    void eraseConstraints()
+    {
+        constraint = null;
     }
     private string selectorName;
     private string constraint;

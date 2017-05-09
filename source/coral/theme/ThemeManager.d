@@ -1,4 +1,9 @@
+module coral.theme.thememanager;
+
+import coral.css.css;
+
 import std.c.stdlib : getenv;
+import std.stdio;
 import std.string;
 
 class ThemeManager
@@ -6,7 +11,6 @@ class ThemeManager
     // userhome/.coral/theme.css
     this()
     {
-        string prefsPath = null;
         version(Windows)
         {
             //APPDATA
@@ -19,16 +23,23 @@ class ThemeManager
         // build the path to .coral/theme.css
         this(prefsPath);
     }
-    this(string file_path)
+    this(string filePath)
     {
-
+        prefsPath = filePath;
+        stylesheet = StyleSheet.fromFile(filePath);
     }
     void save()
     {
-
+        import std.outbuffer : OutBuffer;
+        auto outbuff = new OutBuffer;
+        stylesheet.emit(outbuff);
+        auto outputFile = File(prefsPath);
+        outputFile.write(outbuff.toBytes);
     }
     void load()
     {
 
     }
+    string prefsPath;
+    StyleSheet stylesheet;
 }
