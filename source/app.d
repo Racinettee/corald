@@ -27,9 +27,9 @@ void main()
 
 		Main.init(args);
 
+		initPlugins(luaState);
 		auto appWin = new AppWindow;
 
-		initPlugins(luaState, appWin);
 		Main.run();
 	}
 	catch(Exception e)

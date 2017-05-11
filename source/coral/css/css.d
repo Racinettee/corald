@@ -32,7 +32,7 @@ class Selector
     this(string name, string constraint=null)
     {
         selectorName = name;
-        this.constraint=constraint;
+        this.constraint = constraint || "";
     }
     void emit(OutBuffer buffer)
     {
@@ -55,9 +55,9 @@ class Selector
     {
         properties[key] = value;
     }
-    void addConstraint(string constraint)
+    void appendConstraint(string constraint)
     {
-        this.constraint = constraint;
+        this.constraint ~= constraint;
     }
     void eraseConstraints()
     {
@@ -65,6 +65,6 @@ class Selector
     }
     private string selectorName;
     private string constraint;
-    public @property const(string) selector() { return selectorName;}
+    public @property const(string) selector() { return selectorName ~ " " ~ constraint; }
     private string[string] properties;
 }

@@ -40,6 +40,10 @@ class ThemeManager
     {
 
     }
+    void appendStyle(string selector, string property, string value)
+    {
+    	
+    }
     string prefsPath;
     StyleSheet stylesheet;
 }

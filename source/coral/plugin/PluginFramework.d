@@ -35,7 +35,7 @@ void requirePlugin(State state, string name)
 }
 
 /// Call to initialize plugins
-void initPlugins(State state, AppWindow initialWindow)
+void initPlugins(State state)
 {
   state.addPath(absolutePath("script")~"/?.lua;"~absolutePath("script")~"/?.moon");
   state.addCPath(absolutePath(buildPath("dep","bin")));
