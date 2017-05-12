@@ -1,5 +1,6 @@
 module coral.css.css;
 
+import std.algorithm;
 import std.stdio;
 import std.outbuffer;
 
@@ -32,11 +33,11 @@ class Selector
     this(string name, string constraint=null)
     {
         selectorName = name;
-        this.constraint = constraint || "";
+        constraints = [];
     }
     void emit(OutBuffer buffer)
     {
-        buffer.writefln("%s %s {", selector, constraint ? constraint : "");
+        buffer.writefln("%s {", selector);
         foreach(e; properties.byKeyValue)
         {
             buffer.writefln("  %s: %s;", e.key, e.value);
@@ -57,14 +58,32 @@ class Selector
     }
     void appendConstraint(string constraint)
     {
-        this.constraint ~= constraint;
+        if(findContraint(constraint) == -1)
+            constraints ~= constraint;
+    }
+    void eraseConstraint(string cnst)
+    {
+        remove!(SwapStrategy.unstable)(constraints, cnst);
     }
     void eraseConstraints()
     {
-        constraint = null;
+        constraints = [];
     }
     private string selectorName;
-    private string constraint;
-    public @property const(string) selector() { return selectorName ~ " " ~ constraint; }
+    private string[] constraints;
+    public @property const(string) selector()
+    {
+        string result = selectorName;
+        foreach(cnst; constraints)
+            result ~= " " ~ cnst;
+        return result;
+    }
     private string[string] properties;
+    private int findContraint(string name)
+    {
+        for(int i = 0; i < constraints.length; i++)
+            if(constraints[i] == name)
+                return i;
+        return -1;
+    }
 }
