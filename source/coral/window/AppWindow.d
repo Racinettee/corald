@@ -37,7 +37,7 @@ import reef.lua.state : State;
 
 import std.file : getcwd;
 
-import coral.main : luaState;
+import coral.plugin.framework : luaState;
 
 /// Primary application window class
 @LuaExport("AppWindow")

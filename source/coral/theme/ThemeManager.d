@@ -2,7 +2,7 @@ module coral.theme.thememanager;
 
 import coral.css.css;
 
-import std.c.stdlib : getenv;
+import core.stdc.stdlib : getenv;
 import std.stdio;
 import std.string;
 

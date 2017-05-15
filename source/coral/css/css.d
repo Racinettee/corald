@@ -30,10 +30,9 @@ class StyleSheet
 }
 class Selector
 {
-    this(string name, string constraint=null)
+    this(string name)
     {
         selectorName = name;
-        constraints = [];
     }
     void emit(OutBuffer buffer)
     {
@@ -42,7 +41,7 @@ class Selector
         {
             buffer.writefln("  %s: %s;", e.key, e.value);
         }
-        buffer.writefln("}");
+        buffer.writef("}");
     }
     void addProperty(string key, string value)
     {
@@ -52,38 +51,35 @@ class Selector
     {
         properties.remove(key);
     }
-    void setProperty(string key, string value)
+    string opIndex(string name)
     {
-        properties[key] = value;
+        return properties[name];
     }
-    void appendConstraint(string constraint)
+    void opIndexAssign(string name, string value)
     {
-        if(findContraint(constraint) == -1)
-            constraints ~= constraint;
+        properties[name] = value;
     }
-    void eraseConstraint(string cnst)
+    Selector opAssign(string name)
     {
-        remove!(SwapStrategy.unstable)(constraints, cnst);
-    }
-    void eraseConstraints()
-    {
-        constraints = [];
+        selectorName = name;
+        return this;
     }
     private string selectorName;
-    private string[] constraints;
     public @property const(string) selector()
     {
-        string result = selectorName;
-        foreach(cnst; constraints)
-            result ~= " " ~ cnst;
-        return result;
+        return selectorName;
     }
     private string[string] properties;
-    private int findContraint(string name)
-    {
-        for(int i = 0; i < constraints.length; i++)
-            if(constraints[i] == name)
-                return i;
-        return -1;
-    }
+}
+unittest
+{
+    auto selector = new Selector("textview");
+    selector["font-family"] = "monospace";
+    auto buffer = new OutBuffer();
+    selector.emit(buffer);
+    writeln(buffer.toString());
+    assert(buffer.toString() == 
+"textview {
+  monospace: font-family;
+}");
 }

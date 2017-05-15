@@ -10,6 +10,16 @@ import reef.lua.state;
 
 import coral.window.appwindow;
 import coral.component.tablabel;
+
+State luaState;
+
+void initPluginSystem()
+{
+    luaState = new State;
+    luaState.openLibs();
+    initPlugins(luaState);
+}
+
 void registerClasses(State state)
 {
     state.registerClass!AppWindow;

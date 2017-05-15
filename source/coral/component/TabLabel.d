@@ -23,6 +23,8 @@ class TabLabel : Box
 	{
 		super(GtkOrientation.HORIZONTAL, 0);
 		textLabel = new Label(titleText = text);
+		textLabel.setUseMarkup(false);
+		textLabel.setUseUnderline(false);
 		closeButton = new Button(StockID.CLOSE, true);
 		closeButton.setRelief(GtkReliefStyle.NONE);
 		childRef = cref;
