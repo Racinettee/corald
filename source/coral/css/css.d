@@ -55,7 +55,7 @@ class Selector
     {
         return properties[name];
     }
-    void opIndexAssign(string name, string value)
+    void opIndexAssign(string value, string name)
     {
         properties[name] = value;
     }
@@ -73,13 +73,16 @@ class Selector
 }
 unittest
 {
-    auto selector = new Selector("textview");
-    selector["font-family"] = "monospace";
+    auto selector = new Selector("textview text");
+    selector["font-family"] = "DejaVu Sans Mono Book";
+    selector["background"] = "red";
+
     auto buffer = new OutBuffer();
     selector.emit(buffer);
     writeln(buffer.toString());
     assert(buffer.toString() == 
-"textview {
-  monospace: font-family;
-}");
+"textview text {
+  background: red;
+  font-family: DejaVu Sans Mono Book;
+}", "selector unittest failed");
 }
