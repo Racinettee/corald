@@ -9,6 +9,7 @@ import coral.plugin.callbackmanager;
 import reef.lua.state;
 
 import coral.window.appwindow;
+import coral.window.scrolledfiletree;
 import coral.component.tablabel;
 
 State luaState;
@@ -24,6 +25,7 @@ void registerClasses(State state)
 {
     state.registerClass!AppWindow;
     state.registerClass!TabLabel;
+    state.registerClass!ScrolledFileTree;
 }
 
 /// A test function. Sets up the very first window to interface
