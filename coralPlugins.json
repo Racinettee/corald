@@ -10,7 +10,7 @@
 		},
 		{
 			"name": "moonhello.moon",
-			"enabled": false
+			"enabled": true
 		}
 	]
 }
