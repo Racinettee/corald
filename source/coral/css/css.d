@@ -6,10 +6,9 @@ import std.outbuffer;
 
 class StyleSheet
 {
-    static StyleSheet fromFile(string filepath)
+    static StyleSheet fromData(string data)
     {
         auto sheet = new StyleSheet;
-        auto file = File(filepath);
 
         // parse through the file - creating new selectors and stuff
 
@@ -79,7 +78,6 @@ unittest
 
     auto buffer = new OutBuffer();
     selector.emit(buffer);
-    writeln(buffer.toString());
     assert(buffer.toString() == 
 "textview text {
   background: red;

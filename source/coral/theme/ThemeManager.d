@@ -3,6 +3,9 @@ module coral.theme.thememanager;
 import coral.css.css;
 
 import core.stdc.stdlib : getenv;
+
+import gtk.CssProvider;
+
 import std.stdio;
 import std.string;
 
@@ -26,7 +29,12 @@ class ThemeManager
     this(string filePath)
     {
         prefsPath = filePath;
-        stylesheet = StyleSheet.fromFile(filePath);
+        import std.file : readText;
+        auto fileContents = readText(filePath);
+        cssProvider = new CssProvider();
+        cssProvider.loadFromData(fileContents);
+        stylesheet = StyleSheet.fromData(fileContents);
+        import gdk.Screen;
     }
     void save()
     {
@@ -46,4 +54,5 @@ class ThemeManager
     }
     string prefsPath;
     StyleSheet stylesheet;
+    CssProvider cssProvider;
 }
