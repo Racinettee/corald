@@ -4,8 +4,15 @@ LUA_LIBDIR=$(LUADIR)
 
 all: gather deps corald
 
-corald:
-	dub build --nodeps --parallel
+build:
+	dub build --parallel
+	mkdir -p bin
+	cp ./corald ./bin
+
+run:
+	./bin/corald
+
+buildrun: build run
 
 deps:
 	make -C dep/LuaJIT-2.0.4

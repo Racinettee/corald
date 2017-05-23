@@ -9,6 +9,7 @@ import coral.window.scrolledfiletree;
 
 import std.stdio : writeln;
 
+import gtk.AccelGroup;
 import gtk.MainWindow;
 import gtk.Builder;
 import gtk.MenuBar;
@@ -52,9 +53,9 @@ class AppWindow : MainWindow
 		setSizeRequest(600, 400);
 
 		self = this;
-
-		builder = new Builder();
-		notebook = new Notebook();
+		accelGroup = new AccelGroup;
+		builder = new Builder;
+		notebook = new Notebook;
 
 		if(!builder.addFromFile("interface/mainmenu.glade"))
 			writeln("Could not load gladefile");
@@ -191,6 +192,7 @@ class AppWindow : MainWindow
 	/// Reference to self to work better within lua
 	@LuaExport("window", MethodType.none, "getWindowStruct()", RetType.none, MemberType.lightud)
 	MainWindow self;
+	AccelGroup accelGroup;
 
 	private void hookMenuItems()
 	{
@@ -208,8 +210,19 @@ class AppWindow : MainWindow
 
 		menuItem = getItem!MenuItem(builder, "menusavefile");
 		menuItem.addOnActivate(&saveFile);
+		addAccelerator(menuItem, "<Primary>S", "activate");
 
 		menuItem = getItem!MenuItem(builder, "menusavefileas");
 		menuItem.addOnActivate(&saveFileAs);
+
+		addAccelGroup(accelGroup);
+	}
+	private void addAccelerator(Widget widget, string accelerator, string signal)
+	{
+		uint keyCode = 0;
+		GdkModifierType modifier;
+		AccelGroup.acceleratorParse(accelerator, keyCode, modifier);
+		widget.addAccelerator(signal, accelGroup, keyCode, modifier, GtkAccelFlags.VISIBLE);
 	}
 }
+
