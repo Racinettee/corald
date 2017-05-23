@@ -196,8 +196,12 @@ class AppWindow : MainWindow
 
 	private void hookMenuItems()
 	{
+		void newTab(MenuItem m) {
+			addNewSourceEditor(notebook);
+			notebook.setCurrentPage(-1);
+		}
 		auto menuItem = getItem!MenuItem(builder, "menunewfile");
-		menuItem.addOnActivate((m)=>addNewSourceEditor(notebook));
+		menuItem.addOnActivate((m)=>newTab(m));
 		addAccelerator(menuItem, "<Primary>N", "activate");
 
 		menuItem = getItem!MenuItem(builder, "menuopenfile");
