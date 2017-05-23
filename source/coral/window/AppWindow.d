@@ -198,9 +198,11 @@ class AppWindow : MainWindow
 	{
 		auto menuItem = getItem!MenuItem(builder, "menunewfile");
 		menuItem.addOnActivate((m)=>addNewSourceEditor(notebook));
+		addAccelerator(menuItem, "<Primary>N", "activate");
 
 		menuItem = getItem!MenuItem(builder, "menuopenfile");
 		menuItem.addOnActivate(&openFileMenuItem);
+		addAccelerator(menuItem, "<Primary>O", "activate");
 
 		menuItem = getItem!MenuItem(builder, "menuquit");
 		menuItem.addOnActivate((m)=>close());
