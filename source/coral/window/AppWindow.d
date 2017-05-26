@@ -213,6 +213,7 @@ class AppWindow : MainWindow
 
 		menuItem = getItem!MenuItem(builder, "menunewwindow");
 		menuItem.addOnActivate((m)=>new AppWindow().show());
+		addAccelerator(menuItem, "<Primary><Shift>N", "activate");
 
 		menuItem = getItem!MenuItem(builder, "menusavefile");
 		menuItem.addOnActivate(&saveFile);
