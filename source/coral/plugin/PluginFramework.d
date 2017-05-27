@@ -19,6 +19,12 @@ void initPluginSystem()
     luaState = new State;
     luaState.openLibs();
     initPlugins(luaState);
+    CallbackManager.get().callHandlers(luaState, CallbackManager.BEFORE_START, null);
+}
+
+void closePluginSystem()
+{
+    CallbackManager.get().callHandlers(luaState, CallbackManager.BEFORE_END, null);
 }
 
 void registerClasses(State state)
