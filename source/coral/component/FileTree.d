@@ -9,9 +9,12 @@ import gtk.TreeStore : TreeStore;
 import gtk.TreeView : TreeView;
 import gtkc.gtk : GtkIconLookupFlags;
 
+import reef.lua.attrib;
+
 import std.file;
 import std.path;
 
+@LuaExport("treeView")
 class FileTree : TreeView
 {
   class FileIteratingThread : Thread
@@ -98,6 +101,8 @@ class FileTree : TreeView
     appendColumn(column);
     showAll;
   }
+  @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
+  FileTree self;
   TreeStore store;
   string path;
 }

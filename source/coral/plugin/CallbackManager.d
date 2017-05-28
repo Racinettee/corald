@@ -50,7 +50,9 @@ class CallbackManager
             // Call our delegate to get arguments on the stack
             int nargs = (!(argPusher is null) ? argPusher(state) : 0);
             // Call the function
-            lua_pcall(state.state, nargs, 1, 0);
+            import std.string : fromStringz;
+            if(lua_pcall(state.state, nargs, 1, 0) != 0)
+                throw new Exception("Lua error: "~cast(string)fromStringz(lua_tostring(state.state, -1)));
         }
     }
     private int[][string] methods;

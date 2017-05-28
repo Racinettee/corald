@@ -19,7 +19,8 @@ class ScrolledFileTree : ScrolledWindow
     add(fileTree);
     showAll;
   }
-  private FileTree fileTree;
+  @LuaExport("tree", MethodType.none, "", RetType.none, MemberType.userdat)
+  FileTree fileTree;
   @LuaExport("window", MethodType.none, "getScrolledWindowStruct()", RetType.none, MemberType.lightud)
   ScrolledFileTree self;
 }

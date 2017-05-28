@@ -9,7 +9,7 @@
 			"enabled": false
 		},
 		{
-			"name": "moonhello.moon",
+			"name": "filetree.lua",
 			"enabled": true
 		}
 	]
