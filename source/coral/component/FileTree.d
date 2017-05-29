@@ -104,5 +104,6 @@ class FileTree : TreeView
   @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
   FileTree self;
   TreeStore store;
+  @LuaExport("path", MethodType.none, "", RetType.none, MemberType.none)
   string path;
 }
