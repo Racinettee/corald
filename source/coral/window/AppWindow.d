@@ -44,192 +44,195 @@ import coral.plugin.framework : luaState;
 @LuaExport("AppWindow")
 class AppWindow : MainWindow
 {
-	@LuaExport("", MethodType.ctor)
-	this() { this("Starting out"); }
-	@LuaExport("", MethodType.ctor)
-	public this(string title)
-	{
-		super(title);
-		setSizeRequest(600, 400);
+    @LuaExport("", MethodType.ctor)
+    this() { this("Starting out"); }
+    @LuaExport("", MethodType.ctor)
+    public this(string title)
+    {
+        super(title);
+        setSizeRequest(600, 400);
 
-		self = this;
-		accelGroup = new AccelGroup;
-		builder = new Builder;
-		notebook = new Notebook;
+        self = this;
+        accelGroup = new AccelGroup;
+        builder = new Builder;
+        notebook = new Notebook;
 
-		if(!builder.addFromFile("interface/mainmenu.glade"))
-			writeln("Could not load gladefile");
+        if(!builder.addFromFile("interface/mainmenu.glade"))
+        writeln("Could not load gladefile");
 
-		mainMenu = getItem!MenuBar(builder, "mainMenu");
-		
-		hookMenuItems();
+        mainMenu = getItem!MenuBar(builder, "mainMenu");
 
-		//treeview = new ScrolledFileTree(getcwd);
+        hookMenuItems();
 
-		auto vbox = new VBox(false, 0);
-		vbox.packStart(mainMenu, false, false, 0);
-		//vbox.packStart(treeview, true, true, 0);
-		vbox.packEnd(notebook, true, true, 0);
-		add(vbox);
+        //treeview = new ScrolledFileTree(getcwd);
 
-		addNewSourceEditor(notebook);
-		
-		auto newWindowArgs(State s) {
-			writeln("New window args function");
-			s.push(this);
-			return 1;
-		}
-		import coral.plugin.callbackmanager : CallbackManager;
-		CallbackManager.get().callHandlers(luaState, CallbackManager.EDITOR_CREATED, (s) => newWindowArgs(s));
+        auto vbox = new VBox(false, 0);
+        vbox.packStart(mainMenu, false, false, 0);
+        //vbox.packStart(treeview, true, true, 0);
+        vbox.packEnd(notebook, true, true, 0);
+        add(vbox);
 
-		showAll();
-		//debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
-		//debugInstance.setBreakpoint("test/fox.c", 7);
-		//debugInstance.start();
-	}
-	~this()
-	{
-		//debugInstance.stop();
-		writeln("Closing the app");
-	}
+        addNewSourceEditor(notebook);
 	
-	protected override bool windowDelete(Event e, Widget w)
-	{
-		//debugInstance.stop();
-		return super.windowDelete(e, w);
-	}
+        auto newWindowArgs(State s) {
+            writeln("New window args function");
+            s.push(this);
+            return 1;
+        }
+        import coral.plugin.callbackmanager : CallbackManager;
+        CallbackManager.get().callHandlers(luaState, CallbackManager.EDITOR_CREATED, (s) => newWindowArgs(s));
 
-	void gdbOutputHandler(string line)
-	{
-		writeln(line);
-	}
-	/// Opens a file in this window
-	@LuaExport("openFile", MethodType.method)
-	public void openFile(string filepath)
-	{
-		coral.util.editor.openFile(notebook, filepath);
-	}
+        showAll();
+        //debugInstance = debugManager.newSession!GDB("test/fox", &gdbOutputHandler, &gdbOutputHandler);
+        //debugInstance.setBreakpoint("test/fox.c", 7);
+        //debugInstance.start();
+    }
+    ~this()
+    {
+        //debugInstance.stop();
+        writeln("Closing the app");
+    }
 
-	/// Opens a file in this window, popping an open file dialog
-	@LuaExport("openFileMI", MethodType.method)
-	public void openFileMenuItem(MenuItem)
-	{
-		auto fc = new FileChooserDialog("Choose a file to open", this,
-			GtkFileChooserAction.OPEN, ["Open", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
-		immutable auto response = fc.run();
-		if(response == ResponseType.CANCEL)
-			return;
-		
-		string filepath = fc.getFilename();
-		fc.destroy();
+    protected override bool windowDelete(Event e, Widget w)
+    {
+        //debugInstance.stop();
+        return super.windowDelete(e, w);
+    }
 
-		openFile(filepath);
-	}
+    void gdbOutputHandler(string line)
+    {
+        writeln(line);
+    }
+    /// Opens a file in this window
+    @LuaExport("openFile", MethodType.method)
+    public void openFile(string filepath)
+    {
+        coral.util.editor.openFile(notebook, filepath);
+    }
+
+    /// Opens a file in this window, popping an open file dialog
+    @LuaExport("openFileMI", MethodType.method)
+    public void openFileMenuItem(MenuItem)
+    {
+        auto fc = new FileChooserDialog("Choose a file to open", this,
+        GtkFileChooserAction.OPEN, ["Open", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
+        immutable auto response = fc.run();
+        if(response == ResponseType.CANCEL)
+            return;
+
+        string filepath = fc.getFilename();
+        fc.destroy();
+
+        openFile(filepath);
+    }
+
+    /// Saves the currently focused file, only pops
+    /// save as dialog if file is new
+    @LuaExport("saveFile", MethodType.method)
+    public void saveFile(MenuItem m)
+    {
+        auto tabLabel = currentTabLabel;
+        if(tabLabel.noPath)
+        {
+            saveFileAs(m);
+            return;
+        }
+        coral.util.editor.saveFile(notebook, tabLabel.fullPath);
+    }
+    /// Saves the currently focused file, popping a save as dialog
+    @LuaExport("saveFileAs", MethodType.method)
+    void saveFileAs(MenuItem mi)
+    {
+        auto fc = new FileChooserDialog("Choose a file to open", this,
+        GtkFileChooserAction.SAVE, ["Save", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
+        immutable auto response = fc.run();
+        if(response == ResponseType.CANCEL)
+        {
+            fc.destroy();
+            return;
+        }
+
+        string filepath = fc.getFilename();
+        fc.destroy();
+
+        import std.path : exists;
+        import coral.util.windows : runOkCancelDialog;
+        import gtkc.gtktypes : GtkResponseType;
+
+        if(exists(filepath) && runOkCancelDialog(this, "File you are saving already exists. Continue?") == GtkResponseType.CANCEL)
+            return;
+
+        coral.util.editor.saveFile(notebook, filepath);
+    }
 	
+    /// Convenience method to get the currently displayed page
+    @LuaExport("currentPage", MethodType.method, "getWidgetStruct()", RetType.lightud)
+    @property Widget currentPage ()
+    {
+        return notebook.getNthPage(notebook.getCurrentPage);
+    }
 
-	/// Saves the currently focused file, only pops
-	/// save as dialog if file is new
-	@LuaExport("saveFile", MethodType.method)
-	public void saveFile(MenuItem m)
-	{
-		auto tabLabel = currentTabLabel;
-		if(tabLabel.noPath)
-		{
-			saveFileAs(m);
-			return;
-		}
-		coral.util.editor.saveFile(notebook, tabLabel.fullPath);
-	}
-	/// Saves the currently focused file, popping a save as dialog
-	@LuaExport("saveFileAs", MethodType.method)
-	void saveFileAs(MenuItem mi)
-	{
-		auto fc = new FileChooserDialog("Choose a file to open", this,
-			GtkFileChooserAction.SAVE, ["Save", "Cancel"], [ResponseType.ACCEPT, ResponseType.CANCEL]);
-		immutable auto response = fc.run();
-		if(response == ResponseType.CANCEL)
-		{
-			fc.destroy();
-			return;
-		}
+    /// Convenience method to get the tab label for the current page
+    @property TabLabel currentTabLabel ()
+    {
+        return cast(TabLabel)notebook.getTabLabel(currentPage);
+    }
 
-		string filepath = fc.getFilename();
-		fc.destroy();
+    private IDebugger debugInstance;
+    private Builder builder;
 
-		import std.path : exists;
-		import coral.util.windows : runOkCancelDialog;
-		import gtkc.gtktypes : GtkResponseType;
+    ScrolledFileTree treeview;
+    /// The menubar displayed for this window
+    @LuaExport("menubar", MethodType.none, "getMenuBarStruct()", RetType.none, MemberType.lightud)
+    MenuBar mainMenu;
+    /// The notebook subview for this window
+    @LuaExport("notebook", MethodType.none, "getNotebookStruct()", RetType.none, MemberType.lightud)
+    Notebook notebook;
+    /// Reference to self to work better within lua
+    @LuaExport("window", MethodType.none, "getWindowStruct()", RetType.none, MemberType.lightud)
+    MainWindow self;
+    AccelGroup accelGroup;
 
-		if(exists(filepath) && runOkCancelDialog(this, "File you are saving already exists. Continue?") == GtkResponseType.CANCEL)
-			return;
+    private void hookMenuItems()
+    {
+        void newTab(MenuItem m) {
+            addNewSourceEditor(notebook);
+            notebook.setCurrentPage(-1);
+        }
+        auto menuItem = getItem!MenuItem(builder, "menunewfile");
+        menuItem.addOnActivate((m)=>newTab(m));
+        addAccelerator(menuItem, "<Primary>N", "activate");
 
-		coral.util.editor.saveFile(notebook, filepath);
-	}
-	
-	/// Convenience method to get the currently displayed page
-	@LuaExport("currentPage", MethodType.method, "getWidgetStruct()", RetType.lightud)
-	@property Widget currentPage ()
-	{
-		return notebook.getNthPage(notebook.getCurrentPage);
-	}
+        menuItem = getItem!MenuItem(builder, "menuopenfile");
+        menuItem.addOnActivate(&openFileMenuItem);
+        addAccelerator(menuItem, "<Primary>O", "activate");
 
-	/// Convenience method to get the tab label for the current page
-	@property TabLabel currentTabLabel ()
-	{
-		return cast(TabLabel)notebook.getTabLabel(currentPage);
-	}
+        menuItem = getItem!MenuItem(builder, "menuquit");
+        menuItem.addOnActivate((m)=>close());
 
-	private IDebugger debugInstance;
-	private Builder builder;
+        menuItem = getItem!MenuItem(builder, "menunewwindow");
+        menuItem.addOnActivate((m)=>new AppWindow().show());
+        addAccelerator(menuItem, "<Primary><Shift>N", "activate");
 
-	ScrolledFileTree treeview;
-	/// The menubar displayed for this window
-	@LuaExport("menubar", MethodType.none, "getMenuBarStruct()", RetType.none, MemberType.lightud)
-	MenuBar mainMenu;
-	/// The notebook subview for this window
-	@LuaExport("notebook", MethodType.none, "getNotebookStruct()", RetType.none, MemberType.lightud)
-	Notebook notebook;
-	/// Reference to self to work better within lua
-	@LuaExport("window", MethodType.none, "getWindowStruct()", RetType.none, MemberType.lightud)
-	MainWindow self;
-	AccelGroup accelGroup;
+        menuItem = getItem!MenuItem(builder, "menusavefile");
+        menuItem.addOnActivate(&saveFile);
+        addAccelerator(menuItem, "<Primary>S", "activate");
 
-	private void hookMenuItems()
-	{
-		void newTab(MenuItem m) {
-			addNewSourceEditor(notebook);
-			notebook.setCurrentPage(-1);
-		}
-		auto menuItem = getItem!MenuItem(builder, "menunewfile");
-		menuItem.addOnActivate((m)=>newTab(m));
-		addAccelerator(menuItem, "<Primary>N", "activate");
+        menuItem = getItem!MenuItem(builder, "menusavefileas");
+        menuItem.addOnActivate(&saveFileAs);
 
-		menuItem = getItem!MenuItem(builder, "menuopenfile");
-		menuItem.addOnActivate(&openFileMenuItem);
-		addAccelerator(menuItem, "<Primary>O", "activate");
-
-		menuItem = getItem!MenuItem(builder, "menuquit");
-		menuItem.addOnActivate((m)=>close());
-
-		menuItem = getItem!MenuItem(builder, "menunewwindow");
-		menuItem.addOnActivate((m)=>new AppWindow().show());
-		addAccelerator(menuItem, "<Primary><Shift>N", "activate");
-
-		menuItem = getItem!MenuItem(builder, "menusavefile");
-		menuItem.addOnActivate(&saveFile);
-		addAccelerator(menuItem, "<Primary>S", "activate");
-
-		menuItem = getItem!MenuItem(builder, "menusavefileas");
-		menuItem.addOnActivate(&saveFileAs);
-
-		addAccelGroup(accelGroup);
-	}
-	private void addAccelerator(Widget widget, string accelerator, string signal)
-	{
-		uint keyCode = 0;
-		GdkModifierType modifier;
-		AccelGroup.acceleratorParse(accelerator, keyCode, modifier);
-		widget.addAccelerator(signal, accelGroup, keyCode, modifier, GtkAccelFlags.VISIBLE);
-	}
+        addAccelGroup(accelGroup);
+    }
+    private void addAccelerator(Widget widget, string accelerator, string signal)
+    {
+        uint keyCode = 0;
+        GdkModifierType modifier;
+        AccelGroup.acceleratorParse(accelerator, keyCode, modifier);
+        widget.addAccelerator(signal, accelGroup, keyCode, modifier, GtkAccelFlags.VISIBLE);
+    }
+    void addAccelerator(GtkWidget* widget, string accelerator, string signal)
+    {
+        addAccelerator(new Widget(widget), accelerator, signal);
+    }
 }
 
