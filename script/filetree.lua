@@ -3,8 +3,7 @@ lfs = require 'lfs'
 Gtk = lgi.require('Gtk')
 
 function editor_created(window)
-    local menu_bar = Gtk.MenuBar(window.menubar)
-    menu_bar:get_children()[1]:get_submenu():insert(Gtk.MenuItem {
+    local menu_item = Gtk.MenuItem {
         label = 'Open Path',
         on_activate = function()
             local path_chooser = Gtk.FileChooserDialog {
@@ -30,13 +29,11 @@ function editor_created(window)
             local tree_view = scrolled_window:get_child()
             function tree_view:on_row_activated(treePath, treeColumn)
                 local function build_path_to_file(row)
-                    if row == nil then
+                    local row_parent = fstore:iter_parent(row)
+                    if row_parent == nil then
                         return ''
                     end
-                    if fstore:iter_parent(row) == nil then
-                        return ''
-                    end
-                    return build_path_to_file(fstore:iter_parent(row)) ..
+                    return build_path_to_file(row_parent) ..
                         '/' .. fstore:get_value(row, 1):get_string()
                 end
                 window:openFile(ftree:get_path() .. build_path_to_file(fstore:get_iter(treePath)))
@@ -49,7 +46,10 @@ function editor_created(window)
             moonWindow:add(scrolled_window)
             moonWindow:show()
         end
-    }, 2)
+    }
+    local menu_bar = Gtk.MenuBar(window.menubar)
+    menu_bar:get_children()[1]:get_submenu():insert(menu_item, 2)
+    window:add_accelerator(menu_item._native, '<Primary><Shift>O', 'activate')
 end
 -- Return the callbacks to the plugin system
 return {

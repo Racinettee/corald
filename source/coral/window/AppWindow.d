@@ -230,7 +230,8 @@ class AppWindow : MainWindow
         AccelGroup.acceleratorParse(accelerator, keyCode, modifier);
         widget.addAccelerator(signal, accelGroup, keyCode, modifier, GtkAccelFlags.VISIBLE);
     }
-    void addAccelerator(GtkWidget* widget, string accelerator, string signal)
+    @LuaExport("add_accelerator", MethodType.method, "", RetType.none, MemberType.none)
+    void addAcceleratorLua(GtkWidget* widget, string accelerator, string signal)
     {
         addAccelerator(new Widget(widget), accelerator, signal);
     }
