@@ -57,9 +57,9 @@ void requirePlugin(State state, string name)
 /// Call to initialize plugins
 void initPlugins(State state)
 {
-  state.addPath(absolutePath("script")~"/?.lua;"~absolutePath("script")~"/?.moon");
+  state.addPath(absolutePath("script")~"/?.lua;");//~absolutePath("script")~"/?.moon");
   state.addCPath(absolutePath(buildPath("dep","bin")));
-  state.doString("local moonscript = require 'moonscript'");
+  //state.doString("local moonscript = require 'moonscript'");
 
   registerClasses(state);
   
