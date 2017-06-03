@@ -17,7 +17,6 @@ buildrun: build run
 deps:
 	make -C dep/LuaJIT-2.0.4
 	make -C dep/lgi CFLAGS="-Wall -Wextra -O2 -I$(LUADIR)"
-	make -C dep/lpeg-1.0.0 LUADIR=$(LUADIR)
 	make -C dep/luafilesystem LUA_INC=$(LUA_INC) LUA_LIBDIR=$(LUA_LIBDIR)
 	mkdir -p dep/bin
 	cp dep/lpeg-1.0.0/lpeg.so dep/bin
@@ -38,6 +37,5 @@ gather:
 clean:
 	make -C dep/LuaJIT-2.0.4 clean
 	make -C dep/lgi clean
-	make -C dep/lpeg-1.0.0 clean
 	make -C dep/luafilesystem clean
 	rm -f corald
