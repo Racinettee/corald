@@ -11,8 +11,11 @@ import gtkc.gtk : GtkIconLookupFlags;
 
 import reef.lua.attrib;
 
+import std.algorithm;
+import std.array;
 import std.file;
 import std.path;
+import std.typecons;
 
 @LuaExport("treeView")
 class FileTree : TreeView
@@ -44,21 +47,28 @@ class FileTree : TreeView
     /// Fill out the tree store
     private void dirwalk(string path, TreeIter parent)
     {
-      foreach(DirEntry e; dirEntries(path, SpanMode.shallow))
+      //foreach(DirEntry e; dirEntries(path, SpanMode.shallow))
+      auto files = dirEntries(path, SpanMode.shallow);
+      //auto nameDirPairs = array(map!(a => tuple(a.name, a.isDir)(files)));
+      auto nameDirPairs = array(dirEntries(path, SpanMode.shallow).map!(a => tuple(a.name, a.isDir)));
+      //files = null;
+      sort!((a, b) => a[0] < b[0])(nameDirPairs);
+      sort!((a, b) => a[1] > b[1])(nameDirPairs);
+      foreach(e; nameDirPairs)
       {
-        if(e.isDir)
+        if(e[1])
         {
           TreeIter newParent = store.append(parent);
           store.setValue(newParent, 0, folderIcon);
-          store.setValue(newParent, 1, baseName(e.name));
-          dirwalk(e.name, newParent);
+          store.setValue(newParent, 1, baseName(e[0]));
+          dirwalk(e[0], newParent);
         }
         else
         {
           TreeIter newParent = store.append(parent);
-          Pixbuf icon = findIcon(baseName(e.name));
+          Pixbuf icon = findIcon(baseName(e[0]));
           store.setValue(newParent, 0, icon);
-          store.setValue(newParent, 1, baseName(e.name));
+          store.setValue(newParent, 1, baseName(e[0]));
         }
       }
     }
