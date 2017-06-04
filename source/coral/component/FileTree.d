@@ -47,12 +47,10 @@ class FileTree : TreeView
     /// Fill out the tree store
     private void dirwalk(string path, TreeIter parent)
     {
-      //foreach(DirEntry e; dirEntries(path, SpanMode.shallow))
-      auto files = dirEntries(path, SpanMode.shallow);
-      //auto nameDirPairs = array(map!(a => tuple(a.name, a.isDir)(files)));
       auto nameDirPairs = array(dirEntries(path, SpanMode.shallow).map!(a => tuple(a.name, a.isDir)));
-      //files = null;
+      // Sort the files by name
       sort!((a, b) => a[0] < b[0])(nameDirPairs);
+      // Sort the files by isDir
       sort!((a, b) => a[1] > b[1])(nameDirPairs);
       foreach(e; nameDirPairs)
       {
