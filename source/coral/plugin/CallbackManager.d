@@ -7,17 +7,29 @@ class CallbackManager
 {
     enum
     {
+        // Window created
         EDITOR_CREATED = "on_editor_created",
+        // Window closed
         EDITOR_CLOSED = "on_editor_closed",
+        // Program starting - before main loop and before first window
         BEFORE_START = "on_before_start",
-        BEFORE_END = "on_before_end"
+        // Program ending
+        BEFORE_END = "on_before_end",
+        // Tab created - child widget for tab is first arg
+        TAB_CREATED = "on_tab_created"
     }
     this()
     {
         methods[EDITOR_CREATED] = [];
         methods[EDITOR_CLOSED] = [];
+        methods[BEFORE_START] = [];
+        methods[BEFORE_END] = [];
+        methods[TAB_CREATED] = [];
     }
-    immutable string[] eventNames = [EDITOR_CREATED, EDITOR_CLOSED, BEFORE_START, BEFORE_END];
+    immutable string[] eventNames = [
+        EDITOR_CREATED, EDITOR_CLOSED,
+        BEFORE_START, BEFORE_END,
+        TAB_CREATED];
     void registerModule(State state, string moduleName)
     {
         foreach(name; eventNames)

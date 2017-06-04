@@ -12,6 +12,7 @@ import coral.window.appwindow;
 import coral.window.scrolledfiletree;
 import coral.component.filetree;
 import coral.component.tablabel;
+import coral.component.sourceeditor;
 
 State luaState;
 

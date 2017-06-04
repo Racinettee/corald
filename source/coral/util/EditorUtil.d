@@ -37,16 +37,18 @@ body
   return fullpath[index+1..$];
 }
 
-void addNewSourceEditor(Notebook nb, string fullpath = "")
+SourceEditor addNewSourceEditor(Notebook nb, string fullpath = "")
 {
   auto sourceEditor = new SourceEditor();
   nb.appendPage(sourceEditor, new TabLabel(fullpath == "" ? defaultTitle : shortName(fullpath), sourceEditor, fullpath));
+  return sourceEditor;
 }
 
-void addNewSourceEditor(Notebook nb, SourceBuffer sb, string fullpath = "")
+SourceEditor addNewSourceEditor(Notebook nb, SourceBuffer sb, string fullpath = "")
 {
   auto sourceEditor = new SourceEditor(sb);
   nb.appendPage(sourceEditor, new TabLabel(fullpath == "" ? defaultTitle : shortName(fullpath), sourceEditor, fullpath));
+  return sourceEditor;
 }
 
 T getItem(T)(Builder b, string n)

@@ -4,3 +4,6 @@
 [submodule "dep/lgi"]
 	path = dep/lgi
 	url = git@github.com:pavouk/lgi.git
+[submodule "dep/LuaJIT"]
+	path = dep/LuaJIT
+	url = git@github.com:LuaJIT/LuaJIT.git

@@ -1,5 +1,6 @@
 ﻿module coral.window.appwindow;
 
+import coral.plugin.callbackmanager;
 import coral.util.editor;
 import coral.debugger.idebugger;
 import coral.debugger.gdb;
@@ -79,7 +80,6 @@ class AppWindow : MainWindow
             s.push(this);
             return 1;
         }
-        import coral.plugin.callbackmanager : CallbackManager;
         CallbackManager.get().callHandlers(luaState, CallbackManager.EDITOR_CREATED, (s) => newWindowArgs(s));
 
         showAll();
@@ -196,8 +196,13 @@ class AppWindow : MainWindow
     private void hookMenuItems()
     {
         void newTab(MenuItem m) {
-            addNewSourceEditor(notebook);
+            auto sourceView = addNewSourceEditor(notebook);
             notebook.setCurrentPage(-1);
+            auto pushSourceView(State s) {
+                s.push(sourceView);
+                return 1;
+            }
+            CallbackManager.get().callHandlers(luaState, CallbackManager.TAB_CREATED, (s) => pushSourceView(s));
         }
         auto menuItem = getItem!MenuItem(builder, "menunewfile");
         menuItem.addOnActivate((m)=>newTab(m));
