@@ -45,12 +45,18 @@ T getItem(T)(Builder b, string n)
     return item;
 }
 
-alias FileOpenSaveCallback = void delegate (bool result, string filepath);
+alias FileOpenSaveCallback = void delegate (bool result, string filepath, TabLabel);
+private void onOpenFailed(bool result, string fp, TabLabel)
+{
+    import std.stdio : writeln;
+    if(!result)
+        writeln("Failed to open: "~fp);
+}
 
 private alias GAsyncReadyCallback = extern (C) void function(GObject* source_object, GAsyncResult* res, void* user_data);
 private alias GProgressCallback = extern (C) void function(long, long, void*);
 private alias GProgressCallbackNotify = extern (C) void function(void*);
-void openFile(Notebook notebook, const string filepath, FileOpenSaveCallback callback = null)
+void openFile(Notebook notebook, const string filepath, FileOpenSaveCallback callback = (r, f, tl) => onOpenFailed(r, f, tl))
 {
     int fileNo = notebook.isFileOpen(filepath);
     if(fileNo != -1)
@@ -88,10 +94,10 @@ void openFile(Notebook notebook, const string filepath, FileOpenSaveCallback cal
             GSimpleAsyncResult* simpleResult = cast(GSimpleAsyncResult*)result;
             if(userDat.loader.loadFinish(new SimpleAsyncResult(simpleResult)))
             {
-                userDat.notebook.addPage(new SourceEditor(userDat.sourceBuf), shortName(userDat.filepath), userDat.filepath);
+                auto tabLabel = userDat.notebook.addPage(new SourceEditor(userDat.sourceBuf), shortName(userDat.filepath), userDat.filepath);
                 userDat.notebook.setCurrentPage(-1);
                 if(userDat.callback)
-                    userDat.callback(true, userDat.filepath);
+                    userDat.callback(true, userDat.filepath, tabLabel);
             }
             else
             {
@@ -102,7 +108,7 @@ void openFile(Notebook notebook, const string filepath, FileOpenSaveCallback cal
         {
             writeln(e.msg);
             if(userDat.callback)
-                userDat.callback(false, userDat.filepath);
+                userDat.callback(false, userDat.filepath, null);
         }
         finally
         {
@@ -157,7 +163,7 @@ void saveFile(Notebook notebook, string filepath, FileOpenSaveCallback callback 
                 writeln("File saved");
                 userData.tablabel.setTitleAndPath(userData.filepath);
                 if(userData.callback)
-                userData.callback(true, userData.filepath);
+                    userData.callback(true, userData.filepath, userData.tablabel);
             }
             else
             {
@@ -168,7 +174,7 @@ void saveFile(Notebook notebook, string filepath, FileOpenSaveCallback callback 
         {
             writeln(e.msg);
             if(userData.callback)
-                userData.callback(false, userData.filepath);
+                userData.callback(false, userData.filepath, null);
         }
         finally
         {

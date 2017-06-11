@@ -28,9 +28,14 @@ class Notebook : GtkNotebook
     }
     void addPageForPath(string path)
     {
-        if(isFileOpen(path) < 0)
+        auto fileNo = isFileOpen(path);
+        if(fileNo < 0)
         {
+            import coral.util.editor : openFile;
+            openFile(this, path);
         }
+        else
+            setCurrentPage(fileNo);
     }
     int isFileOpen(const string fullpath)
     {

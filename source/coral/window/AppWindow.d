@@ -109,7 +109,7 @@ class AppWindow : MainWindow
     @LuaExport("openFile", MethodType.method)
     public void openFile(string filepath)
     {
-        coral.util.editor.openFile(notebook, filepath);
+        notebook.addPageForPath(filepath);
     }
 
     /// Opens a file in this window, popping an open file dialog
