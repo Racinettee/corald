@@ -57,7 +57,9 @@ class AppWindow : MainWindow
         accelGroup = new AccelGroup;
         builder = new Builder;
         notebook = new Notebook;
-
+        notebook.setGroupName("coral-editor");
+        notebook.setScrollable(true);
+        
         if(!builder.addFromFile("interface/mainmenu.glade"))
         writeln("Could not load gladefile");
 
