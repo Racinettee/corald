@@ -5,6 +5,7 @@ import coral.util.editor;
 import coral.debugger.idebugger;
 import coral.debugger.gdb;
 import coral.debugger.manager;
+import coral.component.notebook;
 import coral.component.tablabel;
 import coral.window.scrolledfiletree;
 
@@ -15,7 +16,6 @@ import gtk.MainWindow;
 import gtk.Builder;
 import gtk.MenuBar;
 import gtk.MenuItem;
-import gtk.Notebook;
 import gtk.VBox;
 import gtk.ScrolledWindow;
 import gtk.FileChooserDialog;
@@ -75,7 +75,7 @@ class AppWindow : MainWindow
         vbox.packEnd(notebook, true, true, 0);
         add(vbox);
 
-        addNewSourceEditor(notebook);
+        notebook.newPage();
 	
         auto newWindowArgs(State s) {
             writeln("New window args function");
@@ -198,10 +198,11 @@ class AppWindow : MainWindow
     private void hookMenuItems()
     {
         void newTab(MenuItem m) {
-            auto sourceView = addNewSourceEditor(notebook);
+            auto tabLabel = notebook.newPage;
             notebook.setCurrentPage(-1);
             auto pushSourceView(State s) {
-                s.push(sourceView);
+                import coral.component.sourceeditor : SourceEditor;
+                s.push(cast(SourceEditor)tabLabel.page);
                 return 1;
             }
             CallbackManager.get().callHandlers(luaState, CallbackManager.TAB_CREATED, (s) => pushSourceView(s));

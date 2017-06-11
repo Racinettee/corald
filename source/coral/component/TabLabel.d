@@ -56,6 +56,8 @@ class TabLabel : Box
 	immutable(string) fullPath () const nothrow { return filePath; }
 	@safe @nogc @property 
 	immutable(string) title() const nothrow { return titleText; }
+	@safe @nogc @property
+	Widget page() nothrow { return childRef; }
 	
 	private string titleText;
 	private string filePath;

@@ -12,24 +12,24 @@ import reef.lua.state;
 
 void main()
 {
-	try
-	{
-		initDebugManager();	
-		string[] args = [];
+    try
+    {
+        initDebugManager();	
+        string[] args = [];
 
-		Main.init(args);
+        Main.init(args);
 
-		initPluginSystem();
-		auto appWin = new AppWindow;
+        initPluginSystem();
+        auto appWin = new AppWindow;
 
-		Main.run();
-	}
-	catch(Exception e)
-	{
-		writeln(e.msg);
-	}
-	finally
-	{
-		deinitDebugManager();
-	}
+        Main.run();
+    }
+    catch(Exception e)
+    {
+        writeln(e.msg);
+    }
+    finally
+    {
+        deinitDebugManager();
+    }
 }
