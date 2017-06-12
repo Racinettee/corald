@@ -6,6 +6,6 @@ corald is meant to be light weight and plugin extensible. The plugin system uses
 
 ### To build
 - First clone Racinettee/reef on the same level as corald
-- make gather
-- make deps
-- make buildrun
+- `make gather`
+- `make deps`
+- `make buildrun`
