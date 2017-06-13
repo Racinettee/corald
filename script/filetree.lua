@@ -36,12 +36,22 @@ function editor_created(window)
                     return build_path_to_file(row_parent) ..
                         '/' .. fstore:get_value(row, 1):get_string()
                 end
-                window:openFile(ftree:get_path() .. build_path_to_file(fstore:get_iter(treePath)))
+                local final_path = ftree:get_path() .. build_path_to_file(fstore:get_iter(treePath))
+                local file_mode = lfs.attributes(final_path).mode
+                if file_mode == 'file' then
+                    window:openFile(final_path)
+                elseif file_mode == 'directory' then
+                    if tree_view:row_expanded(treePath) then
+                        tree_view:collapse_row(treePath)
+                    else
+                        tree_view:expand_row(treePath, false)
+                    end
+                end
             end
             local moonWindow = Gtk.Window {
                 title = 'moon',
-                default_width = 400,
-                default_height = 300
+                default_width = 300,
+                default_height = 400
             }
             moonWindow:add(scrolled_window)
             moonWindow:show()
