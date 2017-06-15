@@ -1,7 +1,8 @@
 {
 	"fileVersion": 1,
 	"versions": {
-		"gtk-d": "3.3.1",
+		"fswatch": "0.2.0",
+		"gtk-d": "3.6.5",
 		"luad": "~master",
 		"nluad": "0.0.2",
 		"reef": "0.0.0"

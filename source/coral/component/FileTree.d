@@ -1,6 +1,9 @@
 module coral.component.filetree;
 
+import core.atomic;
 import core.thread;
+
+import fswatch;
 
 import gdk.Pixbuf : Pixbuf;
 import gtk.IconTheme : IconTheme;
@@ -85,6 +88,45 @@ class FileTree : TreeView
       Pixbuf newIcon = iconTheme.hasIcon(fileThemeName) ? iconTheme.lookupIcon(fileThemeName, size, lookupFlags).loadIcon : fileIcon;
       fileIcons[extName] = newIcon;
       return newIcon;
+    }
+  }
+  private class DirectoryMonitorThread : Thread
+  {
+    private void run()
+    {
+      immutable int period = 200;
+      atomicStore(stopToken, false);
+      auto watcher = FileWatch(path);
+      while(!atomicLoad(stopToken))
+      {
+        auto events = watcher.getEvents();
+        foreach(event; events)
+        {
+          final switch(event.type) with(FileChangeEventType)
+          {
+            case createSelf:
+              break;
+            case removeSelf:
+              break;
+            case create:
+              break;
+            case remove:
+              break;
+            case rename:
+              break;
+            case modify:
+              break;
+          }
+        }
+        Thread.sleep(period.msecs);
+      }
+    }
+    private string watchPath;
+    @property const string path() nothrow { return watchPath; }
+    private bool stopToken;
+    void stop()
+    {
+        atomicStore(stopToken, true);
     }
   }
   public this(string path)

@@ -1,11 +1,12 @@
 {
-	"name": "corald",
-	"targetType": "executable",
-	"description": "A minimal D application.",
-	"copyright": "Copyright © 2016, steve",
-	"authors": ["Racinettee"],
-	"dependencies": {
-		"gtk-d": "~>3.3.1",
-		"reef": "~>0.0.0"
-	}
+    "name": "corald",
+    "targetType": "executable",
+    "description": "A minimal D application.",
+    "copyright": "Copyright © 2016, steve",
+    "authors": ["Racinettee"],
+    "dependencies": {
+        "fswatch": "~>0.2.0",
+        "gtk-d": "~>3.6.5",
+        "reef": "~>0.0.0"
+    }
 }
