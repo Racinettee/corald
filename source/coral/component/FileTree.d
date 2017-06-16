@@ -17,13 +17,14 @@ import reef.lua.attrib;
 import std.algorithm;
 import std.array;
 import std.file;
+import std.stdio;
 import std.path;
 import std.typecons;
 
 @LuaExport("treeView")
 class FileTree : TreeView
 {
-  class FileIteratingThread : Thread
+  package class FileIteratingThread : Thread
   {
     string path;
     TreeStore store;
@@ -90,10 +91,16 @@ class FileTree : TreeView
       return newIcon;
     }
   }
-  private class DirectoryMonitorThread : Thread
+  package class DirectoryMonitorThread : Thread
   {
+    this(const string wpath)
+    {
+      watchPath = wpath;
+      super(&run);
+    }
     private void run()
     {
+      writeln("File watching thread created");
       immutable int period = 200;
       atomicStore(stopToken, false);
       auto watcher = FileWatch(path);
@@ -115,15 +122,17 @@ class FileTree : TreeView
             case rename:
               break;
             case modify:
+              writeln("A file was modified");
               break;
           }
         }
         Thread.sleep(period.msecs);
       }
+      writeln("File watching thread finished");
     }
     private string watchPath;
     @property const string path() nothrow { return watchPath; }
-    private bool stopToken;
+    private shared bool stopToken;
     void stop()
     {
         atomicStore(stopToken, true);
@@ -150,6 +159,9 @@ class FileTree : TreeView
     new FileIteratingThread(path, store).start();
     appendColumn(column);
     showAll;
+    auto dirMonitorThread = new DirectoryMonitorThread(path);
+    dirMonitorThread.start();
+    addOnDestroy((w) => dirMonitorThread.stop());
   }
   @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
   FileTree self;
@@ -157,3 +169,4 @@ class FileTree : TreeView
   @LuaExport("path", MethodType.none, "", RetType.none, MemberType.none)
   string path;
 }
+
