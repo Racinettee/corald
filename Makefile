@@ -7,12 +7,14 @@ all: gather deps corald
 build:
 	dub build --parallel
 	mkdir -p bin
-	cp ./corald ./bin
 
 run:
 	./bin/corald
 
-buildrun: build run
+copy:
+	cp ./corald ./bin
+
+buildrun: build copy run
 
 deps:
 	make -C dep/LuaJIT
@@ -27,10 +29,14 @@ deps:
 	cp dep/lgi/lgi/*.lua script/lgi
 	cp -R dep/lgi/lgi/override script/lgi
 
-gather:
+submodule:
 	git submodule init
+    
+upgrade:
 	git submodule update
 	dub upgrade --missing-only
+
+gather: submodule upgrade
 	echo "install library libgirepository1.0-dev with apt-get on ubuntu"
 
 clean:
