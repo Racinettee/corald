@@ -1,5 +1,7 @@
 module coral.component.filetree;
 
+import coral.util.threads.stoppable;
+
 import core.atomic;
 import core.thread;
 
@@ -24,7 +26,7 @@ import std.typecons;
 @LuaExport("treeView")
 class FileTree : TreeView
 {
-  package class FileIteratingThread : Thread
+  package class FileIteratingThread : Thread, IStoppable
   {
     string path;
     TreeStore store;
@@ -47,6 +49,9 @@ class FileTree : TreeView
       store.setValue(topParent, 0, folderIcon);
       store.setValue(topParent, 1, baseName(path));
       dirwalk(path, topParent);
+    }
+    void stop()
+    {
     }
     /// Fill out the tree store
     private void dirwalk(string path, TreeIter parent)
@@ -91,7 +96,7 @@ class FileTree : TreeView
       return newIcon;
     }
   }
-  package class DirectoryMonitorThread : Thread
+  package class DirectoryMonitorThread : Thread, IStoppable
   {
     this(const string wpath)
     {
@@ -161,7 +166,12 @@ class FileTree : TreeView
     showAll;
     auto dirMonitorThread = new DirectoryMonitorThread(path);
     dirMonitorThread.start();
-    addOnDestroy((w) => dirMonitorThread.stop());
+    //addOnDestroy((w) => dirMonitorThread.stop());
+    addOnUnrealize((w) {
+        writeln("Top window deleted");
+        dirMonitorThread.stop();
+        dirMonitorThread.join();
+    });
   }
   @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
   FileTree self;

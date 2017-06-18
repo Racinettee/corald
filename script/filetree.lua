@@ -1,6 +1,7 @@
 lgi = require 'lgi'
 lfs = require 'lfs'
 Gtk = lgi.require('Gtk')
+Gdk = lgi.require('Gdk')
 
 function editor_created(window)
     local menu_item = Gtk.MenuItem {
