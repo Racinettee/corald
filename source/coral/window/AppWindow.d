@@ -1,5 +1,7 @@
 ﻿module coral.window.appwindow;
 
+import core.thread;
+
 import coral.plugin.callbackmanager;
 import coral.util.editor;
 import coral.debugger.idebugger;

@@ -6,12 +6,12 @@ all: gather deps corald
 
 build:
 	dub build --parallel
-	mkdir -p bin
 
 run:
 	./bin/corald
 
 copy:
+	mkdir -p bin
 	cp ./corald ./bin
 
 buildrun: build copy run
