@@ -14,7 +14,7 @@ package class DirectoryMonitorThread : Thread, IStoppable
     this(const string wpath)
     {
         watchPath = wpath;
-        super(&run);
+        super();
     }
     private void run()
     {
