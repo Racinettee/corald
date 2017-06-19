@@ -4,12 +4,11 @@ import core.thread;
 
 private ThreadGroup threadGroup;
 
-this()
+static this()
 {
     threadGroup = new ThreadGroup();
 }
 
 void joinAll()
 {
-    for
 }

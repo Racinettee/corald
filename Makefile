@@ -1,11 +1,11 @@
-LUADIR=`pwd`/dep/LuaJIT-2.0.4/src
+LUADIR=`pwd`/dep/LuaJIT/src
 LUA_INC=$(LUADIR)
 LUA_LIBDIR=$(LUADIR)
 
 all: gather deps corald
 
 build:
-	dub build --parallel
+	dub build --parallel --nodeps
 
 run:
 	./bin/corald
@@ -44,3 +44,4 @@ clean:
 	make -C dep/lgi clean
 	make -C dep/luafilesystem clean
 	rm -f corald
+	rm -rf dep/bin bin
