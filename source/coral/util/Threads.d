@@ -1,8 +1,8 @@
-module util.app.threads;
+module coral.util.app.threads;
 
 import core.thread;
 
-private ThreadGroup threadGroup;
+private static ThreadGroup threadGroup;
 
 static this()
 {
@@ -11,4 +11,5 @@ static this()
 
 void joinAll()
 {
+    threadGroup.joinAll();
 }

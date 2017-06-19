@@ -3,6 +3,7 @@ module coral.main;
 import coral.window.appwindow;
 import coral.plugin.framework;
 import coral.debugger.manager;
+import coral.util.app.threads;
 
 import std.stdio : writeln;
 
@@ -31,5 +32,6 @@ void main()
     finally
     {
         deinitDebugManager();
+        joinAllThreads();
     }
 }
