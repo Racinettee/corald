@@ -1,34 +1,44 @@
 module coral.util.app.threads;
 
 import core.thread;
+import core.atomic;
 
-class StoppableThread: Thread
+class CancellationToken
 {
-    abstract void run();
-    abstract void stop();
-    this()
+    this() { }
+    this(Thread thread)
     {
-        super(&runWrapper);
+        associatedThread = thread;
     }
-    private void runWrapper()
+    pure void opAssign(bool value) nothrow @nogc @safe
     {
-        run();
+        atomicStore(cancel, value);
     }
+    pure bool opCast(bool) nothrow @nogc @safe
+    {
+        return atomicLoad(cancel);
+    }
+    @property Thread thread() nothrow
+    {
+        return associatedThread;
+    }
+    @property bool isCancelled()
+    {
+        return opCast!(bool);
+    }
+    private shared bool cancel = false;
+    private Thread associatedThread = null;
 }
 
-private static ThreadGroup threadGroup;
+public shared CancellationToken globalCancellation;
 
-static this()
-{
-    threadGroup = new ThreadGroup();
-}
 
-void addThread(StoppableThread thread)
+abstract class StoppableThread
 {
-    threadGroup.add(thread);
-}
-
-void joinAllThreads()
-{
-    threadGroup.joinAll();
+    ~this()
+    {
+        import std.stdio: writeln;
+        writeln("stoppable thread deleted");
+    }
+    abstract void stop()
 }

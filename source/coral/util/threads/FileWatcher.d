@@ -1,28 +1,28 @@
 module coral.util.threads.filewatcher;
 
-import coral.util.threads.stoppable;
+import coral.util.app.threads;
 
-import core.atomic;
-import core.thread;
+import core.time;
+import std.concurrency;
 
 import fswatch;
 
 import std.stdio;
 
-package class DirectoryMonitorThread : Thread, IStoppable
+package class DirectoryMonitorThread : StoppableThread
 {
     this(const string wpath)
     {
         watchPath = wpath;
-        super();
+        super(&run, wpath);
     }
-    private void run()
+    private static void run(string wpath)
     {
         writeln("File watching thread created");
         immutable int period = 200;
-        atomicStore(stopToken, false);
-        auto watcher = FileWatch(path);
-        while(!atomicLoad(stopToken))
+        auto watcher = FileWatch(wpath);
+        bool running = true;
+        while(running)
         {
             auto events = watcher.getEvents();
             foreach(event; events)
@@ -44,15 +44,11 @@ package class DirectoryMonitorThread : Thread, IStoppable
                         break;
                 }
             }
-            Thread.sleep(period.msecs);
+            receiveTimeout(dur!"msecs"(period),
+                (bool v) { running = false; });
         }
         writeln("File watching thread finished");
     }
     private string watchPath;
     @property const string path() nothrow { return watchPath; }
-    private shared bool stopToken;
-    void stop()
-    {
-       atomicStore(stopToken, true);
-    }
 }
