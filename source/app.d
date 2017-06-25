@@ -32,5 +32,6 @@ void main()
     finally
     {
         deinitDebugManager();
+        joinAllThreads();
     }
 }

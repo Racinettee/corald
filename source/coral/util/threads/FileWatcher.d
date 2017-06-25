@@ -9,20 +9,18 @@ import fswatch;
 
 import std.stdio;
 
-package class DirectoryMonitorThread : StoppableThread
+package class DirectoryMonitorThread : CancellableThread
 {
     this(const string wpath)
     {
         watchPath = wpath;
-        super(&run, wpath);
     }
-    private static void run(string wpath)
+    override void run()
     {
         writeln("File watching thread created");
         immutable int period = 200;
-        auto watcher = FileWatch(wpath);
-        bool running = true;
-        while(running)
+        auto watcher = FileWatch(watchPath);
+        while(true)
         {
             auto events = watcher.getEvents();
             foreach(event; events)
@@ -44,8 +42,9 @@ package class DirectoryMonitorThread : StoppableThread
                         break;
                 }
             }
-            receiveTimeout(dur!"msecs"(period),
-                (bool v) { running = false; });
+            if(isCancelled)
+                break;
+            sleep(period.msecs);
         }
         writeln("File watching thread finished");
     }

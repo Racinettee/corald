@@ -3,42 +3,71 @@ module coral.util.app.threads;
 import core.thread;
 import core.atomic;
 
-class CancellationToken
+shared class CancellationToken
 {
     this() { }
-    this(Thread thread)
+    pure void cancel() nothrow @nogc @safe
     {
-        associatedThread = thread;
+        atomicStore(cancelToken, true);
     }
-    pure void opAssign(bool value) nothrow @nogc @safe
+    @property pure bool isCancelled() nothrow @nogc @safe
     {
-        atomicStore(cancel, value);
+        return atomicLoad(cancelToken);
     }
-    pure bool opCast(bool) nothrow @nogc @safe
-    {
-        return atomicLoad(cancel);
-    }
-    @property Thread thread() nothrow
-    {
-        return associatedThread;
-    }
-    @property bool isCancelled()
-    {
-        return opCast!(bool);
-    }
-    private shared bool cancel = false;
-    private Thread associatedThread = null;
+    private shared bool cancelToken = false;
 }
 
 public shared CancellationToken globalCancellation;
+private shared CancellationToken[ThreadID] cancellationTokens;
+private ThreadGroup threadGroup;
 
-
-abstract class StoppableThread
+static this()
 {
+    threadGroup = new ThreadGroup;
+}
+shared static this()
+{
+    globalCancellation = new shared CancellationToken;
+}
+
+void joinAllThreads()
+{
+    foreach(token; cancellationTokens.byValue)
+        token.cancel;
+    threadGroup.joinAll();
+}
+
+abstract class CancellableThread : Thread
+{
+    private shared CancellationToken cancellationToken = null;
+    
+    this()
+    {
+        this(globalCancellation);
+    }
+    this(shared CancellationToken token)
+    {
+        cancellationToken = token;
+        cancellationTokens[id] = cancellationToken;
+        threadGroup.add(this);
+        super(&runWrapper);
+    }
     ~this()
     {
-        import std.stdio: writeln;
-        writeln("stoppable thread deleted");
+        cancellationToken = null;
     }
-    abstract void stop()
+    @property pure bool isCancelled() @nogc @safe
+    {
+        return cancellationToken.isCancelled;
+    }
+    shared(CancellationToken) getCancellationToken() nothrow @nogc @safe
+    {
+        return cancellationToken;
+    }
+    abstract void run();
+    private void runWrapper()
+    {
+        run();
+        cancellationTokens.remove(id);
+    }
 }

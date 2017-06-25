@@ -26,7 +26,7 @@ import std.typecons;
 @LuaExport("treeView")
 class FileTree : TreeView
 {
-  package class FileIteratingThread : StoppableThread, Thread
+  package class FileIteratingThread : CancellableThread
   {
     string path;
     TreeStore store;
@@ -53,8 +53,7 @@ class FileTree : TreeView
     /// Fill out the tree store
     private void dirwalk(string path, TreeIter parent)
     {
-      immutable int timeout = -1;
-      if(atomicLoad(stopToken))
+      if(isCancelled)
         return;
       auto nameDirPairs = array(dirEntries(path, SpanMode.shallow).map!(a => tuple(a.name, a.isDir)));
       // Sort the files by name
@@ -115,20 +114,16 @@ class FileTree : TreeView
     import gtkc.gdkpixbuf : gdk_pixbuf_get_type;
     store = new TreeStore([gdk_pixbuf_get_type(), GType.STRING]);
     super(store);
-    new FileIteratingThread(path, store);
+    new FileIteratingThread(path, store).start();
     appendColumn(column);
     showAll;
     auto dirMonitorThread = new DirectoryMonitorThread(path);
+    dirMonitorThread.start();
   }
   @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
   FileTree self;
   TreeStore store;
   @LuaExport("path", MethodType.none, "", RetType.none, MemberType.none)
   string path;
-  shared bool stopToken = false;
-  override void stop()
-  {
-    atomicStore(stopToken, true);
-  }
 }
 
