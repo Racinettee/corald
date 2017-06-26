@@ -49,5 +49,5 @@ package class DirectoryMonitorThread : CancellableThread
         writeln("File watching thread finished");
     }
     private string watchPath;
-    @property const string path() nothrow { return watchPath; }
+    @property pure const string path() nothrow @nogc @safe { return watchPath; }
 }
