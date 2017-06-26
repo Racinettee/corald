@@ -18,7 +18,7 @@ package class DirectoryMonitorThread : CancellableThread
     override void run()
     {
         writeln("File watching thread created");
-        immutable int period = 200;
+        immutable int period = 150;
         auto watcher = FileWatch(watchPath);
         while(true)
         {
