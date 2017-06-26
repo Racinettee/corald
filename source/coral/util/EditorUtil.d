@@ -18,7 +18,7 @@ import coral.component.notebook;
 import coral.component.tablabel;
 import coral.component.sourceeditor;
 
-private const string defaultTitle = "New File";
+private immutable string defaultTitle = "New File";
 
 public:
 

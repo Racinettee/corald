@@ -1,10 +1,11 @@
 module coral.component.filetree;
 
-import coral.util.threads.stoppable;
+import coral.util.app.threads;
 import coral.util.threads.filewatcher;
 
-import core.atomic;
+import core.time;
 import core.thread;
+import core.atomic;
 
 import gdk.Pixbuf : Pixbuf;
 import gtk.IconTheme : IconTheme;
@@ -25,7 +26,7 @@ import std.typecons;
 @LuaExport("treeView")
 class FileTree : TreeView
 {
-  package class FileIteratingThread : Thread, IStoppable
+  package class FileIteratingThread : CancellableThread
   {
     string path;
     TreeStore store;
@@ -35,26 +36,25 @@ class FileTree : TreeView
     IconTheme iconTheme;
     package this(string path, TreeStore initialStore)
     {
-      super(&run);
       this.path = path;
       store = initialStore;
       iconTheme = IconTheme.getDefault();
       folderIcon = iconTheme.lookupIcon("folder", 16, GtkIconLookupFlags.FORCE_SVG).loadIcon;
       fileIcon = iconTheme.lookupIcon("text-x-generic", 16, GtkIconLookupFlags.FORCE_SVG).loadIcon;
+      super();
     }
-    private void run()
+    override void run()
     {
       TreeIter topParent = store.createIter();
       store.setValue(topParent, 0, folderIcon);
       store.setValue(topParent, 1, baseName(path));
       dirwalk(path, topParent);
     }
-    void stop()
-    {
-    }
     /// Fill out the tree store
     private void dirwalk(string path, TreeIter parent)
     {
+      if(isCancelled)
+        return;
       auto nameDirPairs = array(dirEntries(path, SpanMode.shallow).map!(a => tuple(a.name, a.isDir)));
       // Sort the files by name
       sort!((a, b) => a[0] < b[0])(nameDirPairs);
@@ -119,12 +119,6 @@ class FileTree : TreeView
     showAll;
     auto dirMonitorThread = new DirectoryMonitorThread(path);
     dirMonitorThread.start();
-    //addOnDestroy((w) => dirMonitorThread.stop());
-    addOnUnrealize((w) {
-        writeln("Top window deleted");
-        dirMonitorThread.stop();
-        dirMonitorThread.join();
-    });
   }
   @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
   FileTree self;

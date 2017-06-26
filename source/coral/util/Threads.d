@@ -1,34 +1,73 @@
 module coral.util.app.threads;
 
 import core.thread;
+import core.atomic;
 
-class StoppableThread: Thread
+shared class CancellationToken
 {
-    abstract void run();
-    abstract void stop();
-    this()
+    this() { }
+    pure void cancel() nothrow @nogc @safe
     {
-        super(&runWrapper);
+        atomicStore(cancelToken, true);
     }
-    private void runWrapper()
+    @property pure bool isCancelled() nothrow @nogc @safe
     {
-        run();
+        return atomicLoad(cancelToken);
     }
+    private shared bool cancelToken = false;
 }
 
-private static ThreadGroup threadGroup;
+public shared CancellationToken globalCancellation;
+private shared CancellationToken[ThreadID] cancellationTokens;
+private ThreadGroup threadGroup;
 
 static this()
 {
-    threadGroup = new ThreadGroup();
+    threadGroup = new ThreadGroup;
 }
-
-void addThread(StoppableThread thread)
+shared static this()
 {
-    threadGroup.add(thread);
+    globalCancellation = new shared CancellationToken;
 }
 
 void joinAllThreads()
 {
+    foreach(token; cancellationTokens.byValue)
+        token.cancel;
     threadGroup.joinAll();
+}
+
+abstract class CancellableThread : Thread
+{
+    private shared CancellationToken cancellationToken = null;
+    
+    this()
+    {
+        this(globalCancellation);
+    }
+    this(shared CancellationToken token)
+    {
+        cancellationToken = token;
+        cancellationTokens[id] = cancellationToken;
+        threadGroup.add(this);
+        super(&runWrapper);
+    }
+    ~this()
+    {
+        cancellationToken = null;
+    }
+    @property pure bool isCancelled() @nogc @safe
+    {
+        return cancellationToken.isCancelled;
+    }
+    shared(CancellationToken) getCancellationToken() nothrow @nogc @safe
+    {
+        return cancellationToken;
+    }
+    abstract void run();
+    private void runWrapper()
+    {
+        run();
+        cancellationTokens.remove(id);
+    }
 }
