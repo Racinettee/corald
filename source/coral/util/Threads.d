@@ -43,7 +43,7 @@ abstract class CancellableThread : Thread
     
     this()
     {
-        this(globalCancellation);
+        this(new shared CancellationToken);
     }
     this(shared CancellationToken token)
     {

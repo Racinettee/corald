@@ -41,7 +41,7 @@ class FileTree : TreeView
       iconTheme = IconTheme.getDefault();
       folderIcon = iconTheme.lookupIcon("folder", 16, GtkIconLookupFlags.FORCE_SVG).loadIcon;
       fileIcon = iconTheme.lookupIcon("text-x-generic", 16, GtkIconLookupFlags.FORCE_SVG).loadIcon;
-      super();
+      super(globalCancellation);
     }
     override void run()
     {
@@ -96,6 +96,8 @@ class FileTree : TreeView
     }
   }
   
+  //private shared CancellationToken watchThreadToken;
+  
   public this(string path)
   {
     this.path = path;
@@ -119,6 +121,12 @@ class FileTree : TreeView
     showAll;
     auto dirMonitorThread = new DirectoryMonitorThread(path);
     dirMonitorThread.start();
+    auto watchThreadToken = dirMonitorThread.getCancellationToken;
+    addOnDestroy((w) {
+        watchThreadToken.cancel();
+        dirMonitorThread = null;
+        watchThreadToken = null;
+    });
   }
   @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
   FileTree self;
