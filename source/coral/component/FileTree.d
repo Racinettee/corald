@@ -96,8 +96,6 @@ class FileTree : TreeView
     }
   }
   
-  //private shared CancellationToken watchThreadToken;
-  
   public this(string path)
   {
     this.path = path;
@@ -108,6 +106,7 @@ class FileTree : TreeView
     import gtk.CellRendererText : CellRendererText;
     auto cellRenderPixbuf = new CellRendererPixbuf();
     auto cellRenderText = new CellRendererText();
+    cellRenderText.setProperty("editable", 1);
     column.packStart(cellRenderPixbuf, false);
     column.packEnd(cellRenderText, true);
     column.addAttribute(cellRenderPixbuf, "pixbuf", 0);

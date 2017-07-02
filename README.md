@@ -9,3 +9,4 @@ corald is meant to be light weight and plugin extensible. The plugin system uses
 - `make gather`
 - `make deps`
 - `make buildrun`
+
