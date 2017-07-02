@@ -43,6 +43,8 @@ function editor_created(window)
     context_menu:append(Gtk.MenuItem {
         label = 'Rename',
         on_activate = function()
+            local selected_row = get_filetree_selection()
+            local store, row_iter = selected_row:get_selected()
         end
     })
     context_menu:append(Gtk.MenuItem {
