@@ -1,6 +1,7 @@
 lgi = require 'lgi'
 Gtk = lgi.require('Gtk')
 Gdk = lgi.require('Gdk')
+GObject = lgi.require('GObject')
 local lfs = require 'lfs'
 local fileutil = require 'fileutil'
 
@@ -29,8 +30,10 @@ function editor_created(window)
             if row_iter then
                 local file_path = ftree:get_path() .. build_path_to_file(row_iter)
                 if not fileutil.is_dir(file_path) then
-                    file_path = fileutil.path_for_file(file_path)
+                    file_path = fileutil.trim_off_filename(file_path)
                 end
+                local new_row = store:append(store:iter_parent(row_iter))
+                store:set_value(new_row, 1, GObject.Value(GObject.Type.STRING, 'New File ;)'))
                 file = io.open(file_path .. 'New File', 'w')
                 file:close()
             end
@@ -44,7 +47,7 @@ function editor_created(window)
             if row_iter then
                 local file_path = ftree:get_path() .. build_path_to_file(row_iter)
                 if not fileutil.is_dir(file_path) then
-                    file_path = fileutil.path_for_file(file_path)
+                    file_path = fileutil.trim_off_filename(file_path)
                 end
                 lfs.mkdir(file_path .. 'New Folder')
             end
