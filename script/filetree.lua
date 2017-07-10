@@ -5,7 +5,7 @@ Gdk = lgi.require('Gdk')
 
 function editor_created(window)
     local function is_file_dir(filepath)
-        return lfs.attributes(final_path).mode == 'directory'
+        return lfs.attributes(filepath).mode == 'directory'
     end
     local function path_for_file(filepath)
         return filepath:sub(0, filepath:find("/[^/]*$"))
