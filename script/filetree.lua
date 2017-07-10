@@ -1,15 +1,10 @@
 lgi = require 'lgi'
-lfs = require 'lfs'
 Gtk = lgi.require('Gtk')
 Gdk = lgi.require('Gdk')
+local lfs = require 'lfs'
+local fileutil = require 'fileutil'
 
 function editor_created(window)
-    local function is_file_dir(filepath)
-        return lfs.attributes(filepath).mode == 'directory'
-    end
-    local function path_for_file(filepath)
-        return filepath:sub(0, filepath:find("/[^/]*$"))
-    end
     local ftree = nil
     local function get_filetree_selection()
         return Gtk.ScrolledWindow(ftree.window):get_child():get_selection()
@@ -33,8 +28,8 @@ function editor_created(window)
             local store, row_iter = selected_row:get_selected()
             if row_iter then
                 local file_path = ftree:get_path() .. build_path_to_file(row_iter)
-                if not is_file_dir(file_path) then
-                    file_path = path_for_file(file_path)
+                if not fileutil.is_dir(file_path) then
+                    file_path = fileutil.path_for_file(file_path)
                 end
                 file = io.open(file_path .. 'New File', 'w')
                 file:close()
@@ -48,8 +43,8 @@ function editor_created(window)
             local store, row_iter = selected_row:get_selected()
             if row_iter then
                 local file_path = ftree:get_path() .. build_path_to_file(row_iter)
-                if not is_file_dir(file_path) then
-                    file_path = path_for_file(file_path)
+                if not fileutil.is_dir(file_path) then
+                    file_path = fileutil.path_for_file(file_path)
                 end
                 lfs.mkdir(file_path .. 'New Folder')
             end
