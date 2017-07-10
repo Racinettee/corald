@@ -4,6 +4,12 @@ Gtk = lgi.require('Gtk')
 Gdk = lgi.require('Gdk')
 
 function editor_created(window)
+    local function is_file_dir(filepath)
+        return lfs.attributes(final_path).mode == 'directory'
+    end
+    local function path_for_file(filepath)
+        return filepath:sub(0, filepath:find("/[^/]*$"))
+    end
     local ftree = nil
     local function get_filetree_selection()
         return Gtk.ScrolledWindow(ftree.window):get_child():get_selection()
@@ -26,7 +32,26 @@ function editor_created(window)
             local selected_row = get_filetree_selection()
             local store, row_iter = selected_row:get_selected()
             if row_iter then
-                print(ftree:get_path() .. build_path_to_file(row_iter) .. ' right menu clicked')
+                local file_path = ftree:get_path() .. build_path_to_file(row_iter)
+                if not is_file_dir(file_path) then
+                    file_path = path_for_file(file_path)
+                end
+                file = io.open(file_path .. 'New File', 'w')
+                file:close()
+            end
+        end
+    })
+    context_menu:append(Gtk.MenuItem {
+        label = 'New Folder',
+        on_activate = function()
+            local selected_row = get_filetree_selection()
+            local store, row_iter = selected_row:get_selected()
+            if row_iter then
+                local file_path = ftree:get_path() .. build_path_to_file(row_iter)
+                if not is_file_dir(file_path) then
+                    file_path = path_for_file(file_path)
+                end
+                lfs.mkdir(file_path .. 'New Folder')
             end
         end
     })

@@ -106,11 +106,10 @@ class FileTree : TreeView
     import gtk.CellRendererText : CellRendererText;
     auto cellRenderPixbuf = new CellRendererPixbuf();
     auto cellRenderText = new CellRendererText();
-    cellRenderText.setProperty("editable", 1);
     column.packStart(cellRenderPixbuf, false);
     column.packEnd(cellRenderText, true);
     column.addAttribute(cellRenderPixbuf, "pixbuf", 0);
-    //column.addAttribute(cellRenderText, "text", 1);
+    column.addAttribute(cellRenderText, "text", 1);
     import gtkc.gobjecttypes : GType;
     import gtkc.gdkpixbuf : gdk_pixbuf_get_type;
     store = new TreeStore([gdk_pixbuf_get_type(), GType.STRING]);
