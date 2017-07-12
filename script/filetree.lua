@@ -5,7 +5,7 @@ GObject = lgi.require('GObject')
 local lfs = require 'lfs'
 local fileutil = require 'fileutil'
 
-function editor_created(window)
+local function editor_created(window)
     local ftree = nil
     local function get_filetree_selection()
         return Gtk.ScrolledWindow(ftree.window):get_child():get_selection()
