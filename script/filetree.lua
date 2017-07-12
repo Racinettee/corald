@@ -27,8 +27,10 @@ local function editor_created(window)
             -- Ftree is expected to have been initialized by the time this function is called
             local selected_row = get_filetree_selection()
             local store, row_iter = selected_row:get_selected()
+            
             if row_iter then
                 local file_path = ftree:get_path() .. build_path_to_file(row_iter)
+                
                 if not fileutil.is_dir(file_path) then
                     file_path = fileutil.trim_off_filename(file_path)
                 end
@@ -44,8 +46,10 @@ local function editor_created(window)
         on_activate = function()
             local selected_row = get_filetree_selection()
             local store, row_iter = selected_row:get_selected()
+            
             if row_iter then
                 local file_path = ftree:get_path() .. build_path_to_file(row_iter)
+                
                 if not fileutil.is_dir(file_path) then
                     file_path = fileutil.trim_off_filename(file_path)
                 end
@@ -88,11 +92,13 @@ local function editor_created(window)
                 action = 'SELECT_FOLDER'
             }
             local path = ''
+            
             if path_chooser:run() == Gtk.ResponseType.Cancel then
                 return
             end
             path = path_chooser:get_filename()
             path_chooser:destroy()
+            
             if path == '' then
                 return
             end
@@ -103,6 +109,7 @@ local function editor_created(window)
             function tree_view:on_row_activated(treePath, treeColumn)
                 local final_path = ftree:get_path() .. build_path_to_file(fstore:get_iter(treePath))
                 local file_mode = lfs.attributes(final_path).mode
+                
                 if file_mode == 'file' then
                     window:openFile(final_path)
                 elseif file_mode == 'directory' then
