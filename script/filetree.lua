@@ -7,6 +7,7 @@ local fileutil = require 'fileutil'
 
 local function editor_created(window)
     local ftree = nil
+    
     local function get_filetree_selection()
         return Gtk.ScrolledWindow(ftree.window):get_child():get_selection()
     end
@@ -36,6 +37,12 @@ local function editor_created(window)
                 end
                 local new_row = store:append(store:iter_parent(row_iter))
                 store:set_value(new_row, 1, GObject.Value(GObject.Type.STRING, 'New File ;)'))
+                local tree_view = Gtk.ScrolledWindow(ftree.window):get_child()
+                local path, col = tree_view:get_cursor()
+                print(path, col)
+                --local cell = col:focus_cell()
+                col:focus_cell()
+                tree_view:set_cursor(path, col, true)
                 file = io.open(file_path .. 'New File', 'w')
                 file:close()
             end
