@@ -13,6 +13,8 @@ import gtk.TreeIter : TreeIter;
 import gtk.TreeStore : TreeStore;
 import gtk.TreeView : TreeView;
 import gtkc.gtk : GtkIconLookupFlags;
+import gtk.CellRendererPixbuf : CellRendererPixbuf;
+import gtk.CellRendererText : CellRendererText;
 
 import reef.lua.attrib;
 
@@ -34,7 +36,7 @@ class FileTree : TreeView
     Pixbuf folderIcon;
     Pixbuf[string] fileIcons;
     IconTheme iconTheme;
-    package this(string path, TreeStore initialStore)
+    this(string path, TreeStore initialStore)
     {
       this.path = path;
       store = initialStore;
@@ -102,8 +104,6 @@ class FileTree : TreeView
     import gtk.TreeViewColumn : TreeViewColumn;
     auto column = new TreeViewColumn();
     column.setTitle("Files");
-    import gtk.CellRendererPixbuf : CellRendererPixbuf;
-    import gtk.CellRendererText : CellRendererText;
     auto cellRenderPixbuf = new CellRendererPixbuf();
     auto cellRenderText = new CellRendererText();
     column.packStart(cellRenderPixbuf, false);
@@ -126,6 +126,10 @@ class FileTree : TreeView
         watchThreadToken = null;
     });
   }
+  @LuaExport("cell_render_pixbuf", MethodType.none, "getCellRendererPixbufStruct()", RetType.none, MemberType.lightud)
+  CellRendererPixbuf cellRenderPixbuf;
+  @LuaExport("cell_render_text", MethodType.none, "getCellRendererTextStruct()", RetType.none, MemberType.lightud)
+  CellRendererText cellRenderText;
   @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
   FileTree self;
   TreeStore store;
