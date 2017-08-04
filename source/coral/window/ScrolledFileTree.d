@@ -21,6 +21,11 @@ class ScrolledFileTree : ScrolledWindow
     add(fileTree);
     showAll;
   }
+  @LuaExport("start_rename", MethodType.method, "", RetType.str, MemberType.none)
+  public void startRename(GtkTreeIter* iter)
+  {
+    fileTree.startRename(iter);
+  }
   @LuaExport("store", MethodType.none, "getTreeStoreStruct()", RetType.none, MemberType.lightud)
   TreeStore treeStore;
   @LuaExport("tree", MethodType.none, "", RetType.none, MemberType.userdat)

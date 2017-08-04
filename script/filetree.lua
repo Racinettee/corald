@@ -38,11 +38,14 @@ local function editor_created(window)
                 local new_row = store:append(store:iter_parent(row_iter))
                 print(new_row)
                 store:set_value(new_row, 1, GObject.Value(GObject.Type.STRING, 'New File ;)'))
+                store:set_value(new_row, 2, GObject.Value(GObject.Type.BOOLEAN, true))
                 local tree_view = Gtk.ScrolledWindow(ftree.window):get_child()
                 local text_column = tree_view:get_column(0)
                 text_column:focus_cell(Gtk.CellRendererText(ftree.cell_render_text))
+                print(store:get_path(new_row))
                 tree_view:scroll_to_cell(store:get_path(new_row), text_column, 0, 0, 0)
                 tree_view:set_cursor(store:get_path(new_row), text_column, true)
+                tree_view:grab_focus()
                 file = io.open(file_path .. 'New File', 'w')
                 file:close()
             end
@@ -79,6 +82,10 @@ local function editor_created(window)
         on_activate = function()
             local selected_row = get_filetree_selection()
             local store, row_iter = selected_row:get_selected()
+            
+            if row_iter then
+                ftree:start_rename(row_iter._native)
+            end
         end
     })
     context_menu:append(Gtk.MenuItem {
@@ -113,6 +120,9 @@ local function editor_created(window)
             local fstore = Gtk.TreeStore(ftree.store)
             local scrolled_window = Gtk.ScrolledWindow(ftree.window)
             local tree_view = scrolled_window:get_child()
+            Gtk.CellRendererText(ftree.cell_render_text).on_edited = function()
+                print('editing happened')
+            end
             function tree_view:on_row_activated(treePath, treeColumn)
                 local final_path = ftree:get_path() .. build_path_to_file(fstore:get_iter(treePath))
                 local file_mode = lfs.attributes(final_path).mode

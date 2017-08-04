@@ -12,7 +12,11 @@ import gtk.IconTheme : IconTheme;
 import gtk.TreeIter : TreeIter;
 import gtk.TreeStore : TreeStore;
 import gtk.TreeView : TreeView;
-import gtkc.gtk : GtkIconLookupFlags;
+import gtk.TreeViewColumn : TreeViewColumn;
+//import gtkc.gtk : GtkIconLookupFlags, GtkTreeIter, GtkTreeRowReference, GtkTreePath;
+//import gtk.c.functions;
+import gtkc.gtktypes;
+import gtkc.gtk;
 import gtk.CellRendererPixbuf : CellRendererPixbuf;
 import gtk.CellRendererText : CellRendererText;
 
@@ -69,6 +73,7 @@ class FileTree : TreeView
           TreeIter newParent = store.append(parent);
           store.setValue(newParent, 0, folderIcon);
           store.setValue(newParent, 1, baseName(e[0]));
+          store.setValue(newParent, 2, true);
           dirwalk(e[0], newParent);
         }
         else
@@ -77,6 +82,7 @@ class FileTree : TreeView
           Pixbuf icon = findIcon(baseName(e[0]));
           store.setValue(newParent, 0, icon);
           store.setValue(newParent, 1, baseName(e[0]));
+          store.setValue(newParent, 2, true);
         }
       }
     }
@@ -101,22 +107,23 @@ class FileTree : TreeView
   public this(string path)
   {
     this.path = path;
-    import gtk.TreeViewColumn : TreeViewColumn;
+    self = this;
+    import gtkc.gobjecttypes : GType;
+    import gtkc.gdkpixbuf : gdk_pixbuf_get_type;
+    store = new TreeStore([gdk_pixbuf_get_type(), GType.STRING, GType.BOOLEAN]);
+    super(store);
     auto column = new TreeViewColumn();
+    primaryColumn = column;
     column.setTitle("Files");
     auto cellRenderPixbuf = new CellRendererPixbuf();
-    auto cellRenderText = new CellRendererText();
+    cellRenderText = new CellRendererText();
     column.packStart(cellRenderPixbuf, false);
     column.packEnd(cellRenderText, true);
     column.addAttribute(cellRenderPixbuf, "pixbuf", 0);
     column.addAttribute(cellRenderText, "text", 1);
-    import gtkc.gobjecttypes : GType;
-    import gtkc.gdkpixbuf : gdk_pixbuf_get_type;
-    store = new TreeStore([gdk_pixbuf_get_type(), GType.STRING]);
-    super(store);
+    column.addAttribute(cellRenderText, "editable", 2);
     new FileIteratingThread(path, store).start();
     appendColumn(column);
-    showAll;
     auto dirMonitorThread = new DirectoryMonitorThread(path);
     dirMonitorThread.start();
     auto watchThreadToken = dirMonitorThread.getCancellationToken;
@@ -125,7 +132,33 @@ class FileTree : TreeView
         dirMonitorThread = null;
         watchThreadToken = null;
     });
+    showAll;
   }
+  @LuaExport("start_rename", MethodType.method, "", RetType.none)
+  public void startRename(GtkTreeIter* iter)
+  {
+    writeln("Gonna try and rename");
+    GtkTreeModel* treeStore = cast(GtkTreeModel*)store.getTreeStoreStruct();
+    GtkTreePath* path = gtk_tree_model_get_path(treeStore, iter);
+    GtkTreeRowReference* rowref = gtk_tree_row_reference_new(treeStore, path);
+    
+    gtk_widget_grab_focus(cast(GtkWidget*)getTreeViewStruct);
+    
+    if (gtk_tree_path_up(path))
+        gtk_tree_view_expand_to_path(getTreeViewStruct, path);
+        
+    gtk_tree_path_free(path);
+    
+    gtk_tree_view_column_focus_cell(
+        primaryColumn.getTreeViewColumnStruct,
+        cast(GtkCellRenderer*)cellRenderText.getCellRendererTextStruct);
+        
+    path = gtk_tree_row_reference_get_path(rowref),
+    gtk_tree_view_set_cursor(getTreeViewStruct, path,
+    primaryColumn.getTreeViewColumnStruct, 1);
+    gtk_tree_path_free(path);
+  }
+  TreeViewColumn primaryColumn;
   @LuaExport("cell_render_pixbuf", MethodType.none, "getCellRendererPixbufStruct()", RetType.none, MemberType.lightud)
   CellRendererPixbuf cellRenderPixbuf;
   @LuaExport("cell_render_text", MethodType.none, "getCellRendererTextStruct()", RetType.none, MemberType.lightud)
