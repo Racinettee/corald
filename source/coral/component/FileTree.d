@@ -73,7 +73,7 @@ class FileTree : TreeView
           TreeIter newParent = store.append(parent);
           store.setValue(newParent, 0, folderIcon);
           store.setValue(newParent, 1, baseName(e[0]));
-          store.setValue(newParent, 2, true);
+          store.setValue(newParent, 2, false);
           dirwalk(e[0], newParent);
         }
         else
@@ -82,7 +82,7 @@ class FileTree : TreeView
           Pixbuf icon = findIcon(baseName(e[0]));
           store.setValue(newParent, 0, icon);
           store.setValue(newParent, 1, baseName(e[0]));
-          store.setValue(newParent, 2, true);
+          store.setValue(newParent, 2, false);
         }
       }
     }
@@ -117,6 +117,7 @@ class FileTree : TreeView
     column.setTitle("Files");
     auto cellRenderPixbuf = new CellRendererPixbuf();
     cellRenderText = new CellRendererText();
+    cellRenderText.addOnEdited((s,d,f) => cellEdited(s,d,f));
     column.packStart(cellRenderPixbuf, false);
     column.packEnd(cellRenderText, true);
     column.addAttribute(cellRenderPixbuf, "pixbuf", 0);
@@ -137,12 +138,11 @@ class FileTree : TreeView
   @LuaExport("start_rename", MethodType.method, "", RetType.none)
   public void startRename(GtkTreeIter* iter)
   {
-    writeln("Gonna try and rename");
     GtkTreeModel* treeStore = cast(GtkTreeModel*)store.getTreeStoreStruct();
     GtkTreePath* path = gtk_tree_model_get_path(treeStore, iter);
     GtkTreeRowReference* rowref = gtk_tree_row_reference_new(treeStore, path);
-    
-    gtk_widget_grab_focus(cast(GtkWidget*)getTreeViewStruct);
+    store.setValue(new TreeIter(iter), 2, true);
+    grabFocus();
     
     if (gtk_tree_path_up(path))
         gtk_tree_view_expand_to_path(getTreeViewStruct, path);
@@ -154,9 +154,16 @@ class FileTree : TreeView
         cast(GtkCellRenderer*)cellRenderText.getCellRendererTextStruct);
         
     path = gtk_tree_row_reference_get_path(rowref),
-    gtk_tree_view_set_cursor(getTreeViewStruct, path,
-    primaryColumn.getTreeViewColumnStruct, 1);
+        gtk_tree_view_set_cursor(getTreeViewStruct, path,
+        primaryColumn.getTreeViewColumnStruct, 1);
     gtk_tree_path_free(path);
+  }
+  private void cellEdited(string path, string newText, CellRendererText)
+  {
+    TreeIter iter;
+    store.getIterFromString(iter, path);
+    store.setValue(iter, 1, newText);
+    store.setValue(iter, 2, false);
   }
   TreeViewColumn primaryColumn;
   @LuaExport("cell_render_pixbuf", MethodType.none, "getCellRendererPixbufStruct()", RetType.none, MemberType.lightud)

@@ -36,7 +36,6 @@ local function editor_created(window)
                     file_path = fileutil.trim_off_filename(file_path)
                 end
                 local new_row = store:append(store:iter_parent(row_iter))
-                print(new_row)
                 store:set_value(new_row, 1, GObject.Value(GObject.Type.STRING, 'New File ;)'))
                 store:set_value(new_row, 2, GObject.Value(GObject.Type.BOOLEAN, true))
                 ftree:start_rename(new_row._native)

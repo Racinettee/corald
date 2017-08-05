@@ -11,20 +11,11 @@ class SourceEditor : ScrolledWindow
 {
     this()
     {
-        editor = new SourceView();
-        editor.setAutoIndent(true);
-        editor.setHighlightCurrentLine(true);
-        editor.setIndentWidth(4);
-        editor.setInsertSpacesInsteadOfTabs(true);
-        editor.setShowLineNumbers(true);
-        editor.setSmartBackspace(true);
-        buffer = editor.getBuffer();
-        add(editor);
-        showAll();
+        this(null);
     }
     this(SourceBuffer sb)
     {
-        editor = new SourceView(sb);
+        editor = sb ? new SourceView(sb) : new SourceView();
         editor.setAutoIndent(true);
         editor.setHighlightCurrentLine(true);
         editor.setIndentWidth(4);
