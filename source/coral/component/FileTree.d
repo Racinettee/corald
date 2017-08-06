@@ -138,11 +138,11 @@ class FileTree : TreeView
   @LuaExport("start_rename", MethodType.method, "", RetType.none)
   public void startRename(GtkTreeIter* iter)
   {
-    GtkTreeModel* treeStore = cast(GtkTreeModel*)store.getTreeStoreStruct();
+    GtkTreeModel* treeStore = cast(GtkTreeModel*)store.getTreeStoreStruct;
     GtkTreePath* path = gtk_tree_model_get_path(treeStore, iter);
     GtkTreeRowReference* rowref = gtk_tree_row_reference_new(treeStore, path);
     store.setValue(new TreeIter(iter), 2, true);
-    grabFocus();
+    grabFocus;
     
     if (gtk_tree_path_up(path))
         gtk_tree_view_expand_to_path(getTreeViewStruct, path);
