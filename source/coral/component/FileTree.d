@@ -178,11 +178,8 @@ class FileTree : TreeView
     store.setValue(iter, 2, false);
     rename(origPath, path ~ pathForRow(iter));
   }
-  TreeViewColumn primaryColumn;
-  @LuaExport("cell_render_pixbuf", MethodType.none, "getCellRendererPixbufStruct()", RetType.none, MemberType.lightud)
-  CellRendererPixbuf cellRenderPixbuf;
-  @LuaExport("cell_render_text", MethodType.none, "getCellRendererTextStruct()", RetType.none, MemberType.lightud)
   CellRendererText cellRenderText;
+  TreeViewColumn primaryColumn;
   @LuaExport("treeView", MethodType.none, "getTreeViewStruct()", RetType.none, MemberType.lightud)
   FileTree self;
   TreeStore store;
