@@ -158,12 +158,25 @@ class FileTree : TreeView
         primaryColumn.getTreeViewColumnStruct, 1);
     gtk_tree_path_free(path);
   }
-  private void cellEdited(string path, string newText, CellRendererText)
+  string pathForRow(TreeIter rowIter)
+  {
+    version(Windows)
+        immutable char sep = '\\';
+    else
+        immutable char sep = '/';
+    TreeIter parent;
+    if (!store.iterParent(parent, rowIter))
+      return "";
+    return pathForRow(parent) ~ sep ~ store.getValueString(rowIter, 1);
+  }
+  private void cellEdited(string treePath, string newText, CellRendererText)
   {
     TreeIter iter;
-    store.getIterFromString(iter, path);
+    store.getIterFromString(iter, treePath);
+    string origPath = path ~ pathForRow(iter);
     store.setValue(iter, 1, newText);
     store.setValue(iter, 2, false);
+    rename(origPath, path ~ pathForRow(iter));
   }
   TreeViewColumn primaryColumn;
   @LuaExport("cell_render_pixbuf", MethodType.none, "getCellRendererPixbufStruct()", RetType.none, MemberType.lightud)
